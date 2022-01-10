@@ -1,0 +1,29 @@
+{
+  "name": "nos2x",
+  "description": "Nostr Signer Extension",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "icons": {
+    "16": "icons/icon-16x16.png",
+    "48": "icons/icon-48x48.png",
+    "128": "icons/icon-128x128.png"
+  },
+  "options_page": "options.html",
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": [
+      "content-script.js"
+    ]
+  }],
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';"
+}
