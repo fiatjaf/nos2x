@@ -1,6 +1,10 @@
+import browser from 'webextension-polyfill'
+
 // inject the script that will provide window.nostr
 let script = document.createElement('script')
-script.src = 'nostr-provider.js'
+script.setAttribute('async', 'false')
+script.setAttribute('type', 'text/javascript')
+script.setAttribute('src', browser.runtime.getURL('nostr-provider.js'))
 document.head.appendChild(script)
 
 // listen for messages from that script

@@ -32,6 +32,7 @@ window.nostr = {
 window.addEventListener('message', message => {
   if (
     !message.data ||
+    !message.data.response ||
     message.data.ext !== 'nos2x' ||
     !window.nostr._requests[message.data.id]
   )

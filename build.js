@@ -5,22 +5,16 @@ const alias = require('esbuild-plugin-alias')
 
 esbuild.build({
   bundle: true,
-  entryPoints: ['./extension/options.js'],
-  outfile: './extension/options.build.js',
+  entryPoints: {
+    'options.build': './extension/options.js',
+    'content-script.build': './extension/content-script.js',
+    'background.build': './extension/background.js'
+  },
+  outdir: './extension',
   plugins: [
     alias({
       stream: require.resolve('readable-stream')
     })
-  ]
-})
-
-esbuild.build({
-  bundle: true,
-  entryPoints: ['./extension/background.js'],
-  outfile: './extension/background.build.js',
-  plugins: [
-    alias({
-      stream: require.resolve('readable-stream')
-    })
-  ]
+  ],
+  sourcemap: 'inline'
 })
