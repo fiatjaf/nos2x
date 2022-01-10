@@ -6,19 +6,20 @@ document.head.appendChild(script)
 // listen for messages from that script
 window.addEventListener('message', async ev => {
   if (ev.source !== window) return
-  if (!ev.data || ev.data.ext !== 'nostr') {
+  if (!ev.data || ev.data.ext !== 'nos2x') {
     // pass on to background
-    var reply
+    var response
     try {
-      reply = browser.runtime.sendMessage({
-        ...ev.data,
+      response = browser.runtime.sendMessage({
+        type: ev.data.type,
+        params: ev.data.params,
         host: window.location.host
       })
     } catch (error) {
-      reply = {error}
+      response = {error}
     }
 
     // return response
-    window.postMessage({id: ev.data.id, reply})
+    window.postMessage({id: ev.data.id, ext: 'nos2x', response})
   }
 })

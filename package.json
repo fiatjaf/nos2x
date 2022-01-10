@@ -1,8 +1,11 @@
 {
   "dependencies": {
     "esbuild": "^0.14.11",
+    "esbuild-plugin-alias": "^0.2.1",
     "eslint": "^8.6.0",
+    "events": "^3.3.0",
     "nostr-tools": "^0.17.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "webextension-polyfill": "^0.8.0"
   }
 }

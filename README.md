@@ -9,7 +9,7 @@ It provides a `window.nostr` object which has the following methods:
 
 ```
 async window.nostr.getPublicKey(): string // returns your public key as hex
-async window.nostr.signEvent(event) // signs the given event in place
+async window.nostr.signEvent(event): string // returns the signature as hex
 ```
 
 ---
