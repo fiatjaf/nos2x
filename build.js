@@ -2,6 +2,7 @@
 
 const esbuild = require('esbuild')
 const alias = require('esbuild-plugin-alias')
+const nodeGlobals = require('@esbuild-plugins/node-globals-polyfill').default
 
 esbuild.build({
   bundle: true,
@@ -14,7 +15,11 @@ esbuild.build({
   plugins: [
     alias({
       stream: require.resolve('readable-stream')
-    })
+    }),
+    nodeGlobals()
   ],
-  sourcemap: 'inline'
+  sourcemap: 'inline',
+  define: {
+    global: 'window'
+  }
 })

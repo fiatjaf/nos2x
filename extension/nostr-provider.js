@@ -4,7 +4,7 @@ window.nostr = {
 
   async getPublicKey() {
     if (this._pubkey) return this._pubkey
-    this._pubkey = await this._call('getPublicKey')
+    this._pubkey = await this._call('getPublicKey', {})
     return this._pubkey
   },
 
@@ -39,7 +39,9 @@ window.addEventListener('message', message => {
     return
 
   if (message.data.response.error) {
-    window.nostr._requests[message.data.id].reject(message.data.response.error)
+    window.nostr._requests[message.data.id].reject(
+      new Error(`nos2x returned an error: ${message.data.response.error}`)
+    )
   } else {
     window.nostr._requests[message.data.id].resolve(message.data.response)
   }

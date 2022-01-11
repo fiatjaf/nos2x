@@ -5,9 +5,15 @@ import browser from 'webextension-polyfill'
 document
   .getElementById('privateKeyInput')
   .addEventListener('input', async ev => {
+    let key = document
+      .getElementById('privateKeyInput')
+      .value.toLowerCase()
+      .trim()
+    if (!key.match(/^[a-f0-9]{64}$/)) return
+
     try {
       await browser.storage.local.set({
-        private_key: document.getElementById('privateKeyInput').value
+        private_key: key
       })
       showMessage('saved!')
     } catch (err) {

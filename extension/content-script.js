@@ -8,22 +8,27 @@ script.setAttribute('src', browser.runtime.getURL('nostr-provider.js'))
 document.head.appendChild(script)
 
 // listen for messages from that script
-window.addEventListener('message', async ev => {
-  if (ev.source !== window) return
-  if (!ev.data || ev.data.ext !== 'nos2x') {
-    // pass on to background
-    var response
-    try {
-      response = browser.runtime.sendMessage({
-        type: ev.data.type,
-        params: ev.data.params,
-        host: window.location.host
-      })
-    } catch (error) {
-      response = {error}
-    }
+window.addEventListener('message', async message => {
+  if (message.source !== window) return
+  if (!message.data) return
+  if (!message.data.params) return
+  if (message.data.ext !== 'nos2x') return
 
-    // return response
-    window.postMessage({id: ev.data.id, ext: 'nos2x', response})
+  // pass on to background
+  var response
+  try {
+    response = await browser.runtime.sendMessage({
+      type: message.data.type,
+      params: message.data.params,
+      host: window.location.host
+    })
+  } catch (error) {
+    response = {error}
   }
+
+  // return response
+  window.postMessage(
+    {id: message.data.id, ext: 'nos2x', response},
+    message.origin
+  )
 })
