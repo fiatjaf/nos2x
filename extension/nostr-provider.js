@@ -40,7 +40,7 @@ window.addEventListener('message', message => {
 
   if (message.data.response.error) {
     window.nostr._requests[message.data.id].reject(
-      new Error(`nos2x returned an error: ${message.data.response.error}`)
+      new Error(`nos2x: ${message.data.response.error}`)
     )
   } else {
     window.nostr._requests[message.data.id].resolve(message.data.response)

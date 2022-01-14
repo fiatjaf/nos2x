@@ -1,7 +1,6 @@
 {
-  "root": true,
   "parserOptions": {
-    "ecmaVersion": 9,
+    "ecmaVersion": 2020,
     "ecmaFeatures": {
       "jsx": true
     },
@@ -15,6 +14,7 @@
   },
 
   "plugins": [
+    "react",
     "babel"
   ],
 
@@ -32,6 +32,9 @@
   },
 
   "rules": {
+    "react/jsx-uses-vars": 2,
+    "react/jsx-no-undef": 2,
+    "react/jsx-uses-react": 2,
     "accessor-pairs": 2,
     "arrow-spacing": [2, { "before": true, "after": true }],
     "block-spacing": [2, "always"],
@@ -138,6 +141,7 @@
     "valid-typeof": 2,
     "wrap-iife": [2, "any"],
     "yield-star-spacing": [2, "both"],
-    "yoda": [0]
+    "yoda": 0,
+    "no-unsafe-optional-chaning": 0
   }
 }

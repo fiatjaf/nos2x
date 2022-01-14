@@ -20,7 +20,7 @@ window.addEventListener('message', async message => {
     response = await browser.runtime.sendMessage({
       type: message.data.type,
       params: message.data.params,
-      host: window.location.host
+      host: location.host
     })
   } catch (error) {
     response = {error}
