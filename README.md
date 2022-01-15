@@ -12,6 +12,10 @@ async window.nostr.getPublicKey(): string // returns your public key as hex
 async window.nostr.signEvent(event): string // returns the signature as hex
 ```
 
+## Demo Video
+
+https://user-images.githubusercontent.com/1653275/149637382-65d50a85-fe30-4259-b7de-99c88b089b53.mp4
+
 ## Screenshots
 
 ![](screenshot1.png)
