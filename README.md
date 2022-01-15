@@ -1,5 +1,5 @@
 # nos2x
-### notes and other stuff signed by an extension)
+### notes and other stuff signed by an extension
 
 ## Nostr Signer Extension
 
@@ -11,6 +11,13 @@ It provides a `window.nostr` object which has the following methods:
 async window.nostr.getPublicKey(): string // returns your public key as hex
 async window.nostr.signEvent(event): string // returns the signature as hex
 ```
+
+## Screenshots
+
+![](screenshot1.png)
+![](screenshot2.png)
+![](screenshot3.png)
+![](screenshot4.png)
 
 ---
 

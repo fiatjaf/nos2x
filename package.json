@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build": "./build.js",
-    "watch": "ag -l --js | entr ./build.js"
+    "watch": "ag -l --js | entr ./build.js",
+    "package": "cd extension; zip -r archive *; cd ..; mv extension/archive.zip ./nos2x.zip"
   }
 }
