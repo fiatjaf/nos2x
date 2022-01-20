@@ -1,7 +1,7 @@
 {
   "name": "nos2x",
   "description": "Nostr Signer Extension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage_url": "https://github.com/fiatjaf/nos2x",
   "manifest_version": 2,
   "icons": {
@@ -28,7 +28,6 @@
     ]
   }],
   "permissions": [
-    "activeTab",
     "storage"
   ],
   "web_accessible_resources": ["nostr-provider.js"],
