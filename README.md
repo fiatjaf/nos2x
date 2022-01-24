@@ -16,6 +16,12 @@ async window.nostr.signEvent(event): string // returns the signature as hex
 
 https://user-images.githubusercontent.com/1653275/149637382-65d50a85-fe30-4259-b7de-99c88b089b53.mp4
 
+## Install
+
+* [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/nos2x/)
+* Chrome Extension - this evil browser requires a big refactor for their "v3" thing, work-in-progress
+* `git clone https://github.com/fiatjaf/nos2x && cd nos2x && yarn && yarn run build` then load as unpackaged on chrome://extensions with "developer mode" enabled
+
 ## Screenshots
 
 ![](screenshot1.png)
