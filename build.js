@@ -4,6 +4,8 @@ const esbuild = require('esbuild')
 const alias = require('esbuild-plugin-alias')
 const nodeGlobals = require('@esbuild-plugins/node-globals-polyfill').default
 
+const prod = process.argv.indexOf('prod') !== -1
+
 esbuild
   .build({
     bundle: true,
@@ -21,7 +23,7 @@ esbuild
       }),
       nodeGlobals({buffer: true})
     ],
-    sourcemap: 'inline',
+    sourcemap: prod ? false : 'inline',
     define: {
       global: 'window'
     }
