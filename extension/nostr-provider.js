@@ -26,6 +26,16 @@ window.nostr = {
         '*'
       )
     })
+  },
+
+  nip04: {
+    encrypt(peer, plaintext) {
+      return window.nostr._call('nip04.encrypt', {peer, plaintext})
+    },
+
+    decrypt(peer, ciphertext) {
+      return window.nostr._call('nip04.decrypt', {peer, ciphertext})
+    }
   }
 }
 
@@ -39,9 +49,9 @@ window.addEventListener('message', message => {
     return
 
   if (message.data.response.error) {
-    window.nostr._requests[message.data.id].reject(
-      new Error(`nos2x: ${message.data.response.error}`)
-    )
+    let error = new Error('nos2x: ' + message.data.response.error.message)
+    error.stack = message.data.response.error.stack
+    window.nostr._requests[message.data.id].reject(error)
   } else {
     window.nostr._requests[message.data.id].resolve(message.data.response)
   }

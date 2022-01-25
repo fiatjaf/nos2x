@@ -19,7 +19,7 @@ esbuild
       alias({
         stream: require.resolve('readable-stream')
       }),
-      nodeGlobals()
+      nodeGlobals({buffer: true})
     ],
     sourcemap: 'inline',
     define: {

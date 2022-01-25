@@ -2,17 +2,23 @@ import browser from 'webextension-polyfill'
 
 export const PERMISSIONS_REQUIRED = {
   getPublicKey: 1,
-  signEvent: 10
+  signEvent: 10,
+  'nip04.encrypt': 20,
+  'nip04.decrypt': 20
 }
 
 const ORDERED_PERMISSIONS = [
   [1, ['getPublicKey']],
-  [10, ['signEvent']]
+  [10, ['signEvent']],
+  [20, ['nip04.encrypt']],
+  [20, ['nip04.decrypt']]
 ]
 
 const PERMISSION_NAMES = {
   getPublicKey: 'read your public key',
-  signEvent: 'sign events using your private key'
+  signEvent: 'sign events using your private key',
+  'nip04.encrypt': 'encrypt messages to peers',
+  'nip04.decrypt': 'decrypt messages to peers'
 }
 
 export function getAllowedCapabilities(permission) {
@@ -30,6 +36,9 @@ export function getAllowedCapabilities(permission) {
 
 export function getPermissionsString(permission) {
   let capabilities = getAllowedCapabilities(permission)
+
+  if (capabilities.length === 0) return 'none'
+  if (capabilities.length === 1) return capabilities[0]
 
   return (
     capabilities.slice(0, -1).join(', ') +

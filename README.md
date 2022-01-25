@@ -10,6 +10,8 @@ It provides a `window.nostr` object which has the following methods:
 ```
 async window.nostr.getPublicKey(): string // returns your public key as hex
 async window.nostr.signEvent(event): string // returns the signature as hex
+async window.nostr.nip04.encrypt(pubkey, plaintext): string // returns ciphertext+iv as specified in nip04
+async window.nostr.nip04.decrypt(pubkey, ciphertext): string // takes ciphertext+iv as specified in nip04
 ```
 
 ## Demo Video
