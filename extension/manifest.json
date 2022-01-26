@@ -3,7 +3,7 @@
   "description": "Nostr Signer Extension",
   "version": "1.1.0",
   "homepage_url": "https://github.com/fiatjaf/nos2x",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "icons": {
     "16": "icons/16x16.png",
     "32": "icons/32x32.png",
@@ -12,12 +12,9 @@
   },
   "options_page": "options.html",
   "background": {
-    "scripts": [
-      "background.build.js"
-    ],
-    "persistent": false
+    "service_worker": "background.build.js"
   },
-  "browser_action": {
+  "action": {
     "default_title": "nos2x",
     "default_popup": "popup.html"
   },
@@ -30,6 +27,8 @@
   "permissions": [
     "storage"
   ],
-  "web_accessible_resources": ["nostr-provider.js"],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';"
+  "web_accessible_resources": [{
+    "resources": ["nostr-provider.js"],
+    "matches": ["https://*/*", "http://localhost:*/*"]
+  }]
 }

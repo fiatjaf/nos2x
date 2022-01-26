@@ -25,7 +25,8 @@ esbuild
     ],
     sourcemap: prod ? false : 'inline',
     define: {
-      global: 'window'
+      window: 'self',
+      global: 'self'
     }
   })
   .then(() => console.log('build success.'))
