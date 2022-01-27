@@ -22,7 +22,11 @@ function Popup() {
       <h2>nos2x</h2>
       {key === null ? (
         <p style={{width: '150px'}}>
-          you don't have a private key set. use the options page to set one.
+          you don't have a private key set. use the{' '}
+          <a href="#" onClick={goToOptionsPage}>
+            options page
+          </a>{' '}
+          to set one.
         </p>
       ) : (
         <>
@@ -36,10 +40,24 @@ function Popup() {
           >
             <code>{key}</code>
           </pre>
+          <p>
+            <small>
+              <a href="#" onClick={goToOptionsPage}>
+                options
+              </a>
+            </small>
+          </p>
         </>
       )}
     </>
   )
+
+  function goToOptionsPage() {
+    browser.tabs.create({
+      url: browser.runtime.getURL('options.html'),
+      active: true
+    })
+  }
 }
 
 render(<Popup />, document.getElementById('main'))
