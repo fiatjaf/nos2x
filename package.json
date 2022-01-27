@@ -17,6 +17,6 @@
     "build": "./build.js prod",
     "watch": "ag -l --js | entr ./build.js",
     "sources": "rm -f extension/*.build.*; zip -r sources . -i extension build.js README.md",
-    "package": "cd extension; zip -r archive *; cd ..; mv extension/archive.zip ./nos2x.zip"
+    "package": "./build.js prod; cd extension; zip -r archive *; cd ..; mv extension/archive.zip ./nos2x.zip"
   }
 }
