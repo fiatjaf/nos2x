@@ -18,7 +18,7 @@ const PERMISSION_NAMES = {
   getPublicKey: 'read your public key',
   signEvent: 'sign events using your private key',
   'nip04.encrypt': 'encrypt messages to peers',
-  'nip04.decrypt': 'decrypt messages to peers'
+  'nip04.decrypt': 'decrypt messages from peers'
 }
 
 export function getAllowedCapabilities(permission) {
