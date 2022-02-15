@@ -21,6 +21,13 @@ browser.runtime.onMessage.addListener(async (req, sender) => {
   }
 })
 
+browser.runtime.onMessageExternal.addListener(
+  async ({type, params}, sender) => {
+    let extensionId = new URL(sender.url).host
+    handleContentScriptMessage({type, params, host: extensionId})
+  }
+)
+
 async function handleContentScriptMessage({type, params, host}) {
   let level = await readPermissionLevel(host)
 
