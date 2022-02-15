@@ -12,6 +12,20 @@ window.nostr = {
     return this._call('signEvent', {event})
   },
 
+  async getRelays() {
+    return this._call('getRelays', {})
+  },
+
+  nip04: {
+    async encrypt(peer, plaintext) {
+      return window.nostr._call('nip04.encrypt', {peer, plaintext})
+    },
+
+    async decrypt(peer, ciphertext) {
+      return window.nostr._call('nip04.decrypt', {peer, ciphertext})
+    }
+  },
+
   _call(type, params) {
     return new Promise((resolve, reject) => {
       let id = Math.random().toString().slice(4)
@@ -26,16 +40,6 @@ window.nostr = {
         '*'
       )
     })
-  },
-
-  nip04: {
-    encrypt(peer, plaintext) {
-      return window.nostr._call('nip04.encrypt', {peer, plaintext})
-    },
-
-    decrypt(peer, ciphertext) {
-      return window.nostr._call('nip04.decrypt', {peer, ciphertext})
-    }
   }
 }
 

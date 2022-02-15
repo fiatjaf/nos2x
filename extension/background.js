@@ -58,6 +58,10 @@ async function handleContentScriptMessage({type, params, host}) {
       case 'getPublicKey': {
         return Buffer.from(getPublicKey(sk)).toString('hex')
       }
+      case 'getRelays': {
+        let results = await browser.storage.local.get('relays')
+        return results.relays || {}
+      }
       case 'signEvent': {
         let {event} = params
 
