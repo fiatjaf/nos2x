@@ -9,6 +9,12 @@ function Prompt() {
   let id = qs.get('id')
   let host = qs.get('host')
   let level = parseInt(qs.get('level'))
+  let params
+  try {
+    params = JSON.parse(qs.get('params'))
+  } catch (err) {
+    params = null
+  }
 
   return (
     <>
@@ -25,6 +31,14 @@ function Prompt() {
           ))}
         </ul>
       </div>
+      {params && (
+        <>
+          <p>now acting on</p>
+          <pre style={{overflow: 'auto', maxHeight: '100px'}}>
+            <code>{JSON.stringify(params, null, 2)}</code>
+          </pre>
+        </>
+      )}
       <div
         style={{
           display: 'flex',
