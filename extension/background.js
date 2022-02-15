@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill'
-import {Buffer} from 'buffer'
 import {validateEvent, signEvent, getEventHash, getPublicKey} from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 
@@ -56,7 +55,7 @@ async function handleContentScriptMessage({type, params, host}) {
   try {
     switch (type) {
       case 'getPublicKey': {
-        return Buffer.from(getPublicKey(sk)).toString('hex')
+        return getPublicKey(sk)
       }
       case 'getRelays': {
         let results = await browser.storage.local.get('relays')
@@ -65,14 +64,13 @@ async function handleContentScriptMessage({type, params, host}) {
       case 'signEvent': {
         let {event} = params
 
-        if (!event.pubkey)
-          event.pubkey = Buffer.from(getPublicKey(sk)).toString('hex')
+        if (!event.pubkey) event.pubkey = getPublicKey(sk)
         if (!event.id) event.id = getEventHash(event)
 
         if (!validateEvent(event)) return {error: 'invalid event'}
 
         let signature = await signEvent(event, sk)
-        return Buffer.from(signature).toString('hex')
+        return signature
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params

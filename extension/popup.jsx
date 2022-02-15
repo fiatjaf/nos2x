@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill'
-import {Buffer} from 'buffer'
 import {render} from 'react-dom'
 import {getPublicKey} from 'nostr-tools'
 import React, {useState, useEffect} from 'react'
@@ -10,7 +9,7 @@ function Popup() {
   useEffect(() => {
     browser.storage.local.get('private_key').then(results => {
       if (results.private_key) {
-        setKey(Buffer.from(getPublicKey(results.private_key)).toString('hex'))
+        setKey(getPublicKey(results.private_key))
       } else {
         setKey(null)
       }

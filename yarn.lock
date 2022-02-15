@@ -41,10 +41,15 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-0.5.9.tgz#9f3051a4cc6f7c168022b3b7fbbe9fe2a35cccf0"
   integrity sha512-7lN1Qh6d8DUGmfN36XRsbN/WcGIPNtTGhkw26vWId/DlCIGsYJJootTtPGghTLcn/AaXPx2Q0b3cacrwXa7OVw==
 
-"@noble/secp256k1@^1.3.0", "@noble/secp256k1@^1.3.4":
+"@noble/secp256k1@^1.3.4":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.4.0.tgz#b6b1529552c38e42908a88e39ac691598e741cf9"
   integrity sha512-cYpUbQ2uitPgf5QuQnpi8Nu+ZmQjSDunFKw6vvxaOSkbMUhCf4K723WLUuuK1K/sf6H/dvqKbmEAeop5i3qTJg==
+
+"@noble/secp256k1@^1.5.2":
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.5.3.tgz#887fa88d72f5caa1b7300873e8d4c9eaca029cec"
+  integrity sha512-v11x6HReQymMELBq2fnwVthQMOPB5911fwem9515TLiNlitdOuS2qEMa1BzTcDgB563ql0238JGrpJJA1IaJ8Q==
 
 acorn-jsx@^5.3.1:
   version "5.3.2"
@@ -1062,13 +1067,13 @@ node-gyp-build@^4.3.0:
   resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.3.0.tgz#9f256b03e5826150be39c764bf51e993946d71a3"
   integrity sha512-iWjXZvmboq0ja1pUGULQBexmxq8CV4xBhX7VDOTbL7ZR4FOowwY/VOtRxBN/yKxmdGoIp4j5ysNT4u3S2pDQ3Q==
 
-nostr-tools@^0.21.4:
-  version "0.21.4"
-  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-0.21.4.tgz#c9cb88955ee55ab751287aa4e492708221748d86"
-  integrity sha512-ZCYRMfryb2loOFm3WGG5dXPGCJP3OqanNur6q1moZUMKhzDOzb3d95yVBa752LF9cReTjjxyIoZm0TklEAaeAA==
+nostr-tools@^0.22.1:
+  version "0.22.1"
+  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-0.22.1.tgz#ad4048d8e9b6d3d658bbe2a0753f75a84c860f2b"
+  integrity sha512-uGSp246JlqjiHQr2RahfOxvSJ4jGPgqKjiyb/YkEM55CriVVF1ISNmpfc7bFchIvPSFhWoWouGqXwqNpoHXdbw==
   dependencies:
     "@noble/hashes" "^0.5.7"
-    "@noble/secp256k1" "^1.3.0"
+    "@noble/secp256k1" "^1.5.2"
     browserify-cipher ">=1"
     buffer ">=5"
     create-hash "^1.2.0"
