@@ -29,7 +29,7 @@ async function handleContentScriptMessage({type, params, host}) {
   } else {
     // ask for authorization
     try {
-      await promptPermission(host, PERMISSIONS_REQUIRED[type])
+      await promptPermission(host, PERMISSIONS_REQUIRED[type], params)
       // authorized, proceed
     } catch (_) {
       // not authorized, stop here
@@ -99,16 +99,21 @@ function handlePromptMessage({id, condition, host, level}, sender) {
   browser.windows.remove(sender.tab.windowId)
 }
 
-function promptPermission(host, level) {
+function promptPermission(host, level, params) {
   let id = Math.random().toString().slice(4)
-  let qs = new URLSearchParams({host, level, id})
+  let qs = new URLSearchParams({
+    host,
+    level,
+    id,
+    params: JSON.stringify(params)
+  })
 
   return new Promise((resolve, reject) => {
     browser.windows.create({
       url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
       type: 'popup',
       width: 340,
-      height: 230
+      height: 330
     })
 
     prompts[id] = {resolve, reject}
