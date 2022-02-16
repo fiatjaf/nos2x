@@ -66,11 +66,10 @@ async function handleContentScriptMessage({type, params, host}) {
 
         if (!event.pubkey) event.pubkey = getPublicKey(sk)
         if (!event.id) event.id = getEventHash(event)
-
         if (!validateEvent(event)) return {error: 'invalid event'}
 
-        let signature = await signEvent(event, sk)
-        return signature
+        event.sig = await signEvent(event, sk)
+        return event
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params

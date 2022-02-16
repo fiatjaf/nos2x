@@ -9,8 +9,8 @@ It provides a `window.nostr` object which has the following methods:
 
 ```
 async window.nostr.getPublicKey(): string // returns your public key as hex
-async window.nostr.signEvent(event): string // returns the signature as hex
-async window.nostr.getRelays(): {} // returns a list of relays
+async window.nostr.signEvent(event): Event // returns the full event object signed
+async window.nostr.getRelays(): { [url: string]: RelayPolicy } // returns a map of relays
 async window.nostr.nip04.encrypt(pubkey, plaintext): string // returns ciphertext+iv as specified in nip04
 async window.nostr.nip04.decrypt(pubkey, ciphertext): string // takes ciphertext+iv as specified in nip04
 ```
