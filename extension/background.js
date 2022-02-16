@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill'
 import {validateEvent, signEvent, getEventHash, getPublicKey} from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
+import {Mutex} from 'async-mutex'
 
 import {
   PERMISSIONS_REQUIRED,
@@ -8,7 +9,9 @@ import {
   updatePermission
 } from './common'
 
-const prompts = {}
+let openPrompt = null
+let promptMutex = new Mutex()
+let releasePromptMutex = () => {}
 
 browser.runtime.onMessage.addListener(async (req, sender) => {
   let {prompt} = req
@@ -89,25 +92,28 @@ function handlePromptMessage({id, condition, host, level}, sender) {
   switch (condition) {
     case 'forever':
     case 'expirable':
-      prompts[id]?.resolve?.()
+      openPrompt?.resolve?.()
       updatePermission(host, {
         level,
         condition
       })
       break
     case 'single':
-      prompts[id]?.resolve?.()
+      openPrompt?.resolve?.()
       break
     case 'no':
-      prompts[id]?.reject?.()
+      openPrompt?.reject?.()
       break
   }
 
-  delete prompts[id]
+  openPrompt = null
+  releasePromptMutex()
   browser.windows.remove(sender.tab.windowId)
 }
 
-function promptPermission(host, level, params) {
+async function promptPermission(host, level, params) {
+  releasePromptMutex = await promptMutex.acquire()
+
   let id = Math.random().toString().slice(4)
   let qs = new URLSearchParams({
     host,
@@ -117,13 +123,13 @@ function promptPermission(host, level, params) {
   })
 
   return new Promise((resolve, reject) => {
+    openPrompt = {resolve, reject}
+
     browser.windows.create({
       url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
       type: 'popup',
       width: 340,
       height: 330
     })
-
-    prompts[id] = {resolve, reject}
   })
 }
