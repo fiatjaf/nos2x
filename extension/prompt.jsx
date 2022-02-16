@@ -12,6 +12,7 @@ function Prompt() {
   let params
   try {
     params = JSON.parse(qs.get('params'))
+    if (Object.keys(params).length === 0) params = null
   } catch (err) {
     params = null
   }
