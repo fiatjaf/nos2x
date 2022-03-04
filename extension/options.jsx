@@ -2,7 +2,6 @@ import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
 import {normalizeRelayURL} from 'nostr-tools/relay'
-import {useDebouncedCallback} from 'use-debounce'
 
 import {getPermissionsString, readPermissions} from './common'
 
@@ -17,21 +16,6 @@ function Options() {
     setMessage(msg)
     setTimeout(setMessage, 3000)
   })
-
-  const saveRelays = useDebouncedCallback(async () => {
-    await browser.storage.local.set({
-      relays: Object.fromEntries(
-        relays
-          .filter(({url}) => url.trim() !== '')
-          .map(({url, policy}) => [url.trim(), policy])
-      )
-    })
-    showMessage('saved relays!')
-  }, 700)
-
-  useEffect(() => {
-    saveRelays()
-  }, [relays])
 
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
@@ -75,7 +59,7 @@ function Options() {
           {relays.map(({url, policy}, i) => (
             <div key={i} style={{display: 'flex'}}>
               <input
-                style={{marginRight: '10px'}}
+                style={{marginRight: '10px', width: '400px'}}
                 value={url}
                 onChange={changeRelayURL.bind(null, i)}
               />
@@ -99,17 +83,33 @@ function Options() {
           ))}
           <div style={{display: 'flex'}}>
             <input
+              style={{width: '400px'}}
               value={newRelayURL}
               onChange={e => setNewRelayURL(e.target.value)}
               onBlur={addNewRelay}
             />
           </div>
+          <div>
+            <button onClick={saveRelays}>save</button>
+          </div>
         </div>
       </div>
       <div>
         <label>
-          private key:&nbsp;
-          <input value={key} onChange={handleKeyChange} />
+          <div>private key:&nbsp;</div>
+          <div style={{marginLeft: '10px'}}>
+            <input
+              style={{width: '500px'}}
+              value={key}
+              onChange={handleKeyChange}
+            />
+            <button
+              disabled={!(key.match(/^[a-f0-9]{64}$/) || key === '')}
+              onClick={saveKey}
+            >
+              save
+            </button>
+          </div>
         </label>
         {permissions?.length > 0 && (
           <>
@@ -150,13 +150,13 @@ function Options() {
   async function handleKeyChange(e) {
     let key = e.target.value.toLowerCase().trim()
     setKey(key)
+  }
 
-    if (key.match(/^[a-f0-9]{64}$/) || key === '') {
-      await browser.storage.local.set({
-        private_key: key
-      })
-      showMessage('saved private key!')
-    }
+  async function saveKey() {
+    await browser.storage.local.set({
+      private_key: key
+    })
+    showMessage('saved private key!')
   }
 
   function changeRelayURL(i, ev) {
@@ -185,6 +185,17 @@ function Options() {
     })
     setRelays(relays)
     setNewRelayURL('')
+  }
+
+  async function saveRelays() {
+    await browser.storage.local.set({
+      relays: Object.fromEntries(
+        relays
+          .filter(({url}) => url.trim() !== '')
+          .map(({url, policy}) => [url.trim(), policy])
+      )
+    })
+    showMessage('saved relays!')
   }
 }
 
