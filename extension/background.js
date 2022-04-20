@@ -56,13 +56,12 @@ async function handleContentScriptMessage({type, params, host}) {
   try {
     switch (type) {
       case 'getPublicKey': {
-        return Buffer.from(getPublicKey(sk)).toString('hex')
+        return getPublicKey(sk)
       }
       case 'signEvent': {
         let {event} = params
 
-        if (!event.pubkey)
-          event.pubkey = Buffer.from(getPublicKey(sk)).toString('hex')
+        if (!event.pubkey) event.pubkey = getPublicKey(sk)
         if (!event.id) event.id = getEventHash(event)
 
         if (!validateEvent(event)) return {error: 'invalid event'}
