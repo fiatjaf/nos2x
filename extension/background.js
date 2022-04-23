@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill'
-import {Buffer} from 'buffer'
 import {validateEvent, signEvent, getEventHash, getPublicKey} from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 
@@ -66,8 +65,7 @@ async function handleContentScriptMessage({type, params, host}) {
 
         if (!validateEvent(event)) return {error: 'invalid event'}
 
-        let signature = await signEvent(event, sk)
-        return Buffer.from(signature).toString('hex')
+        return await signEvent(event, sk)
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
