@@ -55,4 +55,6 @@ window.addEventListener('message', message => {
   } else {
     window.nostr._requests[message.data.id].resolve(message.data.response)
   }
+
+  delete window.nostr._requests[message.data.id]
 })
