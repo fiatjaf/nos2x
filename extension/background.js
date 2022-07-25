@@ -30,6 +30,12 @@ browser.runtime.onMessageExternal.addListener(
   }
 )
 
+browser.windows.onRemoved.addListener((windowId) => {
+  if (openPrompt) {
+    handlePromptMessage({ condition: 'no' }, null);
+  }
+})
+
 async function handleContentScriptMessage({type, params, host}) {
   let level = await readPermissionLevel(host)
 
@@ -108,7 +114,10 @@ function handlePromptMessage({id, condition, host, level}, sender) {
 
   openPrompt = null
   releasePromptMutex()
-  browser.windows.remove(sender.tab.windowId)
+
+  if (sender) {
+    browser.windows.remove(sender.tab.windowId)
+  }
 }
 
 async function promptPermission(host, level, params) {
