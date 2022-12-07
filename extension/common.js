@@ -74,13 +74,10 @@ export async function readPermissionLevel(host) {
 }
 
 export async function updatePermission(host, permission) {
-  browser.storage.local.set({
-    permissions: {
-      ...((await browser.storage.local.get('permissions').permissions) || {}),
-      [host]: {
-        ...permission,
-        created_at: Math.round(Date.now() / 1000)
-      }
-    }
-  })
+  var permissions = await browser.storage.local.get('permissions').permissions
+  permissions[host] = {
+    ...permission,
+    created_at: Math.round(Date.now() / 1000)
+  }
+  browser.storage.local.set({permissions})
 }
