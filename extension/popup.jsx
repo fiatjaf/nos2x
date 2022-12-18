@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import {render} from 'react-dom'
 import {getPublicKey} from 'nostr-tools'
 import {bech32} from 'bech32'
@@ -9,7 +8,7 @@ function Popup() {
   let keys = useRef([])
 
   useEffect(() => {
-    browser.storage.local.get('private_key').then(results => {
+    chrome.storage.local.get('private_key').then(results => {
       if (results.private_key) {
         let hexKey = getPublicKey(results.private_key)
         let npubKey = bech32.encode(

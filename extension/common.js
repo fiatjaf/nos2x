@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 
 export const PERMISSIONS_REQUIRED = {
   getPublicKey: 1,
@@ -51,7 +50,7 @@ export function getPermissionsString(permission) {
 }
 
 export async function readPermissions() {
-  let {permissions = {}} = await browser.storage.local.get('permissions')
+  let {permissions = {}} = await chrome.storage.local.get('permissions')
 
   // delete expired
   var needsUpdate = false
@@ -64,7 +63,7 @@ export async function readPermissions() {
       needsUpdate = true
     }
   }
-  if (needsUpdate) browser.storage.local.set({permissions})
+  if (needsUpdate) chrome.storage.local.set({permissions})
 
   return permissions
 }
@@ -74,10 +73,10 @@ export async function readPermissionLevel(host) {
 }
 
 export async function updatePermission(host, permission) {
-  let {permissions = {}} = await browser.storage.local.get('permissions')
+  let {permissions = {}} = await chrome.storage.local.get('permissions')
   permissions[host] = {
     ...permission,
     created_at: Math.round(Date.now() / 1000)
   }
-  browser.storage.local.set({permissions})
+  chrome.storage.local.set({permissions})
 }

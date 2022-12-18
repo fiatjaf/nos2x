@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
 import {normalizeRelayURL} from 'nostr-tools/relay'
@@ -19,7 +18,7 @@ function Options() {
   })
 
   useEffect(() => {
-    browser.storage.local.get(['private_key', 'relays']).then(results => {
+    chrome.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) setKey(results.private_key)
       if (results.relays) {
         let relaysList = []
@@ -161,7 +160,7 @@ function Options() {
   }
 
   async function saveKey() {
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       private_key: key
     })
     showMessage('saved private key!')
@@ -196,7 +195,7 @@ function Options() {
   }
 
   async function saveRelays() {
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       relays: Object.fromEntries(
         relays
           .filter(({url}) => url.trim() !== '')

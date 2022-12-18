@@ -1,10 +1,9 @@
-import browser from 'webextension-polyfill'
 
 // inject the script that will provide window.nostr
 let script = document.createElement('script')
 script.setAttribute('async', 'false')
 script.setAttribute('type', 'text/javascript')
-script.setAttribute('src', browser.runtime.getURL('nostr-provider.js'))
+script.setAttribute('src', chrome.runtime.getURL('nostr-provider.js'))
 document.head.appendChild(script)
 
 // listen for messages from that script
@@ -17,7 +16,7 @@ window.addEventListener('message', async message => {
   // pass on to background
   var response
   try {
-    response = await browser.runtime.sendMessage({
+    response = await chrome.runtime.sendMessage({
       type: message.data.type,
       params: message.data.params,
       host: location.host
