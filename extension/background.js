@@ -13,6 +13,10 @@ let openPrompt = null
 let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
 
+browser.runtime.onInstalled.addListener((_, __, reason) => {
+  if (reason === 'install') browser.runtime.openOptionsPage()
+})
+
 browser.runtime.onMessage.addListener(async (req, sender) => {
   let {prompt} = req
 
@@ -30,9 +34,9 @@ browser.runtime.onMessageExternal.addListener(
   }
 )
 
-browser.windows.onRemoved.addListener((windowId) => {
+browser.windows.onRemoved.addListener(windowId => {
   if (openPrompt) {
-    handlePromptMessage({ condition: 'no' }, null);
+    handlePromptMessage({condition: 'no'}, null)
   }
 })
 
