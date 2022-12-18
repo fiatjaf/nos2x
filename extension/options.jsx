@@ -54,7 +54,10 @@ function Options() {
       <p>nostr signer extension</p>
       <h2>options</h2>
       <div style={{marginBottom: '10px'}}>
-        <div>preferred relays:</div>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <span>preferred relays:</span>
+          <button onClick={saveRelays}>save</button>
+        </div>
         <div style={{marginLeft: '10px'}}>
           {relays.map(({url, policy}, i) => (
             <div key={i} style={{display: 'flex'}}>
@@ -88,9 +91,6 @@ function Options() {
               onChange={e => setNewRelayURL(e.target.value)}
               onBlur={addNewRelay}
             />
-          </div>
-          <div>
-            <button onClick={saveRelays}>save</button>
           </div>
         </div>
       </div>
