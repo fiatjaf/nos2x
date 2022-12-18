@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import {validateEvent, signEvent, getEventHash, getPublicKey} from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 import {Mutex} from 'async-mutex'
@@ -12,11 +13,11 @@ let openPrompt = null
 let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
 
-chrome.runtime.onInstalled.addListener((_, __, reason) => {
-  if (reason === 'install') chrome.runtime.openOptionsPage()
+browser.runtime.onInstalled.addListener((_, __, reason) => {
+  if (reason === 'install') browser.runtime.openOptionsPage()
 })
 
-chrome.runtime.onMessage.addListener(async (req, sender) => {
+browser.runtime.onMessage.addListener(async (req, sender) => {
   let {prompt} = req
 
   if (prompt) {
@@ -26,14 +27,14 @@ chrome.runtime.onMessage.addListener(async (req, sender) => {
   }
 })
 
-chrome.runtime.onMessageExternal.addListener(
+browser.runtime.onMessageExternal.addListener(
   async ({type, params}, sender) => {
     let extensionId = new URL(sender.url).host
     return handleContentScriptMessage({type, params, host: extensionId})
   }
 )
 
-chrome.windows.onRemoved.addListener(windowId => {
+browser.windows.onRemoved.addListener(windowId => {
   if (openPrompt) {
     handlePromptMessage({condition: 'no'}, null)
   }
@@ -57,7 +58,7 @@ async function handleContentScriptMessage({type, params, host}) {
     }
   }
 
-  let results = await chrome.storage.local.get('private_key')
+  let results = await browser.storage.local.get('private_key')
   if (!results || !results.private_key) {
     return {error: 'no private key found'}
   }
@@ -70,7 +71,7 @@ async function handleContentScriptMessage({type, params, host}) {
         return getPublicKey(sk)
       }
       case 'getRelays': {
-        let results = await chrome.storage.local.get('relays')
+        let results = await browser.storage.local.get('relays')
         return results.relays || {}
       }
       case 'signEvent': {
@@ -119,7 +120,7 @@ function handlePromptMessage({id, condition, host, level}, sender) {
   releasePromptMutex()
 
   if (sender) {
-    chrome.windows.remove(sender.tab.windowId)
+    browser.windows.remove(sender.tab.windowId)
   }
 }
 
@@ -137,8 +138,8 @@ async function promptPermission(host, level, params) {
   return new Promise((resolve, reject) => {
     openPrompt = {resolve, reject}
 
-    chrome.windows.create({
-      url: `${chrome.runtime.getURL('prompt.html')}?${qs.toString()}`,
+    browser.windows.create({
+      url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
       type: 'popup',
       width: 340,
       height: 330

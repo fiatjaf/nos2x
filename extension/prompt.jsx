@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import {render} from 'react-dom'
 import React from 'react'
 
@@ -71,7 +72,7 @@ function Prompt() {
   function authorizeHandler(condition) {
     return function (ev) {
       ev.preventDefault()
-      chrome.runtime.sendMessage({
+      browser.runtime.sendMessage({
         prompt: true,
         id,
         host,
