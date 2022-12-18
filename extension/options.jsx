@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
 import {normalizeRelayURL} from 'nostr-tools/relay'
+import {generatePrivateKey} from 'nostr-tools/keys'
 
 import {getPermissionsString, readPermissions} from './common'
 
@@ -98,11 +99,14 @@ function Options() {
         <label>
           <div>private key:&nbsp;</div>
           <div style={{marginLeft: '10px'}}>
-            <input
-              style={{width: '500px'}}
-              value={key}
-              onChange={handleKeyChange}
-            />
+            <div style={{display: 'flex'}}>
+              <input
+                style={{width: '500px'}}
+                value={key}
+                onChange={handleKeyChange}
+              />
+              {key === '' && <button onClick={generate}>generate</button>}
+            </div>
             <button
               disabled={!(key.match(/^[a-f0-9]{64}$/) || key === '')}
               onClick={saveKey}
@@ -150,6 +154,10 @@ function Options() {
   async function handleKeyChange(e) {
     let key = e.target.value.toLowerCase().trim()
     setKey(key)
+  }
+
+  async function generate(e) {
+    setKey(generatePrivateKey())
   }
 
   async function saveKey() {
