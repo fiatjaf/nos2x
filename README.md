@@ -51,13 +51,28 @@ then ...
 
 ## Screenshots
 
-![](screenshot1.png)
-![](screenshot2.png)
-![](screenshot3.png)
-![](screenshot4.png)
+![](assets/screenshot1.png)
+![](assets/screenshot2.png)
+![](assets/screenshot3.png)
+![](assets/screenshot4.png)
+
+## ReDesign
+
+![Demo Redesign](assets/demo-design.png)
+
+### Font
+
+[Prompt](https://fonts.google.com/specimen/Prompt?preview.text=NOS2X&preview.size=48&preview.text_type=custom&query=Prompt&category=Sans+Serif&subset=latin&noto.script=Latn)
+
+### Logo
+![nos2x logo](assets/icon.png)
+### Logotype
+![nos2x logotype](assets/logotype.png)
+### Svg
+![nos2x svg logo](assets/logo.svg)
+
+Figma file: [https://www.figma.com](https://www.figma.com/file/04tjsv8qfWV6eeew73qbaX/Nos2x?node-id=2%3A141&t=gZQRRpXb5VRp3hpJ-1)
 
 ---
 
 LICENSE: public domain.
-
-Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>.

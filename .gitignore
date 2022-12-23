@@ -1,3 +1,5 @@
 node_modules
 *.build.js
 *.zip
+pnpm-lock.yaml
+.DS_Store
