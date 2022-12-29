@@ -1,7 +1,6 @@
 import browser from 'webextension-polyfill'
 import {render} from 'react-dom'
-import {getPublicKey} from 'nostr-tools'
-import {bech32} from 'bech32'
+import {getPublicKey, nip19} from 'nostr-tools'
 import React, {useState, useRef, useEffect} from 'react'
 
 function Popup() {
@@ -9,18 +8,32 @@ function Popup() {
   let keys = useRef([])
 
   useEffect(() => {
-    browser.storage.local.get('private_key').then(results => {
+    browser.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) {
         let hexKey = getPublicKey(results.private_key)
-        let npubKey = bech32.encode(
-          'npub',
-          bech32.toWords(Buffer.from(hexKey, 'hex'))
-        )
+        let npubKey = nip19.npubEncode(hexKey)
 
         setKey(npubKey)
 
-        keys.current.push(hexKey)
         keys.current.push(npubKey)
+        keys.current.push(hexKey)
+
+        if (results.relays) {
+          let relaysList = []
+          for (let url in results.relays) {
+            if (results.relays[url].write) {
+              relaysList.push(url)
+              if (relaysList.length >= 3) break
+            }
+          }
+          if (relaysList.length) {
+            let nprofileKey = nip19.nprofileEncode({
+              pubkey: hexKey,
+              relays: relaysList
+            })
+            keys.current.push(nprofileKey)
+          }
+        }
       } else {
         setKey(null)
       }

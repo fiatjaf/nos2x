@@ -1,8 +1,7 @@
 import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
-import {normalizeRelayURL} from 'nostr-tools/relay'
-import {generatePrivateKey} from 'nostr-tools/keys'
+import {generatePrivateKey, nip19} from 'nostr-tools'
 
 import {getPermissionsString, readPermissions} from './common'
 
@@ -20,7 +19,7 @@ function Options() {
 
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
-      if (results.private_key) setKey(results.private_key)
+      if (results.private_key) setKey(nip19.nsecEncode(results.private_key))
       if (results.relays) {
         let relaysList = []
         for (let url in results.relays) {
@@ -107,10 +106,7 @@ function Options() {
               />
               {key === '' && <button onClick={generate}>generate</button>}
             </div>
-            <button
-              disabled={!(key.match(/^[a-f0-9]{64}$/) || key === '')}
-              onClick={saveKey}
-            >
+            <button disabled={!isKeyValid()} onClick={saveKey}>
               save
             </button>
           </div>
@@ -157,14 +153,37 @@ function Options() {
   }
 
   async function generate(e) {
-    setKey(generatePrivateKey())
+    setKey(nip19.nsecEncode(generatePrivateKey()))
   }
 
   async function saveKey() {
+    if (!isKeyValid()) return
+
+    let hexOrEmptyKey = key
+
+    try {
+      let {type, data} = nip19.decode(key)
+      if (type === 'nsec') hexOrEmptyKey = data
+    } catch (_) {}
+
     await browser.storage.local.set({
-      private_key: key
+      private_key: hexOrEmptyKey
     })
+
+    if (hexOrEmptyKey !== '') {
+      setKey(nip19.nsecEncode(hexOrEmptyKey))
+    }
+
     showMessage('saved private key!')
+  }
+
+  function isKeyValid() {
+    if (key === '') return true
+    if (key.match(/^[a-f0-9]{64}$/)) return true
+    try {
+      if (nip19.decode(key).type === 'nsec') return true
+    } catch (_) {}
+    return false
   }
 
   function changeRelayURL(i, ev) {
@@ -188,7 +207,7 @@ function Options() {
 
   function addNewRelay() {
     relays.push({
-      url: normalizeRelayURL(newRelayURL),
+      url: newRelayURL,
       policy: {read: true, write: true}
     })
     setRelays(relays)
