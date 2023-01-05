@@ -3,7 +3,11 @@ import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
 import {generatePrivateKey, nip19} from 'nostr-tools'
 
-import {getPermissionsString, readPermissions} from './common'
+import {
+  getPermissionsString,
+  readPermissions,
+  removePermissions
+} from './common'
 
 function Options() {
   let [key, setKey] = useState('')
@@ -34,18 +38,7 @@ function Options() {
   }, [])
 
   useEffect(() => {
-    readPermissions().then(permissions => {
-      setPermissions(
-        Object.entries(permissions).map(
-          ([host, {level, condition, created_at}]) => ({
-            host,
-            level,
-            condition,
-            created_at
-          })
-        )
-      )
-    })
+    loadPermissions()
   }, [])
 
   return (
@@ -123,6 +116,7 @@ function Options() {
                   <th>permissions</th>
                   <th>condition</th>
                   <th>since</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -137,6 +131,11 @@ function Options() {
                         .split('.')[0]
                         .split('T')
                         .join(' ')}
+                    </td>
+                    <td>
+                      <button onClick={handleRevoke} data-domain={host}>
+                        revoke
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -214,6 +213,31 @@ function Options() {
     })
     setRelays(relays)
     setNewRelayURL('')
+  }
+
+  async function handleRevoke(e) {
+    e.preventDefault()
+    let host = e.target.dataset.domain
+    if (window.confirm(`revoke all permissions from ${host}?`)) {
+      await removePermissions(host)
+      showMessage(`removed permissions from ${host}`)
+      loadPermissions()
+    }
+  }
+
+  function loadPermissions() {
+    readPermissions().then(permissions => {
+      setPermissions(
+        Object.entries(permissions).map(
+          ([host, {level, condition, created_at}]) => ({
+            host,
+            level,
+            condition,
+            created_at
+          })
+        )
+      )
+    })
   }
 
   async function saveRelays() {

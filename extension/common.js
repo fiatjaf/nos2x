@@ -81,3 +81,9 @@ export async function updatePermission(host, permission) {
   }
   browser.storage.local.set({permissions})
 }
+
+export async function removePermissions(host) {
+  let {permissions = {}} = await browser.storage.local.get('permissions')
+  delete permissions[host]
+  browser.storage.local.set({permissions})
+}
