@@ -54,9 +54,11 @@ function Options() {
       <p>nostr signer extension</p>
       <h2>options</h2>
       <div style={{marginBottom: '10px'}}>
-        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+        <div style={{display: 'flex', alignItems: 'center'}}>
           <span>preferred relays:</span>
-          <button onClick={saveRelays}>save</button>
+          <button style={{marginLeft: '20px'}} onClick={saveRelays}>
+            save
+          </button>
         </div>
         <div style={{marginLeft: '10px'}}>
           {relays.map(({url, policy}, i) => (
