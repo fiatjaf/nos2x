@@ -46,7 +46,8 @@ window.nostr = {
 window.addEventListener('message', message => {
   if (
     !message.data ||
-    !message.data.response ||
+    message.data.response === null ||
+    message.data.response === undefined ||
     message.data.ext !== 'nos2x' ||
     !window.nostr._requests[message.data.id]
   )
@@ -60,5 +61,23 @@ window.addEventListener('message', message => {
     window.nostr._requests[message.data.id].resolve(message.data.response)
   }
 
-  delete window.nostr._requests[message.data.id];
+  delete window.nostr._requests[message.data.id]
 })
+
+// hack to replace nostr:nprofile.../etc links with something else
+let replacing = null
+let links = document.querySelectorAll('a[href^="nostr:"]')
+for (let i = 0; i < links.length; i++) {
+  links[i].addEventListener('mouseenter', replaceNostrSchemeLink)
+}
+async function replaceNostrSchemeLink(e) {
+  if (replacing === false) return
+
+  let response = await window.nostr._call('replaceURL', {url: e.target.href})
+  if (response === false) {
+    replacing = false
+    return
+  }
+
+  e.target.href = response
+}

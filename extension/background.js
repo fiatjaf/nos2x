@@ -1,10 +1,17 @@
 import browser from 'webextension-polyfill'
-import {validateEvent, signEvent, getEventHash, getPublicKey} from 'nostr-tools'
+import {
+  validateEvent,
+  signEvent,
+  getEventHash,
+  getPublicKey,
+  nip19
+} from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 import {Mutex} from 'async-mutex'
 
 import {
   PERMISSIONS_REQUIRED,
+  NO_PERMISSIONS_REQUIRED,
   readPermissionLevel,
   updatePermission
 } from './common'
@@ -41,19 +48,60 @@ browser.windows.onRemoved.addListener(windowId => {
 })
 
 async function handleContentScriptMessage({type, params, host}) {
-  let level = await readPermissionLevel(host)
+  if (NO_PERMISSIONS_REQUIRED[type]) {
+    // authorized, and we won't do anything with private key here, so do a separate handler
+    switch (type) {
+      case 'replaceURL': {
+        let {protocol_handler: ph} = await browser.storage.local.get([
+          'protocol_handler'
+        ])
+        if (!ph) return false
 
-  if (level >= PERMISSIONS_REQUIRED[type]) {
-    // authorized, proceed
+        let {url} = params
+        let raw = url.split('nostr:')[1]
+        let {type, data} = nip19.decode(raw)
+        let replacements = {
+          raw,
+          hrp: type,
+          hex:
+            type === 'npub' || type === 'note'
+              ? data
+              : type === 'nprofile'
+              ? data.pubkey
+              : type === 'nevent'
+              ? data.id
+              : null,
+          p_or_e: {npub: 'p', note: 'e', nprofile: 'p', nevent: 'e'}[type],
+          u_or_n: {npub: 'u', note: 'n', nprofile: 'u', nevent: 'n'}[type],
+          relay0: type === 'nprofile' ? data.relays[0] : null,
+          relay1: type === 'nprofile' ? data.relays[1] : null,
+          relay2: type === 'nprofile' ? data.relays[2] : null
+        }
+        let result = ph
+        Object.entries(replacements).forEach(([pattern, value]) => {
+          result = result.replace(new RegExp(`{ *${pattern} *}`, 'g'), value)
+        })
+
+        return result
+      }
+    }
+
+    return
   } else {
-    // ask for authorization
-    try {
-      await promptPermission(host, PERMISSIONS_REQUIRED[type], params)
+    let level = await readPermissionLevel(host)
+
+    if (level >= PERMISSIONS_REQUIRED[type]) {
       // authorized, proceed
-    } catch (_) {
-      // not authorized, stop here
-      return {
-        error: `insufficient permissions, required ${PERMISSIONS_REQUIRED[type]}`
+    } else {
+      // ask for authorization
+      try {
+        await promptPermission(host, PERMISSIONS_REQUIRED[type], params)
+        // authorized, proceed
+      } catch (_) {
+        // not authorized, stop here
+        return {
+          error: `insufficient permissions, required ${PERMISSIONS_REQUIRED[type]}`
+        }
       }
     }
   }
