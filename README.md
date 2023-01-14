@@ -1,4 +1,5 @@
 # nos2x
+
 ### notes and other stuff signed by an extension
 
 ## Nostr Signer Extension
@@ -21,8 +22,7 @@ https://user-images.githubusercontent.com/1653275/149637382-65d50a85-fe30-4259-b
 
 ## Install
 
-* [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/nos2x/)
-* [Chrome Extension](https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp)
+- [Chrome Extension](https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp)
 
 ## Develop
 
@@ -31,23 +31,16 @@ To run the plugin from this code:
 ```
 git clone https://github.com/fiatjaf/nos2x
 cd nos2x
-git checkout chromium                       # or git checkout firefox
-yarn                                        # or use npm or pnpm
+yarn
 yarn run build
 ```
 
-then ...
+then
 
-* Chromium:
-  1. go to chrome://extensions
-  2. make sure, "developer mode" is enabled on the top right
-  3. "Load unpackaged"
-  4. select the `extension/` folder
-* Firefox:
-  1. go to about:debugging
-  2. "This Firefox"
-  3. "Load Temporary Add-on..."
-  4. select any file from the `extension/` folder
+1. go to `chrome://extensions`;
+2. ensure "developer mode" is enabled on the top right;
+3. click on "Load unpackaged";
+4. select the `extension/` folder of this repository.
 
 ## Screenshots
 
