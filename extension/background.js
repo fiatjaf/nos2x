@@ -127,7 +127,7 @@ async function handleContentScriptMessage({type, params, host}) {
 
         if (!event.pubkey) event.pubkey = getPublicKey(sk)
         if (!event.id) event.id = getEventHash(event)
-        if (!validateEvent(event)) return {error: 'invalid event'}
+        if (!validateEvent(event)) return {error: {message: 'invalid event'}}
 
         event.sig = await signEvent(event, sk)
         return event
