@@ -66,11 +66,9 @@ window.addEventListener('message', message => {
 
 // hack to replace nostr:nprofile.../etc links with something else
 let replacing = null
-let links = document.querySelectorAll('a[href^="nostr:"]')
-for (let i = 0; i < links.length; i++) {
-  links[i].addEventListener('mouseenter', replaceNostrSchemeLink)
-}
+document.addEventListener('mousedown', replaceNostrSchemeLink)
 async function replaceNostrSchemeLink(e) {
+  if (e.target.tagName !== 'A' || !e.target.href.startsWith('nostr:')) return
   if (replacing === false) return
 
   let response = await window.nostr._call('replaceURL', {url: e.target.href})
