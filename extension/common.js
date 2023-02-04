@@ -7,6 +7,7 @@ export const NO_PERMISSIONS_REQUIRED = {
 export const PERMISSIONS_REQUIRED = {
   getPublicKey: 1,
   getRelays: 5,
+  getDerivedKey: 10,
   signEvent: 10,
   'nip04.encrypt': 20,
   'nip04.decrypt': 20
@@ -15,6 +16,7 @@ export const PERMISSIONS_REQUIRED = {
 const ORDERED_PERMISSIONS = [
   [1, ['getPublicKey']],
   [5, ['getRelays']],
+  [10, ['getDerivedKey']],
   [10, ['signEvent']],
   [20, ['nip04.encrypt']],
   [20, ['nip04.decrypt']]
@@ -22,6 +24,7 @@ const ORDERED_PERMISSIONS = [
 
 const PERMISSION_NAMES = {
   getPublicKey: 'read your public key',
+  getDerivedKey: 'derive keys using HMAC(inputkey, privateKey)',
   getRelays: 'read your list of preferred relays',
   signEvent: 'sign events using your private key',
   'nip04.encrypt': 'encrypt messages to peers',

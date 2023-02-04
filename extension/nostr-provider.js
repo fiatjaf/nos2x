@@ -8,6 +8,10 @@ window.nostr = {
     return this._pubkey
   },
 
+  async getDerivedKey(key, format = 'SHA-256') {
+    return this._call('getDerivedKey', { key, format })
+  },
+
   async signEvent(event) {
     return this._call('signEvent', {event})
   },

@@ -8,6 +8,7 @@ import {
 } from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 import {Mutex} from 'async-mutex'
+import { hmac } from './hmac'
 
 import {
   PERMISSIONS_REQUIRED,
@@ -117,6 +118,16 @@ async function handleContentScriptMessage({type, params, host}) {
     switch (type) {
       case 'getPublicKey': {
         return getPublicKey(sk)
+      }
+      case 'getDerivedKey': {
+        const formats = [ 'SHA-256', 'SHA-512' ]
+        let { key, format } = params
+
+        if (typeof key !== 'string') return { error: { message: 'key must be a string!' }}
+        if (!formats.includes(format)) return { error: { message: 'invalid format' }}
+
+        const hmacKey = await hmac(key, sk, format)
+        return hmacKey
       }
       case 'getRelays': {
         let results = await browser.storage.local.get('relays')
