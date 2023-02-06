@@ -1,19 +1,29 @@
-const crypto = globalThis.crypto
+import { utils } from '@noble/secp256k1'
+
+const crypto = window.crypto
 
 const ec = new TextEncoder()
 
 export async function hmac (key, data, format = 'SHA-256') {
-  if (typeof key !== 'string')  throw TypeError('key must be a string!')
-  if (typeof data !== 'string') throw TypeError('key must be a string!')
+  try {
+    if (typeof key === 'string') {
+      // Ensure key is in byte format.
+      key = ec.encode(key)
+    }
 
-  key  = ec.encode(key)
-  data = ec.encode(data)
+    if (typeof data === 'string') {
+      // Ensure data is in byte format.
+      data = utils.hexToBytes(data)
+    }
 
-  const cryptoKey = await importKey(key, format)
-  return crypto.subtle
-    .sign('HMAC', cryptoKey, data)
-    .then((buffer) => new Uint8Array(buffer))
-    .then((raw) => bytesToHex(raw))
+    const cryptoKey = await importKey(key, format)
+
+    return crypto.subtle
+      .sign('HMAC', cryptoKey, data)
+      .then((buffer) => new Uint8Array(buffer))
+  } catch (err) {
+    throw new Error('hmac operation failed for key:' + String(key))
+  }
 }
 
 async function importKey (key, fmt) {
@@ -21,15 +31,4 @@ async function importKey (key, fmt) {
   return crypto.subtle.importKey(
     'raw', key, config, false, ['sign', 'verify']
   )
-}
-
-function bytesToHex (bytes) {
-  const arr = []
-  for (let i = 0; i < bytes.length; i++) {
-    const hex = bytes[i]
-      .toString(16)
-      .padStart(2, '0')
-    arr.push(hex)
-  }
-  return arr.join('')
 }

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@noble/secp256k1": "^1.7.1",
     "async-mutex": "^0.3.2",
     "esbuild": "^0.14.11",
     "eslint": "^8.6.0",
@@ -18,5 +19,8 @@
     "build": "./build.js prod",
     "watch": "ag -l --js | entr ./build.js",
     "package": "./build.js prod; cd extension; zip -r archive *; cd ..; mv extension/archive.zip ./nos2x.zip"
+  },
+  "devDependencies": {
+    "tape": "^5.6.3"
   }
 }

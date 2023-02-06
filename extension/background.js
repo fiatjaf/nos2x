@@ -1,4 +1,5 @@
 import browser from 'webextension-polyfill'
+
 import {
   validateEvent,
   signEvent,
@@ -6,9 +7,13 @@ import {
   getPublicKey,
   nip19
 } from 'nostr-tools'
+
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 import {Mutex} from 'async-mutex'
+
 import { hmac } from './hmac'
+import { getTweakedKey } from './tweak'
+import { utils } from '@noble/secp256k1'
 
 import {
   PERMISSIONS_REQUIRED,
@@ -119,7 +124,7 @@ async function handleContentScriptMessage({type, params, host}) {
       case 'getPublicKey': {
         return getPublicKey(sk)
       }
-      case 'getDerivedKey': {
+      case 'getHmacKey': {
         const formats = [ 'SHA-256', 'SHA-512' ]
         let { key, format } = params
 
@@ -127,7 +132,35 @@ async function handleContentScriptMessage({type, params, host}) {
         if (!formats.includes(format)) return { error: { message: 'invalid format' }}
 
         const hmacKey = await hmac(key, sk, format)
-        return hmacKey
+
+        return utils.bytesToHex(hmacKey)
+      }
+      case 'getTweakedPub': {
+        let { tweak } = params
+
+        if (typeof tweak !== 'string') {
+          return { error: { message: 'must provide a string!' }}
+        }
+
+        const tk = await getTweakedKey(sk, tweak)
+
+        return getPublicKey(tk)
+      }
+      case 'signWithTweak': {
+        let { event, tweak } = params
+
+        if (typeof tweak !== 'string') {
+          return { error: { message: 'must provide a tweak string!' }}
+        }
+
+        const tk = await getTweakedKey(sk, tweak)
+
+        if (!event.pubkey) event.pubkey = getPublicKey(tk)
+        if (!event.id) event.id = getEventHash(event)
+        if (!validateEvent(event)) return {error: {message: 'invalid event'}}
+
+        event.sig = await signEvent(event, tk)
+        return event
       }
       case 'getRelays': {
         let results = await browser.storage.local.get('relays')
