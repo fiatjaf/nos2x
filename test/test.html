@@ -24,32 +24,40 @@
         tags: []
       }
 
+      // Set the private key and tweak to use for testing.
       const masterPrv     = '69cf4ed2fdea041bb2081deb9a06586bddda23ab807d7f0dce11a3067b3af5d6'
       const tweak         = '/0/0/0'
 
+      // Verify that getHmacKey(tweak) returns the correct result.
       const tweakHash     = await getHmacKey(tweak)
       const checkHash     = await Hash.hmac256(ec.encode(tweak), hexToBytes(masterPrv))
       console.log('getHmacKey check:', tweakHash === bytesToHex(checkHash))
       
+      // Verify that getPublicKey() returns the correct result.
       const masterPub     = await getPublicKey()
       const masterField   = new Field(hexToBytes(masterPrv))
       const masterPoint   = masterField.point
       const chkMasterPub  = bytesToHex(masterPoint.rawX.slice(1))
       console.log('Master pub check:', masterPub === chkMasterPub)
 
+      // Verify that signEvent() returns the correct result.
       const signer        = new Signer(masterPrv)
       const signedEvent   = await signEvent(event)
       const signerCheck   = await signer.verify(signedEvent.id, signedEvent.sig)
       console.log('Base signature check:', signerCheck)
 
-      const tweakedPub    = await getTweakedPub(tweak)
-      const { id, pubkey, sig } = await signWithTweak(event, tweak)
+      // Verify that getPublicKey(tweak) returns the correct result.
+      const tweakedPub    = await getPublicKey(tweak)
+      const { id, pubkey, sig } = await signEvent(event, tweak)
       console.log('getTweakedPub check:', pubkey === tweakedPub)
 
+      // Verify that both getPublicKey(tweak) and signEvent(tweak)
+      // return the same pubkey as a result.
       const tweakedPoint  = masterPoint.add(tweakHash)
       const chkTweakedPub = bytesToHex(tweakedPoint.rawX.slice(1))
       console.log('Tweaked pub check:', tweakedPub === chkTweakedPub)
 
+      // Verify that signEvent(tweak) returns the correct result.
       const tweakField  = masterField.add(tweakHash)
       const tweakSigner = new Signer(tweakField)
       const twkSigCheck = await tweakSigner.verify(id, sig)

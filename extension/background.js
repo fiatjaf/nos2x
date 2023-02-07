@@ -122,6 +122,12 @@ async function handleContentScriptMessage({type, params, host}) {
   try {
     switch (type) {
       case 'getPublicKey': {
+        let { tweak } = params
+
+        if (typeof tweak === 'string') {
+          sk = await getTweakedKey(sk, tweak)
+        }
+
         return getPublicKey(sk)
       }
       case 'getHmacKey': {
@@ -135,45 +141,22 @@ async function handleContentScriptMessage({type, params, host}) {
 
         return utils.bytesToHex(hmacKey)
       }
-      case 'getTweakedPub': {
-        let { tweak } = params
-
-        if (typeof tweak !== 'string') {
-          return { error: { message: 'must provide a string!' }}
-        }
-
-        const tk = await getTweakedKey(sk, tweak)
-
-        return getPublicKey(tk)
-      }
-      case 'signWithTweak': {
-        let { event, tweak } = params
-
-        if (typeof tweak !== 'string') {
-          return { error: { message: 'must provide a tweak string!' }}
-        }
-
-        const tk = await getTweakedKey(sk, tweak)
-
-        if (!event.pubkey) event.pubkey = getPublicKey(tk)
-        if (!event.id) event.id = getEventHash(event)
-        if (!validateEvent(event)) return {error: {message: 'invalid event'}}
-
-        event.sig = signEvent(event, tk)
-        return event
-      }
       case 'getRelays': {
         let results = await browser.storage.local.get('relays')
         return results.relays || {}
       }
       case 'signEvent': {
-        let {event} = params
+        let { event, tweak } = params
+
+        if (typeof tweak === 'string') {
+          sk = await getTweakedKey(sk, tweak)
+        }
 
         if (!event.pubkey) event.pubkey = getPublicKey(sk)
         if (!event.id) event.id = getEventHash(event)
         if (!validateEvent(event)) return {error: {message: 'invalid event'}}
 
-        event.sig = await signEvent(event, sk)
+        event.sig = signEvent(event, sk)
         return event
       }
       case 'nip04.encrypt': {
