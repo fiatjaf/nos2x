@@ -1,34 +1,7 @@
 window.nostr = {
   _requests: {},
   _pubkey: null,
-
-  async getPublicKey() {
-    if (this._pubkey) return this._pubkey
-    this._pubkey = await this._call('getPublicKey', {})
-    return this._pubkey
-  },
-
-  async getDerivedKey(key, format = 'SHA-256') {
-    return this._call('getDerivedKey', { key, format })
-  },
-
-  async signEvent(event) {
-    return this._call('signEvent', {event})
-  },
-
-  async getRelays() {
-    return this._call('getRelays', {})
-  },
-
-  nip04: {
-    async encrypt(peer, plaintext) {
-      return window.nostr._call('nip04.encrypt', {peer, plaintext})
-    },
-
-    async decrypt(peer, ciphertext) {
-      return window.nostr._call('nip04.decrypt', {peer, ciphertext})
-    }
-  },
+  _tweakedPubs: new Map(),
 
   _call(type, params) {
     return new Promise((resolve, reject) => {
@@ -44,6 +17,47 @@ window.nostr = {
         '*'
       )
     })
+  },
+
+  async getPublicKey() {
+    if (this._pubkey) return this._pubkey
+    this._pubkey = await window.nostr._call('getPublicKey', {})
+    return this._pubkey
+  },
+
+  async getHmacKey(key, format = 'SHA-256') {
+    return window.nostr._call('getHmacKey', { key, format })
+  },
+
+  async getTweakedPub(tweak) {
+    const tweakedPubs = window.nostr._tweakedPubs
+    if (!tweakedPubs.has(tweak)) {
+      const pubkey = await window.nostr._call('getTweakedPub', { tweak })
+      tweakedPubs.set(tweak, pubkey)
+    }
+    return tweakedPubs.get(tweak)
+  },
+
+  async signEvent(event) {
+    return window.nostr._call('signEvent', { event })
+  },
+
+  async signWithTweak(event, tweak) {
+    return window.nostr._call('signWithTweak', { event, tweak })
+  },
+
+  async getRelays() {
+    return this._call('getRelays', {})
+  },
+
+  nip04: {
+    async encrypt(peer, plaintext) {
+      return window.nostr._call('nip04.encrypt', {peer, plaintext})
+    },
+
+    async decrypt(peer, ciphertext) {
+      return window.nostr._call('nip04.decrypt', {peer, ciphertext})
+    }
   }
 }
 

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Suite</title>
+</head>
+<body>
+  <script src="https://unpkg.com/@cmdcode/crypto-utils@1.4.3"></script>
+  <script type="module">
+    setTimeout(async () => {
+      const { getPublicKey, getHmacKey, signEvent, getTweakedPub, signWithTweak } = window.nostr
+      const { Noble, Field, Point, Hash, Signer } = window.cryptoUtils
+
+      const ec = new TextEncoder()
+      const hexToBytes = Noble.utils.hexToBytes
+      const bytesToHex = Noble.utils.bytesToHex
+
+      const event = {
+        kind: 1,
+        created_at: Math.floor(Date.now() / 1000),
+        content: 'this is a test!',
+        tags: []
+      }
+
+      const masterPrv     = '69cf4ed2fdea041bb2081deb9a06586bddda23ab807d7f0dce11a3067b3af5d6'
+      const tweak         = '/0/0/0'
+
+      const tweakHash     = await getHmacKey(tweak)
+      const checkHash     = await Hash.hmac256(ec.encode(tweak), hexToBytes(masterPrv))
+      console.log('getHmacKey check:', tweakHash === bytesToHex(checkHash))
+      
+      const masterPub     = await getPublicKey()
+      const masterField   = new Field(hexToBytes(masterPrv))
+      const masterPoint   = masterField.point
+      const chkMasterPub  = bytesToHex(masterPoint.rawX.slice(1))
+      console.log('Master pub check:', masterPub === chkMasterPub)
+
+      const signer        = new Signer(masterPrv)
+      const signedEvent   = await signEvent(event)
+      const signerCheck   = await signer.verify(signedEvent.id, signedEvent.sig)
+      console.log('Base signature check:', signerCheck)
+
+      const tweakedPub    = await getTweakedPub(tweak)
+      const { id, pubkey, sig } = await signWithTweak(event, tweak)
+      console.log('getTweakedPub check:', pubkey === tweakedPub)
+
+      const tweakedPoint  = masterPoint.add(tweakHash)
+      const chkTweakedPub = bytesToHex(tweakedPoint.rawX.slice(1))
+      console.log('Tweaked pub check:', tweakedPub === chkTweakedPub)
+
+      const tweakField  = masterField.add(tweakHash)
+      const tweakSigner = new Signer(tweakField)
+      const twkSigCheck = await tweakSigner.verify(id, sig)
+      console.log('Tweaked signature check:', twkSigCheck)
+    }, 1000)
+  </script>
+</body>
+</html>

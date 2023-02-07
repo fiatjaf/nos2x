@@ -11,8 +11,8 @@ import {
 import {encrypt, decrypt} from 'nostr-tools/nip04'
 import {Mutex} from 'async-mutex'
 
-import { hmac } from './hmac'
-import { getTweakedKey } from './tweak'
+import { hmac } from './hmac.js'
+import { getTweakedKey } from './tweak.js'
 import { utils } from '@noble/secp256k1'
 
 import {
@@ -159,7 +159,7 @@ async function handleContentScriptMessage({type, params, host}) {
         if (!event.id) event.id = getEventHash(event)
         if (!validateEvent(event)) return {error: {message: 'invalid event'}}
 
-        event.sig = await signEvent(event, tk)
+        event.sig = signEvent(event, tk)
         return event
       }
       case 'getRelays': {
