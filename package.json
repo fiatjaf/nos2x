@@ -19,8 +19,5 @@
     "build": "./build.js prod",
     "watch": "ag -l --js | entr ./build.js",
     "package": "./build.js prod; cd extension; zip -r archive *; cd ..; mv extension/archive.zip ./nos2x.zip"
-  },
-  "devDependencies": {
-    "tape": "^5.6.3"
   }
 }
