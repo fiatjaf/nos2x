@@ -7,6 +7,7 @@ import {
   nip19
 } from 'nostr-tools'
 import {encrypt, decrypt} from 'nostr-tools/nip04'
+import {createDelegation} from 'nostr-tools/nip26'
 import {Mutex} from 'async-mutex'
 
 import {
@@ -139,6 +140,10 @@ async function handleContentScriptMessage({type, params, host}) {
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
         return decrypt(sk, peer, ciphertext)
+      }
+      case 'nip26.createDelegation': {
+        let {parameters} = params
+        return createDelegation(sk, parameters)
       }
     }
   } catch (error) {

@@ -26,6 +26,12 @@ window.nostr = {
     }
   },
 
+  nip26: {
+    async createDelegation(parameters) {
+      return window.nostr._call('nip26.createDelegation', {parameters})
+    },
+  },
+
   _call(type, params) {
     return new Promise((resolve, reject) => {
       let id = Math.random().toString().slice(4)
