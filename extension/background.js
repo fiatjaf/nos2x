@@ -6,7 +6,7 @@ import {
   getPublicKey,
   nip19
 } from 'nostr-tools'
-import {encrypt, decrypt} from 'nostr-tools/nip04'
+import {nip04} from 'nostr-tools'
 import {Mutex} from 'async-mutex'
 
 import {
@@ -15,6 +15,8 @@ import {
   readPermissionLevel,
   updatePermission
 } from './common'
+
+const {encrypt, decrypt} = nip04
 
 let openPrompt = null
 let promptMutex = new Mutex()
