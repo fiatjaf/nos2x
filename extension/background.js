@@ -6,7 +6,7 @@ import {
   getPublicKey,
   nip19
 } from 'nostr-tools'
-import {nip04} from 'nostr-tools'
+import {nip04, nip26} from 'nostr-tools'
 import {Mutex} from 'async-mutex'
 
 import {
@@ -141,6 +141,11 @@ async function handleContentScriptMessage({type, params, host}) {
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
         return decrypt(sk, peer, ciphertext)
+      }
+      case 'nip26.delegate': {
+        let { delegateePubkey, conditionsJson } = params
+        let parameters = { pubkey: delegateePubkey, ...conditionsJson }
+        return nip26.createDelegation(sk, parameters)
       }
     }
   } catch (error) {
