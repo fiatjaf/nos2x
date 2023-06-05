@@ -1,4 +1,5 @@
 {
+  "license": "http://www.wtfpl.net/txt/copying/",
   "dependencies": {
     "async-mutex": "^0.3.2",
     "esbuild": "^0.14.11",
