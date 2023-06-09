@@ -14,7 +14,6 @@ async window.nostr.signEvent(event): Event // returns the full event object sign
 async window.nostr.getRelays(): { [url: string]: RelayPolicy } // returns a map of relays
 async window.nostr.nip04.encrypt(pubkey, plaintext): string // returns ciphertext+iv as specified in nip04
 async window.nostr.nip04.decrypt(pubkey, ciphertext): string // takes ciphertext+iv as specified in nip04
-async window.nostr.nip26.delegate(delegateePubkey, cond): object // generates a delegation token ({from, to, cond, sig})
 ```
 
 This extension is Chromium-only. For a maintained Firefox fork, see [nos2x-fox](https://diegogurpegui.com/nos2x-fox/).
