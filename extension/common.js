@@ -88,6 +88,6 @@ export async function updatePermission(host, type, accept, conditions) {
 
 export async function removePermissions(host, accept, type) {
   let {policies = {}} = await browser.storage.local.get('policies')
-  delete policies[host]
+  delete policies[host]?.[accept]?.[type]
   browser.storage.local.set({policies})
 }
