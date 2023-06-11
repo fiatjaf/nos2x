@@ -2,17 +2,18 @@ import browser from 'webextension-polyfill'
 import {render} from 'react-dom'
 import React from 'react'
 
-import {getAllowedCapabilities} from './common'
+import {PERMISSION_NAMES} from './common'
 
 function Prompt() {
   let qs = new URLSearchParams(location.search)
   let id = qs.get('id')
   let host = qs.get('host')
-  let level = parseInt(qs.get('level'))
-  let params
+  let type = qs.get('type')
+  let params, event
   try {
     params = JSON.parse(qs.get('params'))
     if (Object.keys(params).length === 0) params = null
+    else if (params.event) event = params.event
   } catch (err) {
     params = null
   }
@@ -23,20 +24,15 @@ function Prompt() {
         <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
           {host}
         </b>{' '}
-        <p>is requesting your permission to </p>
-        <ul>
-          {getAllowedCapabilities(level).map(cap => (
-            <li key={cap}>
-              <i style={{fontSize: '140%'}}>{cap}</i>
-            </li>
-          ))}
-        </ul>
+        <p>
+          is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
+        </p>
       </div>
       {params && (
         <>
           <p>now acting on</p>
-          <pre style={{overflow: 'auto', maxHeight: '100px'}}>
-            <code>{JSON.stringify(params, null, 2)}</code>
+          <pre style={{overflow: 'auto', maxHeight: '120px'}}>
+            <code>{JSON.stringify(event || params, null, 2)}</code>
           </pre>
         </>
       )}
@@ -49,35 +45,65 @@ function Prompt() {
       >
         <button
           style={{marginTop: '5px'}}
-          onClick={authorizeHandler('forever')}
+          onClick={authorizeHandler(
+            true,
+            {} // store this and answer true forever
+          )}
         >
           authorize forever
         </button>
-        <button
-          style={{marginTop: '5px'}}
-          onClick={authorizeHandler('expirable')}
-        >
-          authorize for 5 minutes
-        </button>
-        <button style={{marginTop: '5px'}} onClick={authorizeHandler('single')}>
+        {event?.kind !== undefined && (
+          <button
+            style={{marginTop: '5px'}}
+            onClick={authorizeHandler(
+              true,
+              {kinds: {[event.kind]: true}} // store and always answer true for all events that match this condition
+            )}
+          >
+            authorize kind {event.kind} forever
+          </button>
+        )}
+        <button style={{marginTop: '5px'}} onClick={authorizeHandler(true)}>
           authorize just this
         </button>
-        <button style={{marginTop: '5px'}} onClick={authorizeHandler('no')}>
-          cancel
+        {event?.kind !== undefined ? (
+          <button
+            style={{marginTop: '5px'}}
+            onClick={authorizeHandler(
+              false,
+              {kinds: {[event.kind]: true}} // idem
+            )}
+          >
+            reject kind {event.kind} forever
+          </button>
+        ) : (
+          <button
+            style={{marginTop: '5px'}}
+            onClick={authorizeHandler(
+              false,
+              {} // idem
+            )}
+          >
+            reject forever
+          </button>
+        )}
+        <button style={{marginTop: '5px'}} onClick={authorizeHandler(false)}>
+          reject
         </button>
       </div>
     </>
   )
 
-  function authorizeHandler(condition) {
+  function authorizeHandler(accept, conditions) {
     return function (ev) {
       ev.preventDefault()
       browser.runtime.sendMessage({
         prompt: true,
         id,
         host,
-        level,
-        condition
+        type,
+        accept,
+        conditions
       })
     }
   }

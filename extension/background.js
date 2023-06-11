@@ -10,9 +10,8 @@ import {nip04} from 'nostr-tools'
 import {Mutex} from 'async-mutex'
 
 import {
-  PERMISSIONS_REQUIRED,
   NO_PERMISSIONS_REQUIRED,
-  readPermissionLevel,
+  getPermissionStatus,
   updatePermission
 } from './common'
 
@@ -90,24 +89,60 @@ async function handleContentScriptMessage({type, params, host}) {
 
     return
   } else {
-    let level = await readPermissionLevel(host)
+    // acquire mutex here before reading policies
+    releasePromptMutex = await promptMutex.acquire()
 
-    if (level >= PERMISSIONS_REQUIRED[type]) {
+    let allowed = await getPermissionStatus(
+      host,
+      type,
+      type === 'signEvent' ? params.event : undefined
+    )
+
+    if (allowed === true) {
       // authorized, proceed
+      releasePromptMutex()
+    } else if (allowed === false) {
+      // denied, just refuse immediately
+      releasePromptMutex()
+      return {
+        error: 'denied'
+      }
     } else {
       // ask for authorization
       try {
-        await promptPermission(host, PERMISSIONS_REQUIRED[type], params)
-        // authorized, proceed
-      } catch (_) {
-        // not authorized, stop here
+        let id = Math.random().toString().slice(4)
+        let qs = new URLSearchParams({
+          host,
+          id,
+          params: JSON.stringify(params),
+          type
+        })
+
+        // prompt will be resolved with true or false
+        let accept = await new Promise((resolve, reject) => {
+          openPrompt = {resolve, reject}
+
+          browser.windows.create({
+            url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
+            type: 'popup',
+            width: 340,
+            height: 360
+          })
+        })
+
+        // denied, stop here
+        if (!accept) return {error: 'denied'}
+      } catch (err) {
+        // errored, stop here
+        releasePromptMutex()
         return {
-          error: `insufficient permissions, required ${PERMISSIONS_REQUIRED[type]}`
+          error: `error: ${err}`
         }
       }
     }
   }
 
+  // if we're here this means it was accepted
   let results = await browser.storage.local.get('private_key')
   if (!results || !results.private_key) {
     return {error: 'no private key found'}
@@ -148,51 +183,23 @@ async function handleContentScriptMessage({type, params, host}) {
   }
 }
 
-function handlePromptMessage({id, condition, host, level}, sender) {
-  switch (condition) {
-    case 'forever':
-    case 'expirable':
-      openPrompt?.resolve?.()
-      updatePermission(host, {
-        level,
-        condition
-      })
-      break
-    case 'single':
-      openPrompt?.resolve?.()
-      break
-    case 'no':
-      openPrompt?.reject?.()
-      break
+function handlePromptMessage({id, host, type, accept, conditions}, sender) {
+  // return response
+  openPrompt?.resolve?.(accept)
+
+  // update policies
+  if (conditions) {
+    updatePermission(host, type, accept, conditions)
   }
 
+  // cleanup this
   openPrompt = null
+
+  // release mutex here after updating policies
   releasePromptMutex()
 
+  // close prompt
   if (sender) {
     browser.windows.remove(sender.tab.windowId)
   }
-}
-
-async function promptPermission(host, level, params) {
-  releasePromptMutex = await promptMutex.acquire()
-
-  let id = Math.random().toString().slice(4)
-  let qs = new URLSearchParams({
-    host,
-    level,
-    id,
-    params: JSON.stringify(params)
-  })
-
-  return new Promise((resolve, reject) => {
-    openPrompt = {resolve, reject}
-
-    browser.windows.create({
-      url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
-      type: 'popup',
-      width: 340,
-      height: 330
-    })
-  })
 }
