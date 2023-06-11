@@ -1,13 +1,12 @@
 import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
-import {generatePrivateKey, getPublicKey, nip19} from 'nostr-tools'
+import {generatePrivateKey, nip19} from 'nostr-tools'
 import QRCode from 'react-qr-code'
 
 import {removePermissions, PERMISSION_NAMES} from './common'
 
 function Options() {
-  let [pubKey, setPubKey] = useState('')
   let [privKey, setPrivKey] = useState('')
   let [relays, setRelays] = useState([])
   let [newRelayURL, setNewRelayURL] = useState('')
@@ -15,7 +14,6 @@ function Options() {
   let [protocolHandler, setProtocolHandler] = useState(null)
   let [hidingPrivateKey, hidePrivateKey] = useState(true)
   let [message, setMessage] = useState('')
-  let [showQR, setShowQR] = useState('')
 
   const showMessage = useCallback(msg => {
     setMessage(msg)
@@ -28,11 +26,6 @@ function Options() {
       .then(results => {
         if (results.private_key) {
           setPrivKey(nip19.nsecEncode(results.private_key))
-
-          let hexKey = getPublicKey(results.private_key)
-          let npubKey = nip19.npubEncode(hexKey)
-
-          setPubKey(npubKey)
         }
         if (results.relays) {
           let relaysList = []
@@ -127,6 +120,23 @@ function Options() {
         <label>
           <div>private key:&nbsp;</div>
           <div style={{marginLeft: '10px'}}>
+            {!hidingPrivateKey && (
+              <div
+                style={{
+                  height: 'auto',
+                  maxWidth: 256,
+                  width: '100%'
+                }}
+              >
+                <QRCode
+                  size={256}
+                  style={{height: 'auto', maxWidth: '100%', width: '100%'}}
+                  value={privKey.toUpperCase()}
+                  viewBox={`0 0 256 256`}
+                />
+              </div>
+            )}
+
             <div style={{display: 'flex'}}>
               <input
                 type={hidingPrivateKey ? 'password' : 'text'}
@@ -142,34 +152,6 @@ function Options() {
             <button disabled={!isKeyValid()} onClick={saveKey}>
               save
             </button>
-
-            <button disabled={!isKeyValid()} onClick={() => setShowQR('priv')}>
-              Show QR for private key
-            </button>
-
-            <button disabled={!isKeyValid()} onClick={() => setShowQR('pub')}>
-              Show QR for public key
-            </button>
-
-            {showQR && (
-              <div
-                id={'qrCodeDiv'}
-                style={{
-                  height: 'auto',
-                  maxWidth: 256,
-                  width: '100%',
-                  marginTop: '20px',
-                  marginBottom: '30px'
-                }}
-              >
-                <QRCode
-                  size={256}
-                  style={{height: 'auto', maxWidth: '100%', width: '100%'}}
-                  value={showQR === 'priv' ? privKey : pubKey}
-                  viewBox={`0 0 256 256`}
-                />
-              </div>
-            )}
           </div>
         </label>
         {policies?.length > 0 && (
