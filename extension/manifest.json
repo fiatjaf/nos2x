@@ -26,6 +26,7 @@
     }
   ],
   "permissions": ["storage"],
+  "optional_permissions": ["notifications"],
   "web_accessible_resources": [
     {
       "resources": ["nostr-provider.js"],

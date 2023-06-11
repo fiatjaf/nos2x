@@ -13,6 +13,7 @@ function Options() {
   let [policies, setPermissions] = useState()
   let [protocolHandler, setProtocolHandler] = useState(null)
   let [hidingPrivateKey, hidePrivateKey] = useState(true)
+  let [showNotifications, setNotifications] = useState(false)
   let [message, setMessage] = useState('')
 
   const showMessage = useCallback(msg => {
@@ -22,7 +23,7 @@ function Options() {
 
   useEffect(() => {
     browser.storage.local
-      .get(['private_key', 'relays', 'protocol_handler'])
+      .get(['private_key', 'relays', 'protocol_handler', 'notifications'])
       .then(results => {
         if (results.private_key) {
           setPrivKey(nip19.nsecEncode(results.private_key))
@@ -39,6 +40,9 @@ function Options() {
         }
         if (results.protocol_handler) {
           setProtocolHandler(results.protocol_handler)
+        }
+        if (results.notifications) {
+          setNotifications(true)
         }
       })
   }, [])
@@ -156,7 +160,23 @@ function Options() {
         </label>
         {policies?.length > 0 && (
           <>
-            <h2>policies</h2>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <h2>policies</h2>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginLeft: '14px'
+                }}
+              >
+                show a notification when a permission is used by a page
+                <input
+                  type="checkbox"
+                  checked={showNotifications}
+                  onClick={handleNotifications}
+                />
+              </label>
+            </div>
             <table>
               <thead>
                 <tr>
@@ -352,6 +372,20 @@ function Options() {
       await removePermissions(host, accept, type)
       showMessage('removed policies')
       loadPermissions()
+    }
+  }
+
+  async function handleNotifications() {
+    if (showNotifications) {
+      setNotifications(false)
+    } else {
+      let granted = await browser.permissions.request({
+        permissions: ['notifications']
+      })
+      if (granted) {
+        await browser.storage.local.set({notifications: true})
+        setNotifications(true)
+      }
     }
   }
 

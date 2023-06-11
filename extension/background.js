@@ -101,9 +101,44 @@ async function handleContentScriptMessage({type, params, host}) {
     if (allowed === true) {
       // authorized, proceed
       releasePromptMutex()
+      browser.notifications
+        .create(undefined, {
+          type: 'basic',
+          title: `${type} allowed for ${host}`,
+          message: JSON.stringify(
+            params?.event
+              ? {
+                  kind: params.event.kind,
+                  content: params.event.content,
+                  tags: params.event.tags
+                }
+              : params,
+            null,
+            2
+          ),
+          iconUrl: 'icons/denied48.png'
+        })
+        .then(console.log)
+        .catch(console.log)
     } else if (allowed === false) {
       // denied, just refuse immediately
       releasePromptMutex()
+      browser.notifications.create(undefined, {
+        type: 'basic',
+        title: `${type} denied for ${host}`,
+        message: JSON.stringify(
+          params?.event
+            ? {
+                kind: params.event.kind,
+                content: params.event.content,
+                tags: params.event.tags
+              }
+            : params,
+          null,
+          2
+        ),
+        iconUrl: 'icons/denied48.png'
+      })
       return {
         error: 'denied'
       }
