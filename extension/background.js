@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import {
   validateEvent,
-  signEvent,
+  getSignature,
   getEventHash,
   getPublicKey,
   nip19
@@ -166,7 +166,7 @@ async function handleContentScriptMessage({type, params, host}) {
         if (!event.id) event.id = getEventHash(event)
         if (!validateEvent(event)) return {error: {message: 'invalid event'}}
 
-        event.sig = await signEvent(event, sk)
+        event.sig = await getSignature(event, sk)
         return event
       }
       case 'nip04.encrypt': {
