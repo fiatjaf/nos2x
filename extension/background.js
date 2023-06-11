@@ -188,13 +188,13 @@ async function handleContentScriptMessage({type, params, host}) {
   }
 }
 
-function handlePromptMessage({id, host, type, accept, conditions}, sender) {
+async function handlePromptMessage({host, type, accept, conditions}, sender) {
   // return response
   openPrompt?.resolve?.(accept)
 
   // update policies
   if (conditions) {
-    updatePermission(host, type, accept, conditions)
+    await updatePermission(host, type, accept, conditions)
   }
 
   // cleanup this
