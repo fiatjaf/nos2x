@@ -44,13 +44,6 @@ then
 3. click on "Load unpackaged";
 4. select the `extension/` folder of this repository.
 
-## Screenshots
-
-![](screenshot1.png)
-![](screenshot2.png)
-![](screenshot3.png)
-![](screenshot4.png)
-
 ---
 
 LICENSE: public domain.
