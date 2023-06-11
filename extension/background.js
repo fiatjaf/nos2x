@@ -30,7 +30,7 @@ browser.runtime.onMessage.addListener(async (req, sender) => {
   let {prompt} = req
 
   if (prompt) {
-    return handlePromptMessage(req, sender)
+    handlePromptMessage(req, sender)
   } else {
     return handleContentScriptMessage(req)
   }
@@ -45,7 +45,9 @@ browser.runtime.onMessageExternal.addListener(
 
 browser.windows.onRemoved.addListener(windowId => {
   if (openPrompt) {
-    handlePromptMessage({condition: 'no'}, null)
+    // calling this with a simple "no" response will not store anything, so it's fine
+    // it will just return a failure
+    handlePromptMessage({accept: false}, null)
   }
 })
 
