@@ -377,6 +377,7 @@ function Options() {
 
   async function handleNotifications() {
     if (showNotifications) {
+      await browser.storage.local.set({notifications: false})
       setNotifications(false)
     } else {
       let granted = await browser.permissions.request({
