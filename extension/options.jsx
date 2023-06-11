@@ -4,7 +4,7 @@ import {render} from 'react-dom'
 import {generatePrivateKey, nip19} from 'nostr-tools'
 import QRCode from 'react-qr-code'
 
-import {removePermissions, PERMISSION_NAMES} from './common'
+import {removePermissions} from './common'
 
 function Options() {
   let [privKey, setPrivKey] = useState('')
@@ -171,11 +171,15 @@ function Options() {
               <tbody>
                 {policies.map(
                   ({host, type, accept, conditions, created_at}) => (
-                    <tr key={host}>
+                    <tr key={host + type + accept + JSON.stringify(conditions)}>
                       <td>{host}</td>
-                      <td>{PERMISSION_NAMES[type]}</td>
+                      <td>{type}</td>
                       <td>{accept}</td>
-                      <td>{JSON.stringify(conditions).slice(1, -1)}</td>
+                      <td>
+                        {conditions.kinds
+                          ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
+                          : 'always'}
+                      </td>
                       <td>
                         {new Date(created_at * 1000)
                           .toISOString()
