@@ -91,3 +91,26 @@ export async function removePermissions(host, accept, type) {
   delete policies[host]?.[accept]?.[type]
   browser.storage.local.set({policies})
 }
+
+export async function showNotification(host, answer, type, params) {
+  let ok = await browser.storage.local.get('notifications')
+  if (ok) {
+    let action = answer ? 'allowed' : 'denied'
+    browser.notifications.create(undefined, {
+      type: 'basic',
+      title: `${type} ${action} for ${host}`,
+      message: JSON.stringify(
+        params?.event
+          ? {
+              kind: params.event.kind,
+              content: params.event.content,
+              tags: params.event.tags
+            }
+          : params,
+        null,
+        2
+      ),
+      iconUrl: 'icons/48x48.png'
+    })
+  }
+}
