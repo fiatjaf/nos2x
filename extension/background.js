@@ -116,7 +116,7 @@ async function handleContentScriptMessage({type, params, host}) {
             null,
             2
           ),
-          iconUrl: 'icons/denied48.png'
+          iconUrl: 'icons/48x48.png'
         })
         .then(console.log)
         .catch(console.log)
