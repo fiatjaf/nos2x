@@ -27,8 +27,23 @@ window.nostr = {
   },
 
   _call(type, params) {
+    let id = Math.random().toString().slice(-4)
+    console.log(
+      '%c[nos2x:%c' +
+        id +
+        '%c]%c calling %c' +
+        type +
+        '%c with %c' +
+        JSON.stringify(params || {}),
+      'background-color:#f1b912;font-weight:bold;color:white',
+      'background-color:#f1b912;font-weight:bold;color:#a92727',
+      'background-color:#f1b912;color:white;font-weight:bold',
+      'color:auto',
+      'font-weight:bold;color:#08589d;font-family:monospace',
+      'color:auto',
+      'font-weight:bold;color:#90b12d;font-family:monospace'
+    )
     return new Promise((resolve, reject) => {
-      let id = Math.random().toString().slice(4)
       this._requests[id] = {resolve, reject}
       window.postMessage(
         {
@@ -60,6 +75,20 @@ window.addEventListener('message', message => {
   } else {
     window.nostr._requests[message.data.id].resolve(message.data.response)
   }
+
+  console.log(
+    '%c[nos2x:%c' +
+      message.data.id +
+      '%c]%c result: %c' +
+      JSON.stringify(
+        message?.data?.response || message?.data?.response?.error?.message || {}
+      ),
+    'background-color:#f1b912;font-weight:bold;color:white',
+    'background-color:#f1b912;font-weight:bold;color:#a92727',
+    'background-color:#f1b912;color:white;font-weight:bold',
+    'color:auto',
+    'font-weight:bold;color:#08589d'
+  )
 
   delete window.nostr._requests[message.data.id]
 })
