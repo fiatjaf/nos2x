@@ -108,6 +108,9 @@ function Options() {
                   onChange={toggleRelayPolicy.bind(null, i, 'write')}
                 />
               </label>
+              <button style={{marginLeft: '10px'}} onClick={removeRelay.bind(null, i)}>
+                remove
+              </button>
             </div>
           ))}
           <div style={{display: 'flex'}}>
@@ -351,7 +354,15 @@ function Options() {
     ])
   }
 
+  function removeRelay(i) {
+    setRelays([
+      ...relays.slice(0, i),
+      ...relays.slice(i + 1)
+    ])
+  }
+
   function addNewRelay() {
+    if (newRelayURL.trim() === '') return
     relays.push({
       url: newRelayURL,
       policy: {read: true, write: true}
