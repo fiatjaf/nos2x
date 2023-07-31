@@ -67,7 +67,7 @@ function Options() {
           list.push({
             host,
             type,
-            accept: {true: 'allow', false: 'deny'}[accept],
+            accept,
             conditions,
             created_at
           })
@@ -242,7 +242,7 @@ function Options() {
                 <tr key={host + type + accept + JSON.stringify(conditions)}>
                   <td>{host}</td>
                   <td>{type}</td>
-                  <td>{accept}</td>
+                  <td>{accept === 'true' ? 'allow' : 'deny'}</td>
                   <td>
                     {conditions.kinds
                       ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
@@ -365,7 +365,7 @@ function Options() {
     if (
       window.confirm(
         `revoke all ${
-          accept ? 'accept' : 'deny'
+          accept === 'true' ? 'accept' : 'deny'
         } ${type} policies from ${host}?`
       )
     ) {
