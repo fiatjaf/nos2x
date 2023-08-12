@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
-import {generatePrivateKey, nip19} from 'nostr-tools'
+import {generateSecretKey, nip19} from 'nostr-tools'
 import QRCode from 'react-qr-code'
 
 import {removePermissions} from './common'
@@ -327,7 +327,7 @@ function Options() {
   }
 
   async function generate() {
-    setPrivKey(nip19.nsecEncode(generatePrivateKey()))
+    setPrivKey(nip19.nsecEncode(generateSecretKey()))
     addUnsavedChanges('private_key')
   }
 

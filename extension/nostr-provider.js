@@ -26,6 +26,16 @@ window.nostr = {
     }
   },
 
+  nip44: {
+    async encrypt(items) {
+      return window.nostr._call('nip44.encrypt', {items})
+    },
+
+    async decrypt(items) {
+      return window.nostr._call('nip44.decrypt', {items})
+    }
+  },
+
   _call(type, params) {
     let id = Math.random().toString().slice(-4)
     console.log(

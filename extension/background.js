@@ -1,13 +1,14 @@
 import browser from 'webextension-polyfill'
 import {
   validateEvent,
-  getSignature,
+  finalizeEvent,
   getEventHash,
   getPublicKey,
   nip19
 } from 'nostr-tools'
-import {nip04} from 'nostr-tools'
+import {nip04, nip44} from 'nostr-tools'
 import {Mutex} from 'async-mutex'
+import {LRUCache} from './utils'
 
 import {
   NO_PERMISSIONS_REQUIRED,
@@ -16,11 +17,28 @@ import {
   showNotification
 } from './common'
 
-const {encrypt, decrypt} = nip04
-
 let openPrompt = null
 let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
+let secretsCache = new LRUCache(100)
+let previousSk = null
+
+function getSharedSecret(sk, peer) {
+  // Detect a key change and erase the cache if they changed their key
+  if (previousSk != sk) {
+    secretsCache.clear()
+  }
+
+  let key = secretsCache.get(peer)
+
+  if (!key) {
+    key = nip44.v2.getSharedSecret(sk, peer)
+
+    secretsCache.set(peer, key)
+  }
+
+  return key
+}
 
 browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
@@ -165,22 +183,31 @@ async function handleContentScriptMessage({type, params, host}) {
         return results.relays || {}
       }
       case 'signEvent': {
-        let {event} = params
+        const event = finalizeEvent(params.event, sk)
 
-        if (!event.pubkey) event.pubkey = getPublicKey(sk)
-        if (!event.id) event.id = getEventHash(event)
-        if (!validateEvent(event)) return {error: {message: 'invalid event'}}
-
-        event.sig = await getSignature(event, sk)
-        return event
+        return validateEvent(event) ? event : {error: {message: 'invalid event'}}
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
-        return encrypt(sk, peer, plaintext)
+        return nip04.encrypt(sk, peer, plaintext)
       }
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
-        return decrypt(sk, peer, ciphertext)
+        return nip04.decrypt(sk, peer, ciphertext)
+      }
+      case 'nip44.encrypt': {
+        return params.items.map(([pubkey, plaintext]) => {
+          const key = getSharedSecret(sk, peer)
+
+          return nip44.v2.decrypt(key, plaintext)
+       })
+      }
+      case 'nip44.decrypt': {
+        return params.items.map(([pubkey, ciphertext]) => {
+          const key = getSharedSecret(sk, peer)
+
+          return nip44.v2.decrypt(key, ciphertext)
+       })
       }
     }
   } catch (error) {
