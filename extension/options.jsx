@@ -11,7 +11,7 @@ function Options() {
   let [relays, setRelays] = useState([])
   let [newRelayURL, setNewRelayURL] = useState('')
   let [policies, setPermissions] = useState([])
-  let [protocolHandler, setProtocolHandler] = useState('')
+  let [protocolHandler, setProtocolHandler] = useState('https://njump.me/{raw}')
   let [hidingPrivateKey, hidePrivateKey] = useState(true)
   let [showNotifications, setNotifications] = useState(false)
   let [messages, setMessages] = useState([])
@@ -83,10 +83,25 @@ function Options() {
       <h1 style={{fontSize: '25px', marginBlockEnd: '0px'}}>nos2x</h1>
       <p style={{marginBlockStart: '0px'}}>nostr signer extension</p>
       <h2 style={{marginBlockStart: '20px', marginBlockEnd: '5px'}}>options</h2>
-      <div style={{marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px', width: 'fit-content'}}>
+      <div
+        style={{
+          marginBottom: '10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          width: 'fit-content'
+        }}
+      >
         <div>
           <div>private key:&nbsp;</div>
-          <div style={{marginLeft: '10px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
+          <div
+            style={{
+              marginLeft: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
             <div style={{display: 'flex', gap: '10px'}}>
               <input
                 type={hidingPrivateKey ? 'password' : 'text'}
@@ -95,10 +110,16 @@ function Options() {
                 onChange={handleKeyChange}
               />
               {privKey === '' && <button onClick={generate}>generate</button>}
-              {privKey && hidingPrivateKey && <button onClick={() => hidePrivateKey(false)}>show key</button>}
-              {privKey && !hidingPrivateKey && <button onClick={() => hidePrivateKey(true)}>hide key</button>}
+              {privKey && hidingPrivateKey && (
+                <button onClick={() => hidePrivateKey(false)}>show key</button>
+              )}
+              {privKey && !hidingPrivateKey && (
+                <button onClick={() => hidePrivateKey(true)}>hide key</button>
+              )}
             </div>
-            {privKey && !isKeyValid() && <div style={{color: 'red'}}>private key is invalid!</div>}
+            {privKey && !isKeyValid() && (
+              <div style={{color: 'red'}}>private key is invalid!</div>
+            )}
             {!hidingPrivateKey && isKeyValid() && (
               <div
                 style={{
@@ -120,9 +141,19 @@ function Options() {
         </div>
         <div>
           <div>preferred relays:</div>
-          <div style={{marginLeft: '10px', display: 'flex', flexDirection: 'column', gap: '1px'}}>
+          <div
+            style={{
+              marginLeft: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1px'
+            }}
+          >
             {relays.map(({url, policy}, i) => (
-              <div key={i} style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+              <div
+                key={i}
+                style={{display: 'flex', alignItems: 'center', gap: '15px'}}
+              >
                 <input
                   style={{width: '400px'}}
                   value={url}
@@ -146,9 +177,7 @@ function Options() {
                     />
                   </label>
                 </div>
-                <button onClick={removeRelay.bind(null, i)}>
-                  remove
-                </button>
+                <button onClick={removeRelay.bind(null, i)}>remove</button>
               </div>
             ))}
             <div style={{display: 'flex', gap: '10px', marginTop: '5px'}}>
@@ -156,19 +185,23 @@ function Options() {
                 style={{width: '400px'}}
                 value={newRelayURL}
                 onChange={e => setNewRelayURL(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') addNewRelay()}}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') addNewRelay()
+                }}
               />
-              <button disabled={!newRelayURL} onClick={addNewRelay}>add relay</button>
+              <button disabled={!newRelayURL} onClick={addNewRelay}>
+                add relay
+              </button>
             </div>
           </div>
         </div>
         <div>
-          <label style={{ display: 'flex', alignItems: 'center' }}>
-          <div>
-            handle{' '}
-            <span style={{padding: '2px', background: 'silver'}}>nostr:</span>{' '}
-            links:
-          </div>
+          <label style={{display: 'flex', alignItems: 'center'}}>
+            <div>
+              handle{' '}
+              <span style={{padding: '2px', background: 'silver'}}>nostr:</span>{' '}
+              links:
+            </div>
             <input
               type="checkbox"
               checked={handleNostrLinks}
@@ -185,28 +218,32 @@ function Options() {
                     onChange={handleChangeProtocolHandler}
                     style={{width: '680px', maxWidth: '90%'}}
                   />
-                  {!showProtocolHandlerHelp && <button onClick={changeShowProtocolHandlerHelp}>?</button>}
+                  {!showProtocolHandlerHelp && (
+                    <button onClick={changeShowProtocolHandlerHelp}>?</button>
+                  )}
                 </div>
-                {showProtocolHandlerHelp && (<pre>{`
+                {showProtocolHandlerHelp && (
+                  <pre>{`
+    {raw} = anything after the colon, i.e. the full nip19 bech32 string
     {hex} = hex pubkey for npub or nprofile, hex event id for note or nevent
     {p_or_e} = "p" for npub or nprofile, "e" for note or nevent
     {u_or_n} = "u" for npub or nprofile, "n" for note or nevent
     {relay0} = first relay in a nprofile or nevent
     {relay1} = second relay in a nprofile or nevent
     {relay2} = third relay in a nprofile or nevent
-    {raw} = anything after the colon, i.e. the full nip19 bech32 string
     {hrp} = human-readable prefix of the nip19 string
 
     examples:
-      - https://nostr.guru/{p_or_e}/{hex}
-      - https://brb.io/{u_or_n}/{hex}
-      - https://notes.blockcore.net/{p_or_e}/{hex}
-                `}</pre>)}
+      - https://njump.me/{raw}
+      - https://snort.social/{raw}
+      - https://nostr.band/{raw}
+                `}</pre>
+                )}
               </div>
             )}
           </div>
         </div>
-        <label style={{ display: 'flex', alignItems: 'center' }}>
+        <label style={{display: 'flex', alignItems: 'center'}}>
           show notifications when permissions are used:
           <input
             type="checkbox"
@@ -214,7 +251,11 @@ function Options() {
             onChange={handleNotifications}
           />
         </label>
-        <button disabled={!unsavedChanges.length} onClick={saveChanges} style={{padding: '5px 20px'}}>
+        <button
+          disabled={!unsavedChanges.length}
+          onClick={saveChanges}
+          style={{padding: '5px 20px'}}
+        >
           save
         </button>
         <div style={{fontSize: '120%'}}>
@@ -237,41 +278,51 @@ function Options() {
             </tr>
           </thead>
           <tbody>
-            {policies.map(
-              ({host, type, accept, conditions, created_at}) => (
-                <tr key={host + type + accept + JSON.stringify(conditions)}>
-                  <td>{host}</td>
-                  <td>{type}</td>
-                  <td>{accept === 'true' ? 'allow' : 'deny'}</td>
-                  <td>
-                    {conditions.kinds
-                      ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
-                      : 'always'}
-                  </td>
-                  <td>
-                    {new Date(created_at * 1000)
-                      .toISOString()
-                      .split('.')[0]
-                      .split('T')
-                      .join(' ')}
-                  </td>
-                  <td>
-                    <button
-                      onClick={handleRevoke}
-                      data-host={host}
-                      data-accept={accept}
-                      data-type={type}
-                    >
-                      revoke
-                    </button>
-                  </td>
-                </tr>
-              )
+            {policies.map(({host, type, accept, conditions, created_at}) => (
+              <tr key={host + type + accept + JSON.stringify(conditions)}>
+                <td>{host}</td>
+                <td>{type}</td>
+                <td>{accept === 'true' ? 'allow' : 'deny'}</td>
+                <td>
+                  {conditions.kinds
+                    ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
+                    : 'always'}
+                </td>
+                <td>
+                  {new Date(created_at * 1000)
+                    .toISOString()
+                    .split('.')[0]
+                    .split('T')
+                    .join(' ')}
+                </td>
+                <td>
+                  <button
+                    onClick={handleRevoke}
+                    data-host={host}
+                    data-accept={accept}
+                    data-type={type}
+                  >
+                    revoke
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {!policies.length && (
+              <tr>
+                {Array(5)
+                  .fill('N/A')
+                  .map((v, i) => (
+                    <td key={i}>{v}</td>
+                  ))}
+              </tr>
             )}
-            {!policies.length && <tr>{Array(5).fill('N/A').map((v, i) => (<td key={i}>{v}</td>))}</tr>}
           </tbody>
         </table>
-        {!policies.length && <div style={{marginTop: '5px'}}>no permissions have been granted yet</div>}
+        {!policies.length && (
+          <div style={{marginTop: '5px'}}>
+            no permissions have been granted yet
+          </div>
+        )}
       </div>
     </>
   )
@@ -342,10 +393,7 @@ function Options() {
   }
 
   function removeRelay(i) {
-    setRelays([
-      ...relays.slice(0, i),
-      ...relays.slice(i + 1)
-    ])
+    setRelays([...relays.slice(0, i), ...relays.slice(i + 1)])
     addUnsavedChanges('relays')
   }
 
