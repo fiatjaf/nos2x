@@ -1,0 +1,37 @@
+.modal {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  /* background-color: rgba(0, 0, 0, 0.7); */
+}
+.modal-content {
+
+  padding: 20px;
+  width: 100%;
+  font-size: 1.3rem;
+}
+
+.button {
+  margin: 5px;
+  display: inline-block;
+  padding: 10px 20px; /* Adjust padding as needed */
+  background-color: #5a5a5bbb; /* Button background color */
+  color: #eeeded; /* Button text color */
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  min-width: 150px;
+  max-width: 200px;
+  width: 100%;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.button-green {
+  background-color: #00a616d6;
+}
+.button-red {
+  background-color: #ad0000ad;
+} 

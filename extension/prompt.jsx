@@ -19,79 +19,81 @@ function Prompt() {
   }
 
   return (
-    <>
-      <div>
-        <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
-          {host}
-        </b>{' '}
-        <p>
-          is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
-        </p>
-      </div>
-      {params && (
-        <>
-          <p>now acting on</p>
-          <pre style={{overflow: 'auto', maxHeight: '120px'}}>
-            <code>{JSON.stringify(event || params, null, 2)}</code>
-          </pre>
-        </>
-      )}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-around'
-        }}
-      >
-        <button
-          style={{marginTop: '5px'}}
-          onClick={authorizeHandler(
-            true,
-            {} // store this and answer true forever
-          )}
+    <div className="modal">
+      <div className="modal-content">
+        <div c>
+          <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
+            {host}
+          </b>{' '}
+          <p>
+            is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
+          </p>
+        </div>
+        {params && (
+          <>
+            <p>now acting on</p>
+            <pre style={{overflow: 'auto', maxHeight: '120px'}}>
+              <code>{JSON.stringify(event || params, null, 2)}</code>
+            </pre>
+          </>
+        )}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-around'
+          }}
         >
-          authorize forever
-        </button>
-        {event?.kind !== undefined && (
           <button
-            style={{marginTop: '5px'}}
+            className="button button-green"
             onClick={authorizeHandler(
               true,
-              {kinds: {[event.kind]: true}} // store and always answer true for all events that match this condition
+              {} // store this and answer true forever
             )}
           >
-            authorize kind {event.kind} forever
+            authorize forever
           </button>
-        )}
-        <button style={{marginTop: '5px'}} onClick={authorizeHandler(true)}>
-          authorize just this
-        </button>
-        {event?.kind !== undefined ? (
-          <button
-            style={{marginTop: '5px'}}
-            onClick={authorizeHandler(
-              false,
-              {kinds: {[event.kind]: true}} // idem
-            )}
-          >
-            reject kind {event.kind} forever
+          {event?.kind !== undefined && (
+            <button
+              className="button button-green"
+              onClick={authorizeHandler(
+                true,
+                {kinds: {[event.kind]: true}} // store and always answer true for all events that match this condition
+              )}
+            >
+              authorize kind {event.kind} forever
+            </button>
+          )}
+          <button className='button button-green' onClick={authorizeHandler(true)}>
+            authorize just this
           </button>
-        ) : (
-          <button
-            style={{marginTop: '5px'}}
-            onClick={authorizeHandler(
-              false,
-              {} // idem
-            )}
-          >
-            reject forever
+          {event?.kind !== undefined ? (
+            <button
+             className='button button-red'
+              onClick={authorizeHandler(
+                false,
+                {kinds: {[event.kind]: true}} // idem
+              )}
+            >
+              reject kind {event.kind} forever
+            </button>
+          ) : (
+            <button
+             className='button button-red'
+              onClick={authorizeHandler(
+                false,
+                {} // idem
+              )}
+            >
+              reject forever
+            </button>
+          )}
+          <button className='button' onClick={authorizeHandler(false)}>
+            reject
           </button>
-        )}
-        <button style={{marginTop: '5px'}} onClick={authorizeHandler(false)}>
-          reject
-        </button>
+        </div>
       </div>
-    </>
+    </div>
   )
 
   function authorizeHandler(accept, conditions) {
