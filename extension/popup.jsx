@@ -1,15 +1,22 @@
 import browser from 'webextension-polyfill'
 import {render} from 'react-dom'
 import {generatePrivateKey, getPublicKey, nip19} from 'nostr-tools'
-import React, {useState, useRef, useEffect} from 'react'
+import React, {useState, useRef, useEffect, useCallback} from 'react'
 import QRCode from 'react-qr-code'
 
 function Popup() {
   let [pubKey, setPubKey] = useState('')
   let [privKey, setPrivKey] = useState('')
   let [unsavedChanges, setUnsavedChanges] = useState([])
+  let [messages, setMessages] = useState([])
 
   let keys = useRef([])
+
+  const showMessage = useCallback(msg => {
+    messages.push(msg)
+    setMessages(messages)
+    setTimeout(() => setMessages([]), 3000)
+  })
 
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
@@ -44,16 +51,104 @@ function Popup() {
     })
   }, [])
 
+  function openSignUpWindow() {
+    // Send a message to the background script to open the sign-up window
+    browser.runtime.sendMessage({openSignUp: true})
+    setTimeout(() => window.close(), 1000)
+  }
+
+  return (
+    <div>
+      <h2>nos2x</h2>
+      {pubKey === null ? (
+        <div>
+          <p>Set your private key</p>
+          <div style={{fontSize: '120%', marginBottom: '5px'}}>
+            {messages.map((message, i) => (
+              <div key={i}>{message}</div>
+            ))}
+          </div>
+          <div className="input-button-container">
+            <input
+              type="password"
+              placeholder="nsec1s62xy..."
+              style={{
+                width: '300px',
+                height: '30px',
+                outline: 'none',
+                borderRadius: '5px',
+                border: '0.5px solid #ccc'
+              }}
+              value={privKey}
+              onChange={handleKeyInput}
+            />
+            <button
+              className={`button ${
+                unsavedChanges.length ? 'button-green' : ''
+              }`}
+              disabled={!unsavedChanges.length}
+              onClick={saveChanges}
+            >
+              Save
+            </button>
+          </div>
+          <div className="input-button-container">
+            <p></p>
+            <button className=" button button-green" onClick={openSignUpWindow}>
+              Create a new profile{' '}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <p>
+            <a onClick={toggleKeyType}>↩️</a> your public key:
+          </p>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+              width: '200px'
+            }}
+          >
+            <code>{pubKey}</code>
+          </pre>
+
+          <div
+            style={{
+              height: 'auto',
+              // margin: '0 auto',
+              maxWidth: 256,
+              width: '100%'
+            }}
+          >
+            <QRCode
+              size={256}
+              style={{height: 'auto', maxWidth: '100%', width: '100%'}}
+              value={pubKey.startsWith('n') ? pubKey.toUpperCase() : pubKey}
+              viewBox={`0 0 256 256`}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  )
+
+  function toggleKeyType(e) {
+    e.preventDefault()
+    let nextKeyType =
+      keys.current[(keys.current.indexOf(pubKey) + 1) % keys.current.length]
+    setPubKey(nextKeyType)
+  }
   function handleKeyInput(e) {
     let key = e.target.value.toLowerCase().trim()
-    console.log(key)
     setPrivKey(key)
     addUnsavedChanges('private_key')
   }
 
   async function saveKey() {
     if (!isKeyValid()) {
-      console.log('PRIVATE KEY IS INVALID! did not save private key.')
+      showMessage('PRIVATE KEY IS INVALID! did not save private key.')
       return
     }
 
@@ -71,8 +166,8 @@ function Popup() {
     if (hexOrEmptyKey !== '') {
       setPrivKey(nip19.nsecEncode(hexOrEmptyKey))
     }
-
-    console.log('saved private key!')
+    showMessage('Key saved! you are set!')
+    setTimeout(() => window.close(), 3000)
   }
 
   function isKeyValid() {
@@ -105,76 +200,6 @@ function Popup() {
   async function generate() {
     setPrivKey(nip19.nsecEncode(generatePrivateKey()))
     addUnsavedChanges('private_key')
-  }
-  return (
-    <>
-      <h2>nos2x</h2>
-      {pubKey === null ? (
-        <div>
-          <p style={{width: '150px'}}>
-            {' '}
-            set your private key here or generate a new one{' '}
-          </p>
-          <input
-            type={'text'}
-            // type={hidingPrivateKey ? 'password' : 'text'}
-            style={{width: '300px'}}
-            value={privKey}
-            onChange={handleKeyInput}
-          />
-          <button
-            disabled={!unsavedChanges.length}
-            onClick={saveChanges}
-            style={{padding: '5px 20px'}}
-          >
-            save
-          </button>
-          {privKey === '' && <button onClick={generate}>generate</button>}
-          <p>
-          <a target="_blank" href="/options.html">go to options page</a>
-          </p>
-
-        </div>
-      ) : (
-        <>
-          <p>
-            <a onClick={toggleKeyType}>↩️</a> your public key:
-          </p>
-          <pre
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-all',
-              width: '200px'
-            }}
-          >
-            <code>{pubKey}</code>
-          </pre>
-
-          <div
-            style={{
-              height: 'auto',
-              margin: '0 auto',
-              maxWidth: 256,
-              width: '100%'
-            }}
-          >
-            <QRCode
-              size={256}
-              style={{height: 'auto', maxWidth: '100%', width: '100%'}}
-              value={pubKey.startsWith('n') ? pubKey.toUpperCase() : pubKey}
-              viewBox={`0 0 256 256`}
-            />
-          </div>
-        </>
-      )}
-    </>
-  )
-
-  function toggleKeyType(e) {
-    e.preventDefault()
-    let nextKeyType =
-      keys.current[(keys.current.indexOf(pubKey) + 1) % keys.current.length]
-    setPubKey(nextKeyType)
   }
 }
 

@@ -31,15 +31,21 @@ browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
 })
 
-browser.runtime.onMessage.addListener(async (req, sender) => {
-  let {prompt} = req
+browser.runtime.onMessage.addListener(async (message, sender) => {
+  if (message.openSignUp) {
+    openSignUpWindow();
+    browser.windows.remove(sender.tab.windowId);
 
-  if (prompt) {
-    handlePromptMessage(req, sender)
   } else {
-    return handleContentScriptMessage(req)
+    let {prompt} = message;
+    if (prompt) {
+      handlePromptMessage(message, sender);
+    } else {
+      return handleContentScriptMessage(message);
+    }
   }
-})
+});
+
 
 browser.runtime.onMessageExternal.addListener(
   async ({type, params}, sender) => {
@@ -217,3 +223,18 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
     browser.windows.remove(sender.tab.windowId)
   }
 }
+
+async function openSignUpWindow() {
+  const { top, left } = await getPosition( width, height);
+ 
+    browser.windows.create({
+      url: `${browser.runtime.getURL('signup.html')}`,
+      type: 'popup',
+      width: width,
+      height: height,
+      top: top,
+      left: left,
+
+    })
+  }
+

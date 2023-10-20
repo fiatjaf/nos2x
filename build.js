@@ -9,13 +9,13 @@ esbuild
     bundle: true,
     entryPoints: {
       'popup.build': './extension/popup.jsx',
-      'popup.build': './extension/popup.css', // Add this line for your CSS
+      'styles.build': './extension/styles.css', 
       'prompt.build': './extension/prompt.jsx',
-      'promptstyle.build': './extension/prompt.css', // Add this line for your CSS
       'options.build': './extension/options.jsx',
       'background.build': './extension/background.js',
       'content-script.build': './extension/content-script.js',
-      'shared.build': './extension/shared.js',
+      'signup.build': './extension/signup.jsx',
+
 
     },
     outdir: './extension',

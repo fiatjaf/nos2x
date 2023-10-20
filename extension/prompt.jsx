@@ -69,7 +69,7 @@ function Prompt() {
           </button>
           {event?.kind !== undefined ? (
             <button
-             className='button button-red'
+             className='button'
               onClick={authorizeHandler(
                 false,
                 {kinds: {[event.kind]: true}} // idem
@@ -79,7 +79,7 @@ function Prompt() {
             </button>
           ) : (
             <button
-             className='button button-red'
+             className='button '
               onClick={authorizeHandler(
                 false,
                 {} // idem
