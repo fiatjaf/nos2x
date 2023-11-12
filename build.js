@@ -9,13 +9,11 @@ esbuild
     bundle: true,
     entryPoints: {
       'popup.build': './extension/popup.jsx',
-      'styles.build': './extension/styles.css', 
+      'styles.build': './extension/styles.css',
       'prompt.build': './extension/prompt.jsx',
       'options.build': './extension/options.jsx',
       'background.build': './extension/background.js',
       'content-script.build': './extension/content-script.js',
-      'signup.build': './extension/signup.jsx',
-
 
     },
     outdir: './extension',

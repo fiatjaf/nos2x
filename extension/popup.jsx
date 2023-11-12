@@ -163,7 +163,7 @@ function Popup() {
     if (hexOrEmptyKey !== '') {
       setPrivKey(nip19.nsecEncode(hexOrEmptyKey))
     }
-    showMessage('Key saved! you are set!')
+    showMessage('Key saved! You are ready to go!')
     setTimeout(() => window.close(), 3000)
   }
 
