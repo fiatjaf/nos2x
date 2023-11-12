@@ -24,8 +24,8 @@ let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
 
 //set the width and height of the prompt window
-const width = 430
-const height = 450
+const width = 340
+const height = 360
 
 browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
