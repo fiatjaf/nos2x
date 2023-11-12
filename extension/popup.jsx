@@ -77,18 +77,13 @@ function Popup() {
               placeholder="nsec1s62xy..."
               style={{
                 width: '300px',
-                height: '30px',
                 outline: 'none',
-                borderRadius: '5px',
                 border: '0.5px solid #ccc'
               }}
               value={privKey}
               onChange={handleKeyInput}
             />
             <button
-              className={`button ${
-                unsavedChanges.length ? 'button-green' : ''
-              }`}
               disabled={!unsavedChanges.length}
               onClick={saveChanges}
             >
@@ -96,7 +91,7 @@ function Popup() {
             </button>
           </div>
           <div className="input-button-container">
-            <button className=" button button-green" onClick={handleNewKey}>
+            <button onClick={handleNewKey}>
               Create a new profile{' '}
             </button>
           </div>
