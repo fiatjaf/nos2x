@@ -1,4 +1,3 @@
-import { generatePrivateKey, nip19 } from 'nostr-tools'
 import React, {useState} from 'react'
 import {render} from 'react-dom'
 
