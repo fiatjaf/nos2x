@@ -33,18 +33,17 @@ browser.runtime.onInstalled.addListener((_, __, reason) => {
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
   if (message.openSignUp) {
-    openSignUpWindow();
-    browser.windows.remove(sender.tab.windowId);
-
+    openSignUpWindow()
+    browser.windows.remove(sender.tab.windowId)
   } else {
-    let {prompt} = message;
+    let {prompt} = message
     if (prompt) {
-      handlePromptMessage(message, sender);
+      handlePromptMessage(message, sender)
     } else {
-      return handleContentScriptMessage(message);
+      return handleContentScriptMessage(message)
     }
   }
-});
+})
 
 
 browser.runtime.onMessageExternal.addListener(
@@ -134,7 +133,7 @@ async function handleContentScriptMessage({type, params, host}) {
           type
         })
         // center prompt
-        const { top, left } = await getPosition( width, height);
+        const { top, left } = await getPosition(width, height)
         // prompt will be resolved with true or false
         let accept = await new Promise((resolve, reject) => {
           openPrompt = {resolve, reject}
@@ -146,7 +145,7 @@ async function handleContentScriptMessage({type, params, host}) {
             height: height,
             top: top,
             left: left,
-            
+
           })
         })
 
@@ -225,8 +224,8 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
 }
 
 async function openSignUpWindow() {
-  const { top, left } = await getPosition( width, height);
- 
+  const { top, left } = await getPosition(width, height)
+
     browser.windows.create({
       url: `${browser.runtime.getURL('signup.html')}`,
       type: 'popup',

@@ -337,7 +337,6 @@ function Options() {
     setPrivKey(nip19.nsecEncode(generatePrivateKey()))
     addUnsavedChanges('private_key')
   }
-
   async function saveKey() {
     if (!isKeyValid()) {
       showMessage('PRIVATE KEY IS INVALID! did not save private key.')

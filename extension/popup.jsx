@@ -54,7 +54,7 @@ function Popup() {
   function openSignUpWindow() {
     // Send a message to the background script to open the sign-up window
     browser.runtime.sendMessage({openSignUp: true})
-    setTimeout(() => window.close(), 1000)
+    setTimeout(() => window.close(), 100)
   }
 
   return (
@@ -62,7 +62,7 @@ function Popup() {
       <h2>nos2x</h2>
       {pubKey === null ? (
         <div>
-          <p>Set your private key</p>
+          <p>Set nostr private key</p>
           <div style={{fontSize: '120%', marginBottom: '5px'}}>
             {messages.map((message, i) => (
               <div key={i}>{message}</div>
@@ -93,7 +93,6 @@ function Popup() {
             </button>
           </div>
           <div className="input-button-container">
-            <p></p>
             <button className=" button button-green" onClick={openSignUpWindow}>
               Create a new profile{' '}
             </button>

@@ -1,37 +1,52 @@
-import React from 'react'
+import { generatePrivateKey, nip19 } from 'nostr-tools'
+import React, {useState} from 'react'
 import {render} from 'react-dom'
-// TODO:
-// generate nostr keypair plus setting up metadata ?!!
 
 function Signup() {
+  const [name, setName] = useState('')
+  const [about, setAbout] = useState('')
+
+  async function handleSignup(e) {
+    setName(e.target.value)
+  }
+
+  function onSubmit(e) {
+    e.preventDefault()
+    // TODO: actions to create an account.
+    // set name and about to their metadata and publish event...
+
+    // setPrivKey(nip19.nsecEncode(generatePrivateKey()))
+    // addUnsavedChanges('private_key')
+  }
+
   return (
-    <>
-      <div className="modal">
-        <div className="modal-content">
-          
-            <h1>Welcome</h1>
-            <div className='text'>After creating your account, you are ready to explore your first Nostr websites.</div>
-            <form>
-              <label>Share a bit about yourself:</label>
-              <input
-                placeholder="Enter your name..."
-                type="text"
-                required
-                className="form-control"
-              />
-          
+    <div className="modal">
+      <div className="modal-content">
+        <h1>Welcome!</h1>
+        <form onSubmit={onSubmit}>
+          <label>Share a bit about yourself:</label>
+          <input
+            onChange={handleSignup}
+            value={name}
+            placeholder="Enter your name..."
+            type="text"
+            required
+            className="form-control"
+          />
 
-            
-              <textarea placeholder="Who are you?" className="form-control" />
-         
+          <textarea
+            onChange={e => setAbout(e.target.value)}
+            value={about}
+            placeholder="About you?"
+            className="form-control"
+          />
 
-            <button type="submit" class="btn btn-primary">
-              Generate Nostr Keys
-            </button>
-          </form>
-        </div>
+          <button type="submit" className="btn btn-primary">
+            Generate keys
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   )
 }
 
