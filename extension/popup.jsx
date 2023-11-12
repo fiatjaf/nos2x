@@ -50,11 +50,14 @@ function Popup() {
       }
     })
   }, [])
+  //window opening function
+  // function openSignUpWindow() {
+  //   browser.runtime.sendMessage({openSignUp: true})
+  //   setTimeout(() => window.close(), 100)
+  // }
 
-  function openSignUpWindow() {
-    // Send a message to the background script to open the sign-up window
-    browser.runtime.sendMessage({openSignUp: true})
-    setTimeout(() => window.close(), 100)
+  function handleNewKey() {
+    generate()
   }
 
   return (
@@ -93,7 +96,7 @@ function Popup() {
             </button>
           </div>
           <div className="input-button-container">
-            <button className=" button button-green" onClick={openSignUpWindow}>
+            <button className=" button button-green" onClick={handleNewKey}>
               Create a new profile{' '}
             </button>
           </div>
