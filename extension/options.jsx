@@ -266,6 +266,7 @@ function Options() {
       </div>
       <div>
         <h2>permissions</h2>
+        {!!policies.length && (
         <table>
           <thead>
             <tr>
@@ -307,17 +308,9 @@ function Options() {
                 </td>
               </tr>
             ))}
-            {!policies.length && (
-              <tr>
-                {Array(5)
-                  .fill('N/A')
-                  .map((v, i) => (
-                    <td key={i}>{v}</td>
-                  ))}
-              </tr>
-            )}
           </tbody>
         </table>
+        )}
         {!policies.length && (
           <div style={{marginTop: '5px'}}>
             no permissions have been granted yet
