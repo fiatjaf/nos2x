@@ -267,49 +267,49 @@ function Options() {
       <div>
         <h2>permissions</h2>
         {!!policies.length && (
-        <table>
-          <thead>
-            <tr>
-              <th>domain</th>
-              <th>permission</th>
-              <th>answer</th>
-              <th>conditions</th>
-              <th>since</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {policies.map(({host, type, accept, conditions, created_at}) => (
-              <tr key={host + type + accept + JSON.stringify(conditions)}>
-                <td>{host}</td>
-                <td>{type}</td>
-                <td>{accept === 'true' ? 'allow' : 'deny'}</td>
-                <td>
-                  {conditions.kinds
-                    ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
-                    : 'always'}
-                </td>
-                <td>
-                  {new Date(created_at * 1000)
-                    .toISOString()
-                    .split('.')[0]
-                    .split('T')
-                    .join(' ')}
-                </td>
-                <td>
-                  <button
-                    onClick={handleRevoke}
-                    data-host={host}
-                    data-accept={accept}
-                    data-type={type}
-                  >
-                    revoke
-                  </button>
-                </td>
+          <table>
+            <thead>
+              <tr>
+                <th>domain</th>
+                <th>permission</th>
+                <th>answer</th>
+                <th>conditions</th>
+                <th>since</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {policies.map(({host, type, accept, conditions, created_at}) => (
+                <tr key={host + type + accept + JSON.stringify(conditions)}>
+                  <td>{host}</td>
+                  <td>{type}</td>
+                  <td>{accept === 'true' ? 'allow' : 'deny'}</td>
+                  <td>
+                    {conditions.kinds
+                      ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
+                      : 'always'}
+                  </td>
+                  <td>
+                    {new Date(created_at * 1000)
+                      .toISOString()
+                      .split('.')[0]
+                      .split('T')
+                      .join(' ')}
+                  </td>
+                  <td>
+                    <button
+                      onClick={handleRevoke}
+                      data-host={host}
+                      data-accept={accept}
+                      data-type={type}
+                    >
+                      revoke
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
         {!policies.length && (
           <div style={{marginTop: '5px'}}>
