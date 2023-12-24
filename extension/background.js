@@ -13,7 +13,8 @@ import {
   NO_PERMISSIONS_REQUIRED,
   getPermissionStatus,
   updatePermission,
-  showNotification
+  showNotification,
+  getPosition
 } from './common'
 
 const {encrypt, decrypt} = nip04
@@ -22,19 +23,28 @@ let openPrompt = null
 let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
 
+//set the width and height of the prompt window
+const width = 340
+const height = 360
+
 browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
 })
 
-browser.runtime.onMessage.addListener(async (req, sender) => {
-  let {prompt} = req
-
-  if (prompt) {
-    handlePromptMessage(req, sender)
+browser.runtime.onMessage.addListener(async (message, sender) => {
+  if (message.openSignUp) {
+    openSignUpWindow()
+    browser.windows.remove(sender.tab.windowId)
   } else {
-    return handleContentScriptMessage(req)
+    let {prompt} = message
+    if (prompt) {
+      handlePromptMessage(message, sender)
+    } else {
+      return handleContentScriptMessage(message)
+    }
   }
 })
+
 
 browser.runtime.onMessageExternal.addListener(
   async ({type, params}, sender) => {
@@ -122,7 +132,8 @@ async function handleContentScriptMessage({type, params, host}) {
           params: JSON.stringify(params),
           type
         })
-
+        // center prompt
+        const { top, left } = await getPosition(width, height)
         // prompt will be resolved with true or false
         let accept = await new Promise((resolve, reject) => {
           openPrompt = {resolve, reject}
@@ -130,8 +141,11 @@ async function handleContentScriptMessage({type, params, host}) {
           browser.windows.create({
             url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
             type: 'popup',
-            width: 340,
-            height: 360
+            width: width,
+            height: height,
+            top: top,
+            left: left,
+
           })
         })
 
@@ -208,3 +222,18 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
     browser.windows.remove(sender.tab.windowId)
   }
 }
+
+async function openSignUpWindow() {
+  const { top, left } = await getPosition(width, height)
+
+    browser.windows.create({
+      url: `${browser.runtime.getURL('signup.html')}`,
+      type: 'popup',
+      width: width,
+      height: height,
+      top: top,
+      left: left,
+
+    })
+  }
+
