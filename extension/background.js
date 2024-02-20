@@ -196,18 +196,16 @@ async function handleContentScriptMessage({type, params, host}) {
         return nip04.decrypt(sk, peer, ciphertext)
       }
       case 'nip44.encrypt': {
-        return params.items.map(([pubkey, plaintext]) => {
-          const key = getSharedSecret(sk, peer)
+        const {peer, plaintext} = params
+        const key = getSharedSecret(sk, peer)
 
-          return nip44.v2.decrypt(key, plaintext)
-       })
+        return nip44.v2.encrypt(key, plaintext)
       }
       case 'nip44.decrypt': {
-        return params.items.map(([pubkey, ciphertext]) => {
-          const key = getSharedSecret(sk, peer)
+        const {peer, ciphertext} = params
+        const key = getSharedSecret(sk, peer)
 
-          return nip44.v2.decrypt(key, ciphertext)
-       })
+        return nip44.v2.decrypt(key, ciphertext)
       }
     }
   } catch (error) {

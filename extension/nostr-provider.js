@@ -27,12 +27,12 @@ window.nostr = {
   },
 
   nip44: {
-    async encrypt(items) {
-      return window.nostr._call('nip44.encrypt', {items})
+    async encrypt(peer, plaintext) {
+      return window.nostr._call('nip44.encrypt', {peer, plaintext})
     },
 
-    async decrypt(items) {
-      return window.nostr._call('nip44.decrypt', {items})
+    async decrypt(peer, ciphertext) {
+      return window.nostr._call('nip44.decrypt', {peer, ciphertext})
     }
   },
 
