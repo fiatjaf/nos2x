@@ -1,11 +1,5 @@
 import browser from 'webextension-polyfill'
-import {
-  validateEvent,
-  finalizeEvent,
-  getEventHash,
-  getPublicKey,
-  nip19
-} from 'nostr-tools'
+import {validateEvent, finalizeEvent, getPublicKey, nip19} from 'nostr-tools'
 import {nip04, nip44} from 'nostr-tools'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
@@ -32,8 +26,7 @@ function getSharedSecret(sk, peer) {
   let key = secretsCache.get(peer)
 
   if (!key) {
-    key = nip44.v2.getSharedSecret(sk, peer)
-
+    key = nip44.v2.utils.getConversationKey(sk, peer)
     secretsCache.set(peer, key)
   }
 
@@ -185,7 +178,9 @@ async function handleContentScriptMessage({type, params, host}) {
       case 'signEvent': {
         const event = finalizeEvent(params.event, sk)
 
-        return validateEvent(event) ? event : {error: {message: 'invalid event'}}
+        return validateEvent(event)
+          ? event
+          : {error: {message: 'invalid event'}}
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
@@ -199,13 +194,13 @@ async function handleContentScriptMessage({type, params, host}) {
         const {peer, plaintext} = params
         const key = getSharedSecret(sk, peer)
 
-        return nip44.v2.encrypt(key, plaintext)
+        return nip44.v2.encrypt(plaintext, key)
       }
       case 'nip44.decrypt': {
         const {peer, ciphertext} = params
         const key = getSharedSecret(sk, peer)
 
-        return nip44.v2.decrypt(key, ciphertext)
+        return nip44.v2.decrypt(ciphertext, key)
       }
     }
   } catch (error) {

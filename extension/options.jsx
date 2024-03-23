@@ -3,6 +3,7 @@ import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
 import {generateSecretKey, nip19} from 'nostr-tools'
 import QRCode from 'react-qr-code'
+import {hexToBytes, bytesToHex} from '@noble/hashes/utils'
 
 import {removePermissions} from './common'
 
@@ -336,22 +337,17 @@ function Options() {
       showMessage('PRIVATE KEY IS INVALID! did not save private key.')
       return
     }
-
     let hexOrEmptyKey = privKey
-
     try {
       let {type, data} = nip19.decode(privKey)
-      if (type === 'nsec') hexOrEmptyKey = data
+      if (type === 'nsec') hexOrEmptyKey = bytesToHex(data)
     } catch (_) {}
-
     await browser.storage.local.set({
       private_key: hexOrEmptyKey
     })
-
     if (hexOrEmptyKey !== '') {
-      setPrivKey(nip19.nsecEncode(hexOrEmptyKey))
+      setPrivKey(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
     }
-
     showMessage('saved private key!')
   }
 
