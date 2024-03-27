@@ -31,7 +31,7 @@ function Options() {
       .get(['private_key', 'relays', 'protocol_handler', 'notifications'])
       .then(results => {
         if (results.private_key) {
-          setPrivKey(nip19.nsecEncode(results.private_key))
+          setPrivKey(nip19.nsecEncode(hexToBytes(results.private_key)))
         }
         if (results.relays) {
           let relaysList = []
