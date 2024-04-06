@@ -5,12 +5,19 @@ import React, {useState, useRef, useEffect} from 'react'
 import QRCode from 'react-qr-code'
 
 function Popup() {
+  let [prvKey, setPrvKey] = useState('')
   let [pubKey, setPubKey] = useState('')
   let keys = useRef([])
 
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) {
+        setPrvKey(results.private_key)
+
+        if ((results.private_key).startsWith("ncryptsec")) {
+          return false
+        }
+
         let hexKey = getPublicKey(results.private_key)
         let npubKey = nip19.npubEncode(hexKey)
 
@@ -44,44 +51,59 @@ function Popup() {
   return (
     <>
       <h2>nos2x</h2>
+      <button onClick={openOptionsButton}>options</button>
       {pubKey === null ? (
         <p style={{width: '150px'}}>
           you don't have a private key set. use the options page to set one.
         </p>
       ) : (
-        <>
-          <p>
-            <a onClick={toggleKeyType}>↩️</a> your public key:
+        prvKey.startsWith("ncryptsec") ? (
+          <p style={{width: '150px'}}>
+            your private key is encryted. use the options page to decrypt.
           </p>
-          <pre
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-all',
-              width: '200px'
-            }}
-          >
-            <code>{pubKey}</code>
-          </pre>
+        ) : (
+          <>
+            <p>
+              <a onClick={toggleKeyType}>↩️</a> your public key:
+            </p>
+            <pre
+              style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                width: '200px'
+              }}
+            >
+              <code>{pubKey}</code>
+            </pre>
 
-          <div
-            style={{
-              height: 'auto',
-              margin: '0 auto',
-              maxWidth: 256,
-              width: '100%'
-            }}
-          >
-            <QRCode
-              size={256}
-              style={{height: 'auto', maxWidth: '100%', width: '100%'}}
-              value={pubKey.startsWith('n') ? pubKey.toUpperCase() : pubKey}
-              viewBox={`0 0 256 256`}
-            />
-          </div>
-        </>
+            <div
+              style={{
+                height: 'auto',
+                margin: '0 auto',
+                maxWidth: 256,
+                width: '100%'
+              }}
+            >
+              <QRCode
+                size={256}
+                style={{height: 'auto', maxWidth: '100%', width: '100%'}}
+                value={pubKey.startsWith('n') ? pubKey.toUpperCase() : pubKey}
+                viewBox={`0 0 256 256`}
+              />
+            </div>
+          </>
+        )
       )}
     </>
   )
+
+  async function openOptionsButton() {
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    } else {
+      window.open(chrome.runtime.getURL('options.html'));
+    }
+  }
 
   function toggleKeyType(e) {
     e.preventDefault()
