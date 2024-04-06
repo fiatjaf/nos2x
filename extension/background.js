@@ -163,6 +163,10 @@ async function handleContentScriptMessage({type, params, host}) {
   if (!results || !results.private_key) {
     return {error: 'no private key found'}
   }
+  
+  if ((results.private_key).startsWith("ncryptsec")) {
+    return {error: 'encrypted private key'}
+  }
 
   let sk = results.private_key
 
