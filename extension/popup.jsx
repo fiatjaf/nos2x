@@ -5,6 +5,7 @@ import React, {useState, useRef, useEffect, useCallback} from 'react'
 import QRCode from 'react-qr-code'
 
 function Popup() {
+  let [prvKey, setPrvKey] = useState('')
   let [pubKey, setPubKey] = useState('')
   let [privKey, setPrivKey] = useState('')
   let [unsavedChanges, setUnsavedChanges] = useState([])
@@ -21,6 +22,12 @@ function Popup() {
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) {
+        setPrvKey(results.private_key)
+
+        if ((results.private_key).startsWith("ncryptsec")) {
+          return false
+        }
+
         let hexKey = getPublicKey(results.private_key)
         let npubKey = nip19.npubEncode(hexKey)
 
@@ -63,6 +70,7 @@ function Popup() {
   return (
     <div>
       <h2>nos2x</h2>
+      <button onClick={openOptionsButton}>options</button>
       {pubKey === null ? (
         <div>
           <p>Set nostr private key</p>
@@ -97,19 +105,24 @@ function Popup() {
           </div>
         </div>
       ) : (
-        <>
-          <p>
-            <a onClick={toggleKeyType}>↩️</a> your public key:
+        prvKey.startsWith("ncryptsec") ? (
+          <p style={{width: '150px'}}>
+            your private key is encryted. use the options page to decrypt.
           </p>
-          <pre
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-all',
-              width: '200px'
-            }}
-          >
-            <code>{pubKey}</code>
-          </pre>
+        ) : (
+          <>
+            <p>
+              <a onClick={toggleKeyType}>↩️</a> your public key:
+            </p>
+            <pre
+              style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                width: '200px'
+              }}
+            >
+              <code>{pubKey}</code>
+            </pre>
 
           <div
             style={{
@@ -130,6 +143,14 @@ function Popup() {
       )}
     </div>
   )
+
+  async function openOptionsButton() {
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    } else {
+      window.open(chrome.runtime.getURL('options.html'));
+    }
+  }
 
   function toggleKeyType(e) {
     e.preventDefault()

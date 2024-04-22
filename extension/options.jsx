@@ -1,13 +1,23 @@
 import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
-import {generatePrivateKey, nip19} from 'nostr-tools'
+import {generateSecretKey, nip19} from 'nostr-tools'
+import {decrypt, encrypt} from 'nostr-tools/nip49'
 import QRCode from 'react-qr-code'
+import {hexToBytes, bytesToHex} from '@noble/hashes/utils'
 
 import {removePermissions} from './common'
 
 function Options() {
   let [privKey, setPrivKey] = useState('')
+  let [password, setPassword] = useState('')
+  let [passwordDecrypt, setPasswordDecrypt] = useState('')
+  let [confirmPassword, setConfirmPassword] = useState('')
+  let [passwordMatch, setPasswordMatch] = useState(true)
+  let [errorMessage, setErrorMessage] = useState('')
+  let [successMessage, setSuccessMessage] = useState('')
+  let [logNOption, setLogNOption] = useState('')
+  let [securityByteOption, setSecurityByteOption] = useState('')
   let [relays, setRelays] = useState([])
   let [newRelayURL, setNewRelayURL] = useState('')
   let [policies, setPermissions] = useState([])
@@ -26,11 +36,19 @@ function Options() {
   })
 
   useEffect(() => {
+    setLogNOption('1')
+    setSecurityByteOption('0x00')
+
     browser.storage.local
       .get(['private_key', 'relays', 'protocol_handler', 'notifications'])
       .then(results => {
         if (results.private_key) {
-          setPrivKey(nip19.nsecEncode(results.private_key))
+          let prvKey = results.private_key
+          setPrivKey(
+            prvKey.startsWith("ncryptsec") ?
+              results.private_key :
+                nip19.nsecEncode(hexToBytes(prvKey))
+          )
         }
         if (results.relays) {
           let relaysList = []
@@ -76,6 +94,18 @@ function Options() {
     })
 
     setPermissions(list)
+  }
+
+  // Generate LOG_N options from 1 to 16
+  const logN_options = [];
+  for (let i = 1; i <= 16; i++) {
+    logN_options.push(<option key={i} value={i}>{i}</option>);
+  }
+
+  // Generate KEY_SECURITY_BYTE options from 0x00 to 0x02
+  const securityByte_options = [];
+  for (let i = 0; i <= 2; i++) {
+    securityByte_options.push(<option key={i} value={"0x0" + i}>0x0{i}</option>);
   }
 
   return (
@@ -137,6 +167,57 @@ function Options() {
                 />
               </div>
             )}
+          </div>
+        </div>
+        <div>
+          <div>password:&nbsp;</div>
+          <div
+            style={{
+              marginLeft: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
+            <div style={{display: 'flex', gap: '10px'}}>
+              {!privKey.startsWith("ncryptsec") ? (
+                <>
+                  <input
+                    type='password'
+                    value={password}
+                    onChange={handlePasswordChange}
+                    style={{width: '150px'}}
+                  />
+                  <input
+                    type='password'
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    style={{width: '150px'}}
+                  />
+                  <select onChange={handleLogNChange} style={{width: '100px'}}>
+                    {logN_options}
+                  </select>
+                  <select onChange={handleSecurityBytesChange} style={{width: '100px'}}>
+                    {securityByte_options}
+                  </select>
+                  <button onClick={encryptPrivateKey} disabled={!password || !confirmPassword || !passwordMatch}>encrypt key</button>
+                </>
+              ) : (
+                <>
+                  <input
+                    type='password'
+                    value={passwordDecrypt}
+                    onChange={handlePasswordDecryptChange}
+                    style={{width: '600px'}}
+                  />
+                  <button onClick={decryptPrivateKey}>decrypt key</button>
+                </>
+              )}
+            </div>
+
+            {!passwordMatch && <div style={{color: 'red'}}>passwords do not match!</div>}
+            {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
+            {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
           </div>
         </div>
         <div>
@@ -266,58 +347,51 @@ function Options() {
       </div>
       <div>
         <h2>permissions</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>domain</th>
-              <th>permission</th>
-              <th>answer</th>
-              <th>conditions</th>
-              <th>since</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {policies.map(({host, type, accept, conditions, created_at}) => (
-              <tr key={host + type + accept + JSON.stringify(conditions)}>
-                <td>{host}</td>
-                <td>{type}</td>
-                <td>{accept === 'true' ? 'allow' : 'deny'}</td>
-                <td>
-                  {conditions.kinds
-                    ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
-                    : 'always'}
-                </td>
-                <td>
-                  {new Date(created_at * 1000)
-                    .toISOString()
-                    .split('.')[0]
-                    .split('T')
-                    .join(' ')}
-                </td>
-                <td>
-                  <button
-                    onClick={handleRevoke}
-                    data-host={host}
-                    data-accept={accept}
-                    data-type={type}
-                  >
-                    revoke
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {!policies.length && (
+        {!!policies.length && (
+          <table>
+            <thead>
               <tr>
-                {Array(5)
-                  .fill('N/A')
-                  .map((v, i) => (
-                    <td key={i}>{v}</td>
-                  ))}
+                <th>domain</th>
+                <th>permission</th>
+                <th>answer</th>
+                <th>conditions</th>
+                <th>since</th>
+                <th></th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {policies.map(({host, type, accept, conditions, created_at}) => (
+                <tr key={host + type + accept + JSON.stringify(conditions)}>
+                  <td>{host}</td>
+                  <td>{type}</td>
+                  <td>{accept === 'true' ? 'allow' : 'deny'}</td>
+                  <td>
+                    {conditions.kinds
+                      ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
+                      : 'always'}
+                  </td>
+                  <td>
+                    {new Date(created_at * 1000)
+                      .toISOString()
+                      .split('.')[0]
+                      .split('T')
+                      .join(' ')}
+                  </td>
+                  <td>
+                    <button
+                      onClick={handleRevoke}
+                      data-host={host}
+                      data-accept={accept}
+                      data-type={type}
+                    >
+                      revoke
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         {!policies.length && (
           <div style={{marginTop: '5px'}}>
             no permissions have been granted yet
@@ -334,35 +408,102 @@ function Options() {
   }
 
   async function generate() {
-    setPrivKey(nip19.nsecEncode(generatePrivateKey()))
+    setPrivKey(nip19.nsecEncode(generateSecretKey()))
     addUnsavedChanges('private_key')
   }
+
+  async function encryptPrivateKey() {
+    try {
+      let { type, data } = nip19.decode(privKey)
+      let encrypted = encrypt(data, password, logNOption, securityByteOption)
+      setPrivKey(encrypted)
+      await browser.storage.local.set({
+        private_key: encrypted
+      })
+
+      setSuccessMessage('encryption successful!')
+      setTimeout(() => {
+        setSuccessMessage('')
+      }, 3000);
+      setErrorMessage('')
+    } catch (e) {
+      setErrorMessage('something is going wrong. please try again.')
+      setTimeout(() => {
+        setErrorMessage('')
+      }, 3000);
+      setSuccessMessage('')
+    }
+  }
+
+  async function decryptPrivateKey() {
+    try {
+      let decrypted = decrypt(privKey, passwordDecrypt)
+      setPrivKey(nip19.nsecEncode(decrypted))
+      await browser.storage.local.set({
+        private_key: bytesToHex(decrypted)
+      })
+      setSuccessMessage('decryption successful!')
+      setTimeout(() => {
+        setSuccessMessage('')
+      }, 3000);
+      setErrorMessage('')
+    } catch (e) {
+      setErrorMessage('incorrect password. please try again.')
+      setTimeout(() => {
+        setErrorMessage('')
+      }, 3000);
+      setSuccessMessage('')
+    }
+  }
+
+  async function handleLogNChange (event) {
+    setLogNOption(event.target.value)
+  }
+
+  async function handleSecurityBytesChange (event) {
+    setSecurityByteOption(event.target.value)
+  }
+
+  async function handlePasswordChange (event) {
+    const newPassword = event.target.value
+    setPassword(newPassword)
+    // Check if the confirm password matches the new password
+    setPasswordMatch(newPassword === confirmPassword)
+  }
+
+  async function handlePasswordDecryptChange (event) {
+    setPasswordDecrypt(event.target.value)
+  }
+
+  async function handleConfirmPasswordChange (event) {
+    const newConfirmPassword = event.target.value
+    setConfirmPassword(newConfirmPassword)
+    // Check if the confirm password matches the password
+    setPasswordMatch(password === newConfirmPassword)
+  }
+
   async function saveKey() {
     if (!isKeyValid()) {
       showMessage('PRIVATE KEY IS INVALID! did not save private key.')
       return
     }
-
     let hexOrEmptyKey = privKey
-
     try {
       let {type, data} = nip19.decode(privKey)
-      if (type === 'nsec') hexOrEmptyKey = data
+      if (type === 'nsec') hexOrEmptyKey = bytesToHex(data)
     } catch (_) {}
-
     await browser.storage.local.set({
       private_key: hexOrEmptyKey
     })
-
     if (hexOrEmptyKey !== '') {
-      setPrivKey(nip19.nsecEncode(hexOrEmptyKey))
+      setPrivKey(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
     }
-
     showMessage('saved private key!')
   }
 
   function isKeyValid() {
     if (privKey === '') return true
+    if (privKey.startsWith('ncryptsec')) return true
     if (privKey.match(/^[a-f0-9]{64}$/)) return true
     try {
       if (nip19.decode(privKey).type === 'nsec') return true

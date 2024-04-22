@@ -37,7 +37,7 @@
   "web_accessible_resources": [
     {
       "resources": ["nostr-provider.js"],
-      "matches": ["https://*/*", "http://localhost:*/*"]
+      "matches": ["https://*/*", "http://localhost:*/*", "http://127.0.0.1:*/*"]
     }
   ]
 }

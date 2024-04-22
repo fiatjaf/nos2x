@@ -1,13 +1,8 @@
 import browser from 'webextension-polyfill'
-import {
-  validateEvent,
-  getSignature,
-  getEventHash,
-  getPublicKey,
-  nip19
-} from 'nostr-tools'
-import {nip04} from 'nostr-tools'
+import {validateEvent, finalizeEvent, getPublicKey, nip19} from 'nostr-tools'
+import {nip04, nip44} from 'nostr-tools'
 import {Mutex} from 'async-mutex'
+import {LRUCache} from './utils'
 
 import {
   NO_PERMISSIONS_REQUIRED,
@@ -17,11 +12,27 @@ import {
   getPosition
 } from './common'
 
-const {encrypt, decrypt} = nip04
-
 let openPrompt = null
 let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
+let secretsCache = new LRUCache(100)
+let previousSk = null
+
+function getSharedSecret(sk, peer) {
+  // Detect a key change and erase the cache if they changed their key
+  if (previousSk != sk) {
+    secretsCache.clear()
+  }
+
+  let key = secretsCache.get(peer)
+
+  if (!key) {
+    key = nip44.v2.utils.getConversationKey(sk, peer)
+    secretsCache.set(peer, key)
+  }
+
+  return key
+}
 
 //set the width and height of the prompt window
 const width = 340
@@ -166,6 +177,10 @@ async function handleContentScriptMessage({type, params, host}) {
   if (!results || !results.private_key) {
     return {error: 'no private key found'}
   }
+  
+  if ((results.private_key).startsWith("ncryptsec")) {
+    return {error: 'encrypted private key'}
+  }
 
   let sk = results.private_key
 
@@ -179,22 +194,31 @@ async function handleContentScriptMessage({type, params, host}) {
         return results.relays || {}
       }
       case 'signEvent': {
-        let {event} = params
+        const event = finalizeEvent(params.event, sk)
 
-        if (!event.pubkey) event.pubkey = getPublicKey(sk)
-        if (!event.id) event.id = getEventHash(event)
-        if (!validateEvent(event)) return {error: {message: 'invalid event'}}
-
-        event.sig = await getSignature(event, sk)
-        return event
+        return validateEvent(event)
+          ? event
+          : {error: {message: 'invalid event'}}
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
-        return encrypt(sk, peer, plaintext)
+        return nip04.encrypt(sk, peer, plaintext)
       }
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
-        return decrypt(sk, peer, ciphertext)
+        return nip04.decrypt(sk, peer, ciphertext)
+      }
+      case 'nip44.encrypt': {
+        const {peer, plaintext} = params
+        const key = getSharedSecret(sk, peer)
+
+        return nip44.v2.encrypt(plaintext, key)
+      }
+      case 'nip44.decrypt': {
+        const {peer, ciphertext} = params
+        const key = getSharedSecret(sk, peer)
+
+        return nip44.v2.decrypt(ciphertext, key)
       }
     }
   } catch (error) {
