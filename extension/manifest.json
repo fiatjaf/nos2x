@@ -25,7 +25,14 @@
       "all_frames": true
     }
   ],
-  "permissions": ["storage"],
+  
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "windows"
+  ],
+  
   "optional_permissions": ["notifications"],
   "web_accessible_resources": [
     {

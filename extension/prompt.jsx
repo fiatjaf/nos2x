@@ -20,7 +20,7 @@ function Prompt() {
 
   return (
     <>
-      <div>
+    <div>
         <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
           {host}
         </b>{' '}
