@@ -143,6 +143,6 @@ export async function getPosition(width, height) {
 
   return {
     top,
-    left,
+    left
   }
 }

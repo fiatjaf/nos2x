@@ -45,9 +45,9 @@ function Options() {
         if (results.private_key) {
           let prvKey = results.private_key
           setPrivKey(
-            prvKey.startsWith("ncryptsec") ?
-              results.private_key :
-                nip19.nsecEncode(hexToBytes(prvKey))
+            prvKey.startsWith('ncryptsec')
+              ? results.private_key
+              : nip19.nsecEncode(hexToBytes(prvKey))
           )
         }
         if (results.relays) {
@@ -97,15 +97,23 @@ function Options() {
   }
 
   // Generate LOG_N options from 1 to 16
-  const logN_options = [];
+  const logN_options = []
   for (let i = 1; i <= 16; i++) {
-    logN_options.push(<option key={i} value={i}>{i}</option>);
+    logN_options.push(
+      <option key={i} value={i}>
+        {i}
+      </option>
+    )
   }
 
   // Generate KEY_SECURITY_BYTE options from 0x00 to 0x02
-  const securityByte_options = [];
+  const securityByte_options = []
   for (let i = 0; i <= 2; i++) {
-    securityByte_options.push(<option key={i} value={"0x0" + i}>0x0{i}</option>);
+    securityByte_options.push(
+      <option key={i} value={'0x0' + i}>
+        0x0{i}
+      </option>
+    )
   }
 
   return (
@@ -180,16 +188,16 @@ function Options() {
             }}
           >
             <div style={{display: 'flex', gap: '10px'}}>
-              {!privKey.startsWith("ncryptsec") ? (
+              {!privKey.startsWith('ncryptsec') ? (
                 <>
                   <input
-                    type='password'
+                    type="password"
                     value={password}
                     onChange={handlePasswordChange}
                     style={{width: '150px'}}
                   />
                   <input
-                    type='password'
+                    type="password"
                     value={confirmPassword}
                     onChange={handleConfirmPasswordChange}
                     style={{width: '150px'}}
@@ -197,15 +205,23 @@ function Options() {
                   <select onChange={handleLogNChange} style={{width: '100px'}}>
                     {logN_options}
                   </select>
-                  <select onChange={handleSecurityBytesChange} style={{width: '100px'}}>
+                  <select
+                    onChange={handleSecurityBytesChange}
+                    style={{width: '100px'}}
+                  >
                     {securityByte_options}
                   </select>
-                  <button onClick={encryptPrivateKey} disabled={!password || !confirmPassword || !passwordMatch}>encrypt key</button>
+                  <button
+                    onClick={encryptPrivateKey}
+                    disabled={!password || !confirmPassword || !passwordMatch}
+                  >
+                    encrypt key
+                  </button>
                 </>
               ) : (
                 <>
                   <input
-                    type='password'
+                    type="password"
                     value={passwordDecrypt}
                     onChange={handlePasswordDecryptChange}
                     style={{width: '600px'}}
@@ -215,9 +231,13 @@ function Options() {
               )}
             </div>
 
-            {!passwordMatch && <div style={{color: 'red'}}>passwords do not match!</div>}
-            {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
-            {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+            {!passwordMatch && (
+              <div style={{color: 'red'}}>passwords do not match!</div>
+            )}
+            {successMessage && (
+              <div style={{color: 'green'}}>{successMessage}</div>
+            )}
+            {errorMessage && <div style={{color: 'red'}}>{errorMessage}</div>}
           </div>
         </div>
         <div>
@@ -414,7 +434,7 @@ function Options() {
 
   async function encryptPrivateKey() {
     try {
-      let { type, data } = nip19.decode(privKey)
+      let {type, data} = nip19.decode(privKey)
       let encrypted = encrypt(data, password, logNOption, securityByteOption)
       setPrivKey(encrypted)
       await browser.storage.local.set({
@@ -424,13 +444,13 @@ function Options() {
       setSuccessMessage('encryption successful!')
       setTimeout(() => {
         setSuccessMessage('')
-      }, 3000);
+      }, 3000)
       setErrorMessage('')
     } catch (e) {
       setErrorMessage('something is going wrong. please try again.')
       setTimeout(() => {
         setErrorMessage('')
-      }, 3000);
+      }, 3000)
       setSuccessMessage('')
     }
   }
@@ -445,37 +465,37 @@ function Options() {
       setSuccessMessage('decryption successful!')
       setTimeout(() => {
         setSuccessMessage('')
-      }, 3000);
+      }, 3000)
       setErrorMessage('')
     } catch (e) {
       setErrorMessage('incorrect password. please try again.')
       setTimeout(() => {
         setErrorMessage('')
-      }, 3000);
+      }, 3000)
       setSuccessMessage('')
     }
   }
 
-  async function handleLogNChange (event) {
+  async function handleLogNChange(event) {
     setLogNOption(event.target.value)
   }
 
-  async function handleSecurityBytesChange (event) {
+  async function handleSecurityBytesChange(event) {
     setSecurityByteOption(event.target.value)
   }
 
-  async function handlePasswordChange (event) {
+  async function handlePasswordChange(event) {
     const newPassword = event.target.value
     setPassword(newPassword)
     // Check if the confirm password matches the new password
     setPasswordMatch(newPassword === confirmPassword)
   }
 
-  async function handlePasswordDecryptChange (event) {
+  async function handlePasswordDecryptChange(event) {
     setPasswordDecrypt(event.target.value)
   }
 
-  async function handleConfirmPasswordChange (event) {
+  async function handleConfirmPasswordChange(event) {
     const newConfirmPassword = event.target.value
     setConfirmPassword(newConfirmPassword)
     // Check if the confirm password matches the password

@@ -24,7 +24,7 @@ function Popup() {
       if (results.private_key) {
         setPrvKey(results.private_key)
 
-        if ((results.private_key).startsWith("ncryptsec")) {
+        if (results.private_key.startsWith('ncryptsec')) {
           return false
         }
 
@@ -91,38 +91,32 @@ function Popup() {
               value={privKey}
               onChange={handleKeyInput}
             />
-            <button
-              disabled={!unsavedChanges.length}
-              onClick={saveChanges}
-            >
+            <button disabled={!unsavedChanges.length} onClick={saveChanges}>
               Save
             </button>
           </div>
           <div className="input-button-container">
-            <button onClick={handleNewKey}>
-              Create a new profile{' '}
-            </button>
+            <button onClick={handleNewKey}>Create a new profile </button>
           </div>
         </div>
+      ) : prvKey.startsWith('ncryptsec') ? (
+        <p style={{width: '150px'}}>
+          your private key is encryted. use the options page to decrypt.
+        </p>
       ) : (
-        prvKey.startsWith("ncryptsec") ? (
-          <p style={{width: '150px'}}>
-            your private key is encryted. use the options page to decrypt.
+        <>
+          <p>
+            <a onClick={toggleKeyType}>↩️</a> your public key:
           </p>
-        ) : (
-          <>
-            <p>
-              <a onClick={toggleKeyType}>↩️</a> your public key:
-            </p>
-            <pre
-              style={{
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all',
-                width: '200px'
-              }}
-            >
-              <code>{pubKey}</code>
-            </pre>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+              width: '200px'
+            }}
+          >
+            <code>{pubKey}</code>
+          </pre>
 
           <div
             style={{
@@ -145,10 +139,10 @@ function Popup() {
   )
 
   async function openOptionsButton() {
-    if (chrome.runtime.openOptionsPage) {
-      chrome.runtime.openOptionsPage();
+    if (browser.runtime.openOptionsPage) {
+      browser.runtime.openOptionsPage()
     } else {
-      window.open(chrome.runtime.getURL('options.html'));
+      window.open(browser.runtime.getURL('options.html'))
     }
   }
 

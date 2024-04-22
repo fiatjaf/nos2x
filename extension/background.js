@@ -56,7 +56,6 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
   }
 })
 
-
 browser.runtime.onMessageExternal.addListener(
   async ({type, params}, sender) => {
     let extensionId = new URL(sender.url).host
@@ -144,7 +143,7 @@ async function handleContentScriptMessage({type, params, host}) {
           type
         })
         // center prompt
-        const { top, left } = await getPosition(width, height)
+        const {top, left} = await getPosition(width, height)
         // prompt will be resolved with true or false
         let accept = await new Promise((resolve, reject) => {
           openPrompt = {resolve, reject}
@@ -155,8 +154,7 @@ async function handleContentScriptMessage({type, params, host}) {
             width: width,
             height: height,
             top: top,
-            left: left,
-
+            left: left
           })
         })
 
@@ -177,8 +175,8 @@ async function handleContentScriptMessage({type, params, host}) {
   if (!results || !results.private_key) {
     return {error: 'no private key found'}
   }
-  
-  if ((results.private_key).startsWith("ncryptsec")) {
+
+  if (results.private_key.startsWith('ncryptsec')) {
     return {error: 'encrypted private key'}
   }
 
@@ -248,16 +246,14 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
 }
 
 async function openSignUpWindow() {
-  const { top, left } = await getPosition(width, height)
+  const {top, left} = await getPosition(width, height)
 
-    browser.windows.create({
-      url: `${browser.runtime.getURL('signup.html')}`,
-      type: 'popup',
-      width: width,
-      height: height,
-      top: top,
-      left: left,
-
-    })
-  }
-
+  browser.windows.create({
+    url: `${browser.runtime.getURL('signup.html')}`,
+    type: 'popup',
+    width: width,
+    height: height,
+    top: top,
+    left: left
+  })
+}
