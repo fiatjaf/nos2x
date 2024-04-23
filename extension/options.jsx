@@ -1,7 +1,8 @@
 import browser from 'webextension-polyfill'
 import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
-import {generateSecretKey, nip19} from 'nostr-tools'
+import {generateSecretKey} from 'nostr-tools/pure'
+import * as nip19 from 'nostr-tools/nip19'
 import {decrypt, encrypt} from 'nostr-tools/nip49'
 import QRCode from 'react-qr-code'
 import {hexToBytes, bytesToHex} from '@noble/hashes/utils'
@@ -434,7 +435,7 @@ function Options() {
 
   async function encryptPrivateKey() {
     try {
-      let {type, data} = nip19.decode(privKey)
+      let {data} = nip19.decode(privKey)
       let encrypted = encrypt(data, password, logNOption, securityByteOption)
       setPrivKey(encrypted)
       await browser.storage.local.set({

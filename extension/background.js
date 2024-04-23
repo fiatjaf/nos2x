@@ -1,6 +1,8 @@
 import browser from 'webextension-polyfill'
-import {validateEvent, finalizeEvent, getPublicKey, nip19} from 'nostr-tools'
-import {nip04, nip44} from 'nostr-tools'
+import {validateEvent, finalizeEvent, getPublicKey} from 'nostr-tools/pure'
+import * as nip19 from 'nostr-tools/nip19'
+import * as nip04 from 'nostr-tools/nip04'
+import * as nip44 from 'nostr-tools/nip44'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
 
@@ -20,7 +22,7 @@ let previousSk = null
 
 function getSharedSecret(sk, peer) {
   // Detect a key change and erase the cache if they changed their key
-  if (previousSk != sk) {
+  if (previousSk !== sk) {
     secretsCache.clear()
   }
 
@@ -63,7 +65,7 @@ browser.runtime.onMessageExternal.addListener(
   }
 )
 
-browser.windows.onRemoved.addListener(windowId => {
+browser.windows.onRemoved.addListener(_ => {
   if (openPrompt) {
     // calling this with a simple "no" response will not store anything, so it's fine
     // it will just return a failure
