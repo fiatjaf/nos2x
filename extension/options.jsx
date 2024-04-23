@@ -229,7 +229,7 @@ function Options() {
             <div style={{display: 'flex', gap: '10px'}}>
               <button
                 onClick={() => {
-                  let {data} = nip19.decode(privKeyInput)
+                  let {data} = nip19.decode(privKey)
                   let pub = getPublicKey(data)
                   let npub = nip19.npubEncode(pub)
                   window.open('https://nosta.me/' + npub)
