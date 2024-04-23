@@ -116,3 +116,33 @@ export async function showNotification(host, answer, type, params) {
     })
   }
 }
+
+export async function getPosition(width, height) {
+  let left = 0
+  let top = 0
+
+  try {
+    const lastFocused = await browser.windows.getLastFocused()
+
+    if (
+      lastFocused &&
+      lastFocused.top !== undefined &&
+      lastFocused.left !== undefined &&
+      lastFocused.width !== undefined &&
+      lastFocused.height !== undefined
+    ) {
+      // Position window in the center of the lastFocused window
+      top = Math.round(lastFocused.top + (lastFocused.height - height) / 2)
+      left = Math.round(lastFocused.left + (lastFocused.width - width) / 2)
+    } else {
+      console.error('Last focused window properties are undefined.')
+    }
+  } catch (error) {
+    console.error('Error getting window position:', error)
+  }
+
+  return {
+    top,
+    left
+  }
+}

@@ -1,6 +1,8 @@
 import browser from 'webextension-polyfill'
-import {validateEvent, finalizeEvent, getPublicKey, nip19} from 'nostr-tools'
-import {nip04, nip44} from 'nostr-tools'
+import {validateEvent, finalizeEvent, getPublicKey} from 'nostr-tools/pure'
+import * as nip19 from 'nostr-tools/nip19'
+import * as nip04 from 'nostr-tools/nip04'
+import * as nip44 from 'nostr-tools/nip44'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
 
@@ -8,7 +10,8 @@ import {
   NO_PERMISSIONS_REQUIRED,
   getPermissionStatus,
   updatePermission,
-  showNotification
+  showNotification,
+  getPosition
 } from './common'
 
 let openPrompt = null
@@ -19,7 +22,7 @@ let previousSk = null
 
 function getSharedSecret(sk, peer) {
   // Detect a key change and erase the cache if they changed their key
-  if (previousSk != sk) {
+  if (previousSk !== sk) {
     secretsCache.clear()
   }
 
@@ -33,17 +36,25 @@ function getSharedSecret(sk, peer) {
   return key
 }
 
+//set the width and height of the prompt window
+const width = 340
+const height = 360
+
 browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
 })
 
-browser.runtime.onMessage.addListener(async (req, sender) => {
-  let {prompt} = req
-
-  if (prompt) {
-    handlePromptMessage(req, sender)
+browser.runtime.onMessage.addListener(async (message, sender) => {
+  if (message.openSignUp) {
+    openSignUpWindow()
+    browser.windows.remove(sender.tab.windowId)
   } else {
-    return handleContentScriptMessage(req)
+    let {prompt} = message
+    if (prompt) {
+      handlePromptMessage(message, sender)
+    } else {
+      return handleContentScriptMessage(message)
+    }
   }
 })
 
@@ -54,7 +65,7 @@ browser.runtime.onMessageExternal.addListener(
   }
 )
 
-browser.windows.onRemoved.addListener(windowId => {
+browser.windows.onRemoved.addListener(_ => {
   if (openPrompt) {
     // calling this with a simple "no" response will not store anything, so it's fine
     // it will just return a failure
@@ -133,7 +144,8 @@ async function handleContentScriptMessage({type, params, host}) {
           params: JSON.stringify(params),
           type
         })
-
+        // center prompt
+        const {top, left} = await getPosition(width, height)
         // prompt will be resolved with true or false
         let accept = await new Promise((resolve, reject) => {
           openPrompt = {resolve, reject}
@@ -141,8 +153,10 @@ async function handleContentScriptMessage({type, params, host}) {
           browser.windows.create({
             url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
             type: 'popup',
-            width: 340,
-            height: 360
+            width: width,
+            height: height,
+            top: top,
+            left: left
           })
         })
 
@@ -162,6 +176,10 @@ async function handleContentScriptMessage({type, params, host}) {
   let results = await browser.storage.local.get('private_key')
   if (!results || !results.private_key) {
     return {error: 'no private key found'}
+  }
+
+  if (results.private_key.startsWith('ncryptsec')) {
+    return {error: 'encrypted private key'}
   }
 
   let sk = results.private_key
@@ -227,4 +245,17 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
   if (sender) {
     browser.windows.remove(sender.tab.windowId)
   }
+}
+
+async function openSignUpWindow() {
+  const {top, left} = await getPosition(width, height)
+
+  browser.windows.create({
+    url: `${browser.runtime.getURL('signup.html')}`,
+    type: 'popup',
+    width: width,
+    height: height,
+    top: top,
+    left: left
+  })
 }

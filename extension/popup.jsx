@@ -1,16 +1,25 @@
 import browser from 'webextension-polyfill'
 import {render} from 'react-dom'
-import {getPublicKey, nip19} from 'nostr-tools'
+import {getPublicKey} from 'nostr-tools/pure'
+import * as nip19 from 'nostr-tools/nip19'
 import React, {useState, useRef, useEffect} from 'react'
 import QRCode from 'react-qr-code'
 
 function Popup() {
+  let [prvKey, setPrvKey] = useState('')
   let [pubKey, setPubKey] = useState('')
+
   let keys = useRef([])
 
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) {
+        setPrvKey(results.private_key)
+
+        if (results.private_key.startsWith('ncryptsec')) {
+          return false
+        }
+
         let hexKey = getPublicKey(results.private_key)
         let npubKey = nip19.npubEncode(hexKey)
 
@@ -42,12 +51,14 @@ function Popup() {
   }, [])
 
   return (
-    <>
+    <div style={{marginBottom: '5px'}}>
       <h2>nos2x</h2>
       {pubKey === null ? (
-        <p style={{width: '150px'}}>
-          you don't have a private key set. use the options page to set one.
-        </p>
+        <div>
+          <button onClick={openOptionsButton}>start here</button>
+        </div>
+      ) : prvKey.startsWith('ncryptsec') ? (
+        <p>your private key is encryted. use the options page to decrypt.</p>
       ) : (
         <>
           <p>
@@ -66,7 +77,7 @@ function Popup() {
           <div
             style={{
               height: 'auto',
-              margin: '0 auto',
+              // margin: '0 auto',
               maxWidth: 256,
               width: '100%'
             }}
@@ -80,8 +91,16 @@ function Popup() {
           </div>
         </>
       )}
-    </>
+    </div>
   )
+
+  async function openOptionsButton() {
+    if (browser.runtime.openOptionsPage) {
+      browser.runtime.openOptionsPage()
+    } else {
+      window.open(browser.runtime.getURL('options.html'))
+    }
+  }
 
   function toggleKeyType(e) {
     e.preventDefault()
