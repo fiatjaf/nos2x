@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import React, {useState, useCallback, useEffect, useMemo} from 'react'
+import React, {useState, useCallback, useEffect} from 'react'
 import {render} from 'react-dom'
 import {generateSecretKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
@@ -11,14 +11,10 @@ import {removePermissions} from './common'
 import {getPublicKey} from 'nostr-tools'
 
 function Options() {
-  let [privKey, setPrivKey] = useState('')
+  let [privKey, setPrivKey] = useState(null)
+  let [privKeyInput, setPrivKeyInput] = useState('')
+  let [askPassword, setAskPassword] = useState(null)
   let [password, setPassword] = useState('')
-  let [passwordDecrypt, setPasswordDecrypt] = useState('')
-  let [confirmPassword, setConfirmPassword] = useState('')
-  let passwordMatch = useMemo(
-    () => password === confirmPassword,
-    [password, confirmPassword]
-  )
   let [errorMessage, setErrorMessage] = useState('')
   let [successMessage, setSuccessMessage] = useState('')
   let [relays, setRelays] = useState([])
@@ -44,11 +40,9 @@ function Options() {
       .then(results => {
         if (results.private_key) {
           let prvKey = results.private_key
-          setPrivKey(
-            prvKey.startsWith('ncryptsec')
-              ? results.private_key
-              : nip19.nsecEncode(hexToBytes(prvKey))
-          )
+          let nsec = nip19.nsecEncode(hexToBytes(prvKey))
+          setPrivKeyInput(nsec)
+          setPrivKey(nsec)
         }
         if (results.relays) {
           let relaysList = []
@@ -124,93 +118,104 @@ function Options() {
               <input
                 type={hidingPrivateKey ? 'password' : 'text'}
                 style={{width: '600px'}}
-                value={privKey}
+                value={privKeyInput}
                 onChange={handleKeyChange}
               />
-              {privKey === '' && <button onClick={generate}>generate</button>}
-              {privKey && hidingPrivateKey && (
-                <button onClick={() => hidePrivateKey(false)}>show key</button>
+              {privKeyInput === '' && (
+                <button onClick={generate}>generate</button>
               )}
-              {privKey && !hidingPrivateKey && (
-                <button onClick={() => hidePrivateKey(true)}>hide key</button>
-              )}
-            </div>
-            {privKey && !isKeyValid() && (
-              <div style={{color: 'red'}}>private key is invalid!</div>
-            )}
-            {!hidingPrivateKey && isKeyValid() && (
-              <div
-                style={{
-                  height: 'auto',
-                  maxWidth: 256,
-                  width: '100%',
-                  marginTop: '5px'
-                }}
-              >
-                <QRCode
-                  size={256}
-                  style={{height: 'auto', maxWidth: '100%', width: '100%'}}
-                  value={privKey.toUpperCase()}
-                  viewBox={`0 0 256 256`}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-        <div>
-          <div>password:&nbsp;</div>
-          <div
-            style={{
-              marginLeft: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px'
-            }}
-          >
-            <div style={{display: 'flex', gap: '10px'}}>
-              {!privKey.startsWith('ncryptsec') ? (
+              {privKeyInput && hidingPrivateKey && (
                 <>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    style={{width: '150px'}}
-                  />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                    style={{width: '150px'}}
-                  />
-                  <button
-                    onClick={encryptPrivateKey}
-                    disabled={!password || !confirmPassword || !passwordMatch}
-                  >
-                    encrypt key
+                  {askPassword !== 'encrypt/display' && (
+                    <button onClick={() => hidePrivateKey(false)}>
+                      show key
+                    </button>
+                  )}
+                  <button onClick={() => setAskPassword('encrypt/display')}>
+                    show key encrypted
                   </button>
                 </>
-              ) : (
-                <>
-                  <input
-                    type="password"
-                    value={passwordDecrypt}
-                    onChange={handlePasswordDecryptChange}
-                    style={{width: '600px'}}
-                  />
-                  <button onClick={decryptPrivateKey}>decrypt key</button>
-                </>
+              )}
+              {privKeyInput && !hidingPrivateKey && (
+                <button onClick={hideAndResetKeyInput}>hide key</button>
               )}
             </div>
-
-            {!passwordMatch && confirmPassword !== '' && (
-              <div style={{color: 'red'}}>passwords do not match!</div>
-            )}
-            {successMessage && (
-              <div style={{color: 'green'}}>{successMessage}</div>
-            )}
-            {errorMessage && <div style={{color: 'red'}}>{errorMessage}</div>}
+            {privKeyInput &&
+              !privKeyInput.startsWith('ncryptsec1') &&
+              !isKeyValid() && (
+                <div style={{color: 'red'}}>private key is invalid!</div>
+              )}
+            {!hidingPrivateKey &&
+              privKeyInput !== '' &&
+              (privKeyInput.startsWith('ncryptsec1') || isKeyValid()) && (
+                <div
+                  style={{
+                    height: 'auto',
+                    maxWidth: 256,
+                    width: '100%',
+                    marginTop: '5px'
+                  }}
+                >
+                  <QRCode
+                    size={256}
+                    style={{height: 'auto', maxWidth: '100%', width: '100%'}}
+                    value={privKeyInput.toUpperCase()}
+                    viewBox={`0 0 256 256`}
+                  />
+                </div>
+              )}
           </div>
         </div>
+        {askPassword && (
+          <div>
+            <div>password:&nbsp;</div>
+            <div
+              style={{
+                marginLeft: '10px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}
+            >
+              <form
+                style={{display: 'flex', flexDirection: 'row', gap: '10px'}}
+              >
+                <input
+                  autoFocus
+                  type="password"
+                  value={password}
+                  onChange={ev => setPassword(ev.target.value)}
+                  style={{width: '150px'}}
+                />
+                {askPassword === 'decrypt/save' ? (
+                  <button
+                    onClick={decryptPrivateKeyAndSave}
+                    disabled={!password}
+                  >
+                    decrypt key
+                  </button>
+                ) : askPassword === 'encrypt/display' ? (
+                  <button
+                    onClick={ev => {
+                      console.log('gah')
+                      encryptPrivateKeyAndDisplay(ev)
+                    }}
+                    disabled={!password}
+                  >
+                    encrypt and show key
+                  </button>
+                ) : (
+                  'jaksbdkjsad'
+                )}
+              </form>
+
+              {successMessage && (
+                <div style={{color: 'green'}}>{successMessage}</div>
+              )}
+              {errorMessage && <div style={{color: 'red'}}>{errorMessage}</div>}
+            </div>
+          </div>
+        )}
         <div>
           <div>nosta.me:&nbsp;</div>
           <div
@@ -224,7 +229,7 @@ function Options() {
             <div style={{display: 'flex', gap: '10px'}}>
               <button
                 onClick={() => {
-                  let {data} = nip19.decode(privKey)
+                  let {data} = nip19.decode(privKeyInput)
                   let pub = getPublicKey(data)
                   let npub = nip19.npubEncode(pub)
                   window.open('https://nosta.me/' + npub)
@@ -423,30 +428,60 @@ function Options() {
     </>
   )
 
+  async function hideAndResetKeyInput() {
+    setPrivKeyInput(privKey)
+    hidePrivateKey(true)
+  }
+
   async function handleKeyChange(e) {
     let key = e.target.value.toLowerCase().trim()
-    setPrivKey(key)
-    addUnsavedChanges('private_key')
+    setPrivKeyInput(key)
+
+    try {
+      let bytes = hexToBytes(key)
+      if (bytes.length === 32) {
+        key = nip19.nsecEncode(bytes)
+        setPrivKeyInput(key)
+      }
+    } catch (err) {
+      /***/
+    }
+
+    if (key.startsWith('ncryptsec1')) {
+      // we won't save an encrypted key, will wait for the password
+      setAskPassword('decrypt/save')
+      return
+    }
+
+    try {
+      // we will only save a key that is a valid nsec
+      if (nip19.decode(key).type === 'nsec') {
+        addUnsavedChanges('private_key')
+      }
+    } catch (err) {
+      /***/
+    }
   }
 
   async function generate() {
-    setPrivKey(nip19.nsecEncode(generateSecretKey()))
+    setPrivKeyInput(nip19.nsecEncode(generateSecretKey()))
     addUnsavedChanges('private_key')
   }
 
-  async function encryptPrivateKey() {
+  function encryptPrivateKeyAndDisplay(ev) {
+    ev.preventDefault()
+
     try {
-      let {data} = nip19.decode(privKey)
+      let {data} = nip19.decode(privKeyInput)
       let encrypted = encrypt(data, password, 16, 0x00)
-      setPrivKey(encrypted)
-      await browser.storage.local.set({
-        private_key: encrypted
-      })
+      setPrivKeyInput(encrypted)
+      hidePrivateKey(false)
 
       setSuccessMessage('encryption successful!')
       setTimeout(() => {
+        setAskPassword(null)
         setSuccessMessage('')
-      }, 3000)
+      }, 2000)
       setErrorMessage('')
     } catch (e) {
       setErrorMessage('something is going wrong. please try again.')
@@ -457,17 +492,21 @@ function Options() {
     }
   }
 
-  async function decryptPrivateKey() {
+  function decryptPrivateKeyAndSave(ev) {
+    ev.preventDefault()
+
     try {
-      let decrypted = decrypt(privKey, passwordDecrypt)
-      setPrivKey(nip19.nsecEncode(decrypted))
-      await browser.storage.local.set({
+      let decrypted = decrypt(privKeyInput, password)
+      setPrivKeyInput(nip19.nsecEncode(decrypted))
+      browser.storage.local.set({
         private_key: bytesToHex(decrypted)
       })
       setSuccessMessage('decryption successful!')
+
       setTimeout(() => {
+        setAskPassword(null)
         setSuccessMessage('')
-      }, 3000)
+      }, 2000)
       setErrorMessage('')
     } catch (e) {
       setErrorMessage('incorrect password. please try again.')
@@ -478,45 +517,29 @@ function Options() {
     }
   }
 
-  async function handlePasswordChange(event) {
-    const newPassword = event.target.value
-    setPassword(newPassword)
-  }
-
-  async function handlePasswordDecryptChange(event) {
-    setPasswordDecrypt(event.target.value)
-  }
-
-  async function handleConfirmPasswordChange(event) {
-    const newConfirmPassword = event.target.value
-    setConfirmPassword(newConfirmPassword)
-  }
-
   async function saveKey() {
     if (!isKeyValid()) {
       showMessage('PRIVATE KEY IS INVALID! did not save private key.')
       return
     }
-    let hexOrEmptyKey = privKey
+    let hexOrEmptyKey = privKeyInput
     try {
-      let {type, data} = nip19.decode(privKey)
+      let {type, data} = nip19.decode(privKeyInput)
       if (type === 'nsec') hexOrEmptyKey = bytesToHex(data)
     } catch (_) {}
     await browser.storage.local.set({
       private_key: hexOrEmptyKey
     })
     if (hexOrEmptyKey !== '') {
-      setPrivKey(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
+      setPrivKeyInput(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
     }
     showMessage('saved private key!')
   }
 
   function isKeyValid() {
-    if (privKey === '') return true
-    if (privKey.startsWith('ncryptsec')) return true
-    if (privKey.match(/^[a-f0-9]{64}$/)) return true
+    if (privKeyInput === '') return true
     try {
-      if (nip19.decode(privKey).type === 'nsec') return true
+      if (nip19.decode(privKeyInput).type === 'nsec') return true
     } catch (_) {}
     return false
   }

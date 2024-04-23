@@ -6,7 +6,6 @@ import React, {useState, useRef, useEffect} from 'react'
 import QRCode from 'react-qr-code'
 
 function Popup() {
-  let [prvKey, setPrvKey] = useState('')
   let [pubKey, setPubKey] = useState('')
 
   let keys = useRef([])
@@ -14,12 +13,6 @@ function Popup() {
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) {
-        setPrvKey(results.private_key)
-
-        if (results.private_key.startsWith('ncryptsec')) {
-          return false
-        }
-
         let hexKey = getPublicKey(results.private_key)
         let npubKey = nip19.npubEncode(hexKey)
 
@@ -57,8 +50,6 @@ function Popup() {
         <div>
           <button onClick={openOptionsButton}>start here</button>
         </div>
-      ) : prvKey.startsWith('ncryptsec') ? (
-        <p>your private key is encryted. use the options page to decrypt.</p>
       ) : (
         <>
           <p>
