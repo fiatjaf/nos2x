@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import React, {useState, useCallback, useEffect} from 'react'
+import React, {useState, useCallback, useEffect, useMemo} from 'react'
 import {render} from 'react-dom'
 import {generateSecretKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
@@ -14,11 +14,12 @@ function Options() {
   let [password, setPassword] = useState('')
   let [passwordDecrypt, setPasswordDecrypt] = useState('')
   let [confirmPassword, setConfirmPassword] = useState('')
-  let [passwordMatch, setPasswordMatch] = useState(true)
+  let passwordMatch = useMemo(
+    () => password === confirmPassword,
+    [password, confirmPassword]
+  )
   let [errorMessage, setErrorMessage] = useState('')
   let [successMessage, setSuccessMessage] = useState('')
-  let [logNOption, setLogNOption] = useState('')
-  let [securityByteOption, setSecurityByteOption] = useState('')
   let [relays, setRelays] = useState([])
   let [newRelayURL, setNewRelayURL] = useState('')
   let [policies, setPermissions] = useState([])
@@ -37,9 +38,6 @@ function Options() {
   })
 
   useEffect(() => {
-    setLogNOption('1')
-    setSecurityByteOption('0x00')
-
     browser.storage.local
       .get(['private_key', 'relays', 'protocol_handler', 'notifications'])
       .then(results => {
@@ -95,26 +93,6 @@ function Options() {
     })
 
     setPermissions(list)
-  }
-
-  // Generate LOG_N options from 1 to 16
-  const logN_options = []
-  for (let i = 1; i <= 16; i++) {
-    logN_options.push(
-      <option key={i} value={i}>
-        {i}
-      </option>
-    )
-  }
-
-  // Generate KEY_SECURITY_BYTE options from 0x00 to 0x02
-  const securityByte_options = []
-  for (let i = 0; i <= 2; i++) {
-    securityByte_options.push(
-      <option key={i} value={'0x0' + i}>
-        0x0{i}
-      </option>
-    )
   }
 
   return (
@@ -203,15 +181,6 @@ function Options() {
                     onChange={handleConfirmPasswordChange}
                     style={{width: '150px'}}
                   />
-                  <select onChange={handleLogNChange} style={{width: '100px'}}>
-                    {logN_options}
-                  </select>
-                  <select
-                    onChange={handleSecurityBytesChange}
-                    style={{width: '100px'}}
-                  >
-                    {securityByte_options}
-                  </select>
                   <button
                     onClick={encryptPrivateKey}
                     disabled={!password || !confirmPassword || !passwordMatch}
@@ -232,7 +201,7 @@ function Options() {
               )}
             </div>
 
-            {!passwordMatch && (
+            {!passwordMatch && confirmPassword !== '' && (
               <div style={{color: 'red'}}>passwords do not match!</div>
             )}
             {successMessage && (
@@ -436,7 +405,7 @@ function Options() {
   async function encryptPrivateKey() {
     try {
       let {data} = nip19.decode(privKey)
-      let encrypted = encrypt(data, password, logNOption, securityByteOption)
+      let encrypted = encrypt(data, password, 16, 0x00)
       setPrivKey(encrypted)
       await browser.storage.local.set({
         private_key: encrypted
@@ -477,19 +446,9 @@ function Options() {
     }
   }
 
-  async function handleLogNChange(event) {
-    setLogNOption(event.target.value)
-  }
-
-  async function handleSecurityBytesChange(event) {
-    setSecurityByteOption(event.target.value)
-  }
-
   async function handlePasswordChange(event) {
     const newPassword = event.target.value
     setPassword(newPassword)
-    // Check if the confirm password matches the new password
-    setPasswordMatch(newPassword === confirmPassword)
   }
 
   async function handlePasswordDecryptChange(event) {
@@ -499,8 +458,6 @@ function Options() {
   async function handleConfirmPasswordChange(event) {
     const newConfirmPassword = event.target.value
     setConfirmPassword(newConfirmPassword)
-    // Check if the confirm password matches the password
-    setPasswordMatch(password === newConfirmPassword)
   }
 
   async function saveKey() {
