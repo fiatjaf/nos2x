@@ -8,6 +8,7 @@ import QRCode from 'react-qr-code'
 import {hexToBytes, bytesToHex} from '@noble/hashes/utils'
 
 import {removePermissions} from './common'
+import {getPublicKey} from 'nostr-tools'
 
 function Options() {
   let [privKey, setPrivKey] = useState('')
@@ -208,6 +209,37 @@ function Options() {
               <div style={{color: 'green'}}>{successMessage}</div>
             )}
             {errorMessage && <div style={{color: 'red'}}>{errorMessage}</div>}
+          </div>
+        </div>
+        <div>
+          <div>nosta.me:&nbsp;</div>
+          <div
+            style={{
+              marginLeft: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
+            <div style={{display: 'flex', gap: '10px'}}>
+              <button
+                onClick={() => {
+                  let {data} = nip19.decode(privKey)
+                  let pub = getPublicKey(data)
+                  let npub = nip19.npubEncode(pub)
+                  window.open('https://nosta.me/' + npub)
+                }}
+                style={{cursor: 'pointer'}}
+              >
+                browse your profile
+              </button>
+              <button
+                onClick={() => window.open('https://nosta.me/login/options')}
+                style={{cursor: 'pointer'}}
+              >
+                edit your profile
+              </button>
+            </div>
           </div>
         </div>
         <div>
