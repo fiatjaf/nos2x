@@ -20,6 +20,7 @@
   },
   "content_scripts": [
     {
+      "run_at": "document_end",
       "matches": ["<all_urls>"],
       "js": ["content-script.build.js"],
       "all_frames": true
