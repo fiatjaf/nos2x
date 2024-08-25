@@ -95,8 +95,8 @@ export async function removePermissions(host, accept, type) {
 }
 
 export async function showNotification(host, answer, type, params) {
-  let ok = await browser.storage.local.get('notifications')
-  if (ok) {
+  let {notifications} = await browser.storage.local.get('notifications')
+  if (notifications) {
     let action = answer ? 'allowed' : 'denied'
     browser.notifications.create(undefined, {
       type: 'basic',
