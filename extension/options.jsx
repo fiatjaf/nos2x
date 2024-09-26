@@ -1,14 +1,15 @@
-import browser from 'webextension-polyfill'
-import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { render } from 'react-dom'
-import { generateSecretKey } from 'nostr-tools/pure'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { getPublicKey } from 'nostr-tools'
 import * as nip19 from 'nostr-tools/nip19'
 import { decrypt, encrypt } from 'nostr-tools/nip49'
+import { generateSecretKey } from 'nostr-tools/pure'
+import qrcodeParser from 'qrcode-parser'
+import React, { useCallback, useEffect, useState } from 'react'
+import { render } from 'react-dom'
 import QRCode from 'react-qr-code'
-import QrScanner from 'qr-scanner'
-import { hexToBytes, bytesToHex } from '@noble/hashes/utils'
+import QrReader from 'react-qr-scanner'
+import browser from 'webextension-polyfill'
 import { removePermissions } from './common'
-import { getPublicKey } from 'nostr-tools'
 
 function Options() {
   let [privKey, setPrivKey] = useState(null)
@@ -27,8 +28,8 @@ function Options() {
   let [handleNostrLinks, setHandleNostrLinks] = useState(false)
   let [showProtocolHandlerHelp, setShowProtocolHandlerHelp] = useState(false)
   let [unsavedChanges, setUnsavedChanges] = useState([])
-  let [videoRef] = useRef(null)
-  let [qrcodeScan, setQRCodeScan] = useState({ active: false, scan: null })
+  let [qrcodeScanned, setQrCodeScanned] = useState(null)
+  let [scanning, setScanning] = useState(false)
 
   const showMessage = useCallback(msg => {
     messages.push(msg)
@@ -68,37 +69,42 @@ function Options() {
   }, [])
 
   useEffect(() => {
-    if (videoRef && videoRef.current) {
-      const scan = new QrScanner(
-        videoRef.current, result => {
-          if (result.data) {
-            if (result.data.startsWith('ncryptsec1')) {
-              setPrivKeyInput(result.data)
-              setAskPassword('decrypt/save')
-            } else if (result.data.startsWith('nsec1')) {
-              setPrivKeyInput(result.data)
-              addUnsavedChanges('private_key')
-              setErrorMessage('you should not store your nsec into a qrcode, destroy it and generate a ncryptsec qrcode.')
-            } else if (/^[a-f0-9]+$/.test(result.data)) {
-              setPrivKeyInput(nip19.nsecEncode(result.data))
-              addUnsavedChanges('private_key')
-              setErrorMessage('a hexadecimal was found instead of ncrytsec, if this is your secret you must destroy this qrcode.')
-            }
-          }
-        }, {
-          onDecodeError: error => {
-            setErrorMessage('invalid qrcode.')
-            console.error('qrcode decode error: ', error)
-          },
-          preferredCamera: 'environment',
-          highlightScanRegion: true,
-          highlightCodeOutline: true
-        }
-      )
-
-      setQRCodeScan({ ...qrcodeScan, scan })
+    if (qrcodeScanned) {
+      if (qrcodeScanned.startsWith('ncryptsec1')) {
+        setPrivKeyInput(qrcodeScanned)
+        setAskPassword('decrypt/save')
+      } else if (qrcodeScanned.startsWith('nsec1')) {
+        setPrivKeyInput(qrcodeScanned)
+        addUnsavedChanges('private_key')
+        setErrorMessage('you should not store your nsec into a qrcode, destroy it and generate a ncryptsec qrcode.')
+      } else if (/^[a-f0-9]+$/.test(qrcodeScanned)) {
+        setPrivKeyInput(nip19.nsecEncode(qrcodeScanned))
+        addUnsavedChanges('private_key')
+        setErrorMessage('a hexadecimal was found instead of ncrytsec, you must destroy this qrcode if this is your secret.')
+      }
     }
-  }, [videoRef])
+  }, [qrcodeScanned])
+
+  async function loadQrCodeFromFile(type = 'image/*') {
+    const input = document.createElement('input')
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', type)
+    input.click()
+
+    const file = await new Promise(resolve => {
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0] || null
+        return resolve(file)
+      })
+    })
+
+    if (!file) {
+      return Promise.resolve(null)
+    }
+
+    const result = await qrcodeParser(file)
+    setQrCodeScanned(result.toLowerCase())
+  }
 
   useEffect(() => {
     loadPermissions()
@@ -159,7 +165,8 @@ function Options() {
               {privKeyInput === '' && (
                 <>
                   <button onClick={generate}>generate</button>
-                  <button onClick={() => setQRCodeScan({ active: true })}>scan qrcode</button>
+                  <button onClick={() => setScanning(true)}>scan qrcode</button>
+                  <button onClick={loadQrCodeFromFile}>load qrcode</button>
                 </>
               )}
               {privKeyInput && hidingPrivateKey && (
@@ -173,10 +180,6 @@ function Options() {
                     show key encrypted
                   </button>
                 </>
-              )}
-
-              {qrcodeScan.active && (
-                <video height="460" ref={videoRef} autoplay></video>
               )}
 
               {privKeyInput && !hidingPrivateKey && (
@@ -207,6 +210,21 @@ function Options() {
                   />
                 </div>
               )}
+            {scanning && (
+              <QrReader
+                facingMode="rear"
+                style={{
+                  height: 240,
+                  width: 320,
+                }}
+                onError={error => {
+                  setErrorMessage('invalid qrcode')
+                  console.error(error)
+                  setScanning(false)
+                }}
+                onScan={scanned => setQrCodeScanned(scanned && scanned.text || null)}
+              ></QrReader>
+            )}
           </div>
         </div>
         {askPassword && (
@@ -507,6 +525,7 @@ function Options() {
   }
 
   async function generate() {
+    setScanning(false)
     setPrivKeyInput(nip19.nsecEncode(generateSecretKey()))
     addUnsavedChanges('private_key')
   }
