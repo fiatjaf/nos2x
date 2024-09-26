@@ -30,6 +30,7 @@ function Options() {
   let [unsavedChanges, setUnsavedChanges] = useState([])
   let [qrcodeScanned, setQrCodeScanned] = useState(null)
   let [scanning, setScanning] = useState(false)
+  let [warningMessage, setWarningMessage] = useState('')
 
   const showMessage = useCallback(msg => {
     messages.push(msg)
@@ -76,16 +77,17 @@ function Options() {
       } else if (qrcodeScanned.startsWith('nsec1')) {
         setPrivKeyInput(qrcodeScanned)
         addUnsavedChanges('private_key')
-        setErrorMessage('you should not store your nsec into a qrcode, destroy it and generate a ncryptsec qrcode.')
+        setWarningMessage('Store you nsec into a qrcode without encrypt is HIGHLY NOT recommended. Use ncryptsec qrcode instead.')
       } else if (/^[a-f0-9]+$/.test(qrcodeScanned)) {
-        setPrivKeyInput(nip19.nsecEncode(qrcodeScanned))
+        setPrivKeyInput(nip19.nsecEncode(hexToBytes(qrcodeScanned)))
         addUnsavedChanges('private_key')
-        setErrorMessage('a hexadecimal was found instead of ncrytsec, you must destroy this qrcode if this is your secret.')
+        setWarningMessage('Store you secret into a qrcode without encrypt is HIGHLY NOT recommended. Use ncryptsec qrcode instead.')
       }
     }
   }, [qrcodeScanned])
 
   async function loadQrCodeFromFile(type = 'image/*') {
+    setScanning(false)
     const input = document.createElement('input')
     input.setAttribute('type', 'file')
     input.setAttribute('accept', type)
@@ -94,7 +96,8 @@ function Options() {
     const file = await new Promise(resolve => {
       input.addEventListener('change', () => {
         const file = input.files && input.files[0] || null
-        return resolve(file)
+        resolve(file)
+        input.value = null
       })
     })
 
@@ -226,6 +229,7 @@ function Options() {
               ></QrReader>
             )}
           </div>
+          {warningMessage && <div style={{ color: 'red', marginTop: '10px' }}>{warningMessage}</div>}
         </div>
         {askPassword && (
           <div>
