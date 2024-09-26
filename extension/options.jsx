@@ -1,14 +1,14 @@
 import browser from 'webextension-polyfill'
-import React, {useState, useCallback, useEffect} from 'react'
-import {render} from 'react-dom'
-import {generateSecretKey} from 'nostr-tools/pure'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { render } from 'react-dom'
+import { generateSecretKey } from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
-import {decrypt, encrypt} from 'nostr-tools/nip49'
+import { decrypt, encrypt } from 'nostr-tools/nip49'
 import QRCode from 'react-qr-code'
-import {hexToBytes, bytesToHex} from '@noble/hashes/utils'
-
-import {removePermissions} from './common'
-import {getPublicKey} from 'nostr-tools'
+import QrScanner from 'qr-scanner'
+import { hexToBytes, bytesToHex } from '@noble/hashes/utils'
+import { removePermissions } from './common'
+import { getPublicKey } from 'nostr-tools'
 
 function Options() {
   let [privKey, setPrivKey] = useState(null)
@@ -27,6 +27,8 @@ function Options() {
   let [handleNostrLinks, setHandleNostrLinks] = useState(false)
   let [showProtocolHandlerHelp, setShowProtocolHandlerHelp] = useState(false)
   let [unsavedChanges, setUnsavedChanges] = useState([])
+  let [videoRef] = useRef(null)
+  let [qrcodeScan, setQRCodeScan] = useState({ active: false, scan: null })
 
   const showMessage = useCallback(msg => {
     messages.push(msg)
@@ -66,16 +68,49 @@ function Options() {
   }, [])
 
   useEffect(() => {
+    if (videoRef && videoRef.current) {
+      const scan = new QrScanner(
+        videoRef.current, result => {
+          if (result.data) {
+            if (result.data.startsWith('ncryptsec1')) {
+              setPrivKeyInput(result.data)
+              setAskPassword('decrypt/save')
+            } else if (result.data.startsWith('nsec1')) {
+              setPrivKeyInput(result.data)
+              addUnsavedChanges('private_key')
+              setErrorMessage('you should not store your nsec into a qrcode, destroy it and generate a ncryptsec qrcode.')
+            } else if (/^[a-f0-9]+$/.test(result.data)) {
+              setPrivKeyInput(nip19.nsecEncode(result.data))
+              addUnsavedChanges('private_key')
+              setErrorMessage('a hexadecimal was found instead of ncrytsec, if this is your secret you must destroy this qrcode.')
+            }
+          }
+        }, {
+          onDecodeError: error => {
+            setErrorMessage('invalid qrcode.')
+            console.error('qrcode decode error: ', error)
+          },
+          preferredCamera: 'environment',
+          highlightScanRegion: true,
+          highlightCodeOutline: true
+        }
+      )
+
+      setQRCodeScan({ ...qrcodeScan, scan })
+    }
+  }, [videoRef])
+
+  useEffect(() => {
     loadPermissions()
   }, [])
 
   async function loadPermissions() {
-    let {policies = {}} = await browser.storage.local.get('policies')
+    let { policies = {} } = await browser.storage.local.get('policies')
     let list = []
 
     Object.entries(policies).forEach(([host, accepts]) => {
       Object.entries(accepts).forEach(([accept, types]) => {
-        Object.entries(types).forEach(([type, {conditions, created_at}]) => {
+        Object.entries(types).forEach(([type, { conditions, created_at }]) => {
           list.push({
             host,
             type,
@@ -92,9 +127,9 @@ function Options() {
 
   return (
     <>
-      <h1 style={{fontSize: '25px', marginBlockEnd: '0px'}}>nos2x</h1>
-      <p style={{marginBlockStart: '0px'}}>nostr signer extension</p>
-      <h2 style={{marginBlockStart: '20px', marginBlockEnd: '5px'}}>options</h2>
+      <h1 style={{ fontSize: '25px', marginBlockEnd: '0px' }}>nos2x</h1>
+      <p style={{ marginBlockStart: '0px' }}>nostr signer extension</p>
+      <h2 style={{ marginBlockStart: '20px', marginBlockEnd: '5px' }}>options</h2>
       <div
         style={{
           marginBottom: '10px',
@@ -114,15 +149,18 @@ function Options() {
               gap: '10px'
             }}
           >
-            <div style={{display: 'flex', gap: '10px'}}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <input
                 type={hidingPrivateKey ? 'password' : 'text'}
-                style={{width: '600px'}}
+                style={{ width: '600px' }}
                 value={privKeyInput}
                 onChange={handleKeyChange}
               />
               {privKeyInput === '' && (
-                <button onClick={generate}>generate</button>
+                <>
+                  <button onClick={generate}>generate</button>
+                  <button onClick={() => setQRCodeScan({ active: true })}>scan qrcode</button>
+                </>
               )}
               {privKeyInput && hidingPrivateKey && (
                 <>
@@ -136,6 +174,11 @@ function Options() {
                   </button>
                 </>
               )}
+
+              {qrcodeScan.active && (
+                <video height="460" ref={videoRef} autoplay></video>
+              )}
+
               {privKeyInput && !hidingPrivateKey && (
                 <button onClick={hideAndResetKeyInput}>hide key</button>
               )}
@@ -143,7 +186,7 @@ function Options() {
             {privKeyInput &&
               !privKeyInput.startsWith('ncryptsec1') &&
               !isKeyValid() && (
-                <div style={{color: 'red'}}>private key is invalid!</div>
+                <div style={{ color: 'red' }}>private key is invalid!</div>
               )}
             {!hidingPrivateKey &&
               privKeyInput !== '' &&
@@ -158,7 +201,7 @@ function Options() {
                 >
                   <QRCode
                     size={256}
-                    style={{height: 'auto', maxWidth: '100%', width: '100%'}}
+                    style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
                     value={privKeyInput.toUpperCase()}
                     viewBox={`0 0 256 256`}
                   />
@@ -178,14 +221,14 @@ function Options() {
               }}
             >
               <form
-                style={{display: 'flex', flexDirection: 'row', gap: '10px'}}
+                style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}
               >
                 <input
                   autoFocus
                   type="password"
                   value={password}
                   onChange={ev => setPassword(ev.target.value)}
-                  style={{width: '150px'}}
+                  style={{ width: '150px' }}
                 />
                 {askPassword === 'decrypt/save' ? (
                   <button
@@ -210,9 +253,9 @@ function Options() {
               </form>
 
               {successMessage && (
-                <div style={{color: 'green'}}>{successMessage}</div>
+                <div style={{ color: 'green' }}>{successMessage}</div>
               )}
-              {errorMessage && <div style={{color: 'red'}}>{errorMessage}</div>}
+              {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
             </div>
           </div>
         )}
@@ -226,21 +269,21 @@ function Options() {
               gap: '10px'
             }}
           >
-            <div style={{display: 'flex', gap: '10px'}}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={() => {
-                  let {data} = nip19.decode(privKey)
+                  let { data } = nip19.decode(privKey)
                   let pub = getPublicKey(data)
                   let npub = nip19.npubEncode(pub)
                   window.open('https://nosta.me/' + npub)
                 }}
-                style={{cursor: 'pointer'}}
+                style={{ cursor: 'pointer' }}
               >
                 browse your profile
               </button>
               <button
                 onClick={() => window.open('https://nosta.me/login/options')}
-                style={{cursor: 'pointer'}}
+                style={{ cursor: 'pointer' }}
               >
                 edit your profile
               </button>
@@ -257,18 +300,18 @@ function Options() {
               gap: '1px'
             }}
           >
-            {relays.map(({url, policy}, i) => (
+            {relays.map(({ url, policy }, i) => (
               <div
                 key={i}
-                style={{display: 'flex', alignItems: 'center', gap: '15px'}}
+                style={{ display: 'flex', alignItems: 'center', gap: '15px' }}
               >
                 <input
-                  style={{width: '400px'}}
+                  style={{ width: '400px' }}
                   value={url}
                   onChange={changeRelayURL.bind(null, i)}
                 />
-                <div style={{display: 'flex', gap: '5px'}}>
-                  <label style={{display: 'flex', alignItems: 'center'}}>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center' }}>
                     read
                     <input
                       type="checkbox"
@@ -276,7 +319,7 @@ function Options() {
                       onChange={toggleRelayPolicy.bind(null, i, 'read')}
                     />
                   </label>
-                  <label style={{display: 'flex', alignItems: 'center'}}>
+                  <label style={{ display: 'flex', alignItems: 'center' }}>
                     write
                     <input
                       type="checkbox"
@@ -288,9 +331,9 @@ function Options() {
                 <button onClick={removeRelay.bind(null, i)}>remove</button>
               </div>
             ))}
-            <div style={{display: 'flex', gap: '10px', marginTop: '5px'}}>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
               <input
-                style={{width: '400px'}}
+                style={{ width: '400px' }}
                 value={newRelayURL}
                 onChange={e => setNewRelayURL(e.target.value)}
                 onKeyDown={e => {
@@ -304,10 +347,10 @@ function Options() {
           </div>
         </div>
         <div>
-          <label style={{display: 'flex', alignItems: 'center'}}>
+          <label style={{ display: 'flex', alignItems: 'center' }}>
             <div>
               handle{' '}
-              <span style={{padding: '2px', background: 'silver'}}>nostr:</span>{' '}
+              <span style={{ padding: '2px', background: 'silver' }}>nostr:</span>{' '}
               links:
             </div>
             <input
@@ -316,15 +359,15 @@ function Options() {
               onChange={changeHandleNostrLinks}
             />
           </label>
-          <div style={{marginLeft: '10px'}}>
+          <div style={{ marginLeft: '10px' }}>
             {handleNostrLinks && (
               <div>
-                <div style={{display: 'flex'}}>
+                <div style={{ display: 'flex' }}>
                   <input
                     placeholder="url template"
                     value={protocolHandler}
                     onChange={handleChangeProtocolHandler}
-                    style={{width: '680px', maxWidth: '90%'}}
+                    style={{ width: '680px', maxWidth: '90%' }}
                   />
                   {!showProtocolHandlerHelp && (
                     <button onClick={changeShowProtocolHandlerHelp}>?</button>
@@ -351,7 +394,7 @@ function Options() {
             )}
           </div>
         </div>
-        <label style={{display: 'flex', alignItems: 'center'}}>
+        <label style={{ display: 'flex', alignItems: 'center' }}>
           show notifications when permissions are used:
           <input
             type="checkbox"
@@ -362,11 +405,11 @@ function Options() {
         <button
           disabled={!unsavedChanges.length}
           onClick={saveChanges}
-          style={{padding: '5px 20px'}}
+          style={{ padding: '5px 20px' }}
         >
           save
         </button>
-        <div style={{fontSize: '120%'}}>
+        <div style={{ fontSize: '120%' }}>
           {messages.map((message, i) => (
             <div key={i}>{message}</div>
           ))}
@@ -387,7 +430,7 @@ function Options() {
               </tr>
             </thead>
             <tbody>
-              {policies.map(({host, type, accept, conditions, created_at}) => (
+              {policies.map(({ host, type, accept, conditions, created_at }) => (
                 <tr key={host + type + accept + JSON.stringify(conditions)}>
                   <td>{host}</td>
                   <td>{type}</td>
@@ -420,7 +463,7 @@ function Options() {
           </table>
         )}
         {!policies.length && (
-          <div style={{marginTop: '5px'}}>
+          <div style={{ marginTop: '5px' }}>
             no permissions have been granted yet
           </div>
         )}
@@ -472,7 +515,7 @@ function Options() {
     ev.preventDefault()
 
     try {
-      let {data} = nip19.decode(privKeyInput)
+      let { data } = nip19.decode(privKeyInput)
       let encrypted = encrypt(data, password, 16, 0x00)
       setPrivKeyInput(encrypted)
       hidePrivateKey(false)
@@ -524,9 +567,9 @@ function Options() {
     }
     let hexOrEmptyKey = privKeyInput
     try {
-      let {type, data} = nip19.decode(privKeyInput)
+      let { type, data } = nip19.decode(privKeyInput)
       if (type === 'nsec') hexOrEmptyKey = bytesToHex(data)
-    } catch (_) {}
+    } catch (_) { }
     await browser.storage.local.set({
       private_key: hexOrEmptyKey
     })
@@ -540,14 +583,14 @@ function Options() {
     if (privKeyInput === '') return true
     try {
       if (nip19.decode(privKeyInput).type === 'nsec') return true
-    } catch (_) {}
+    } catch (_) { }
     return false
   }
 
   function changeRelayURL(i, ev) {
     setRelays([
       ...relays.slice(0, i),
-      {url: ev.target.value, policy: relays[i].policy},
+      { url: ev.target.value, policy: relays[i].policy },
       ...relays.slice(i + 1)
     ])
     addUnsavedChanges('relays')
@@ -558,7 +601,7 @@ function Options() {
       ...relays.slice(0, i),
       {
         url: relays[i].url,
-        policy: {...relays[i].policy, [cat]: !relays[i].policy[cat]}
+        policy: { ...relays[i].policy, [cat]: !relays[i].policy[cat] }
       },
       ...relays.slice(i + 1)
     ])
@@ -574,7 +617,7 @@ function Options() {
     if (newRelayURL.trim() === '') return
     relays.push({
       url: newRelayURL,
-      policy: {read: true, write: true}
+      policy: { read: true, write: true }
     })
     setRelays(relays)
     addUnsavedChanges('relays')
@@ -582,11 +625,10 @@ function Options() {
   }
 
   async function handleRevoke(e) {
-    let {host, accept, type} = e.target.dataset
+    let { host, accept, type } = e.target.dataset
     if (
       window.confirm(
-        `revoke all ${
-          accept === 'true' ? 'accept' : 'deny'
+        `revoke all ${accept === 'true' ? 'accept' : 'deny'
         } ${type} policies from ${host}?`
       )
     ) {
@@ -610,7 +652,7 @@ function Options() {
   }
 
   async function saveNotifications() {
-    await browser.storage.local.set({notifications: showNotifications})
+    await browser.storage.local.set({ notifications: showNotifications })
     showMessage('saved notifications!')
   }
 
@@ -618,8 +660,8 @@ function Options() {
     await browser.storage.local.set({
       relays: Object.fromEntries(
         relays
-          .filter(({url}) => url.trim() !== '')
-          .map(({url, policy}) => [url.trim(), policy])
+          .filter(({ url }) => url.trim() !== '')
+          .map(({ url, policy }) => [url.trim(), policy])
       )
     })
     showMessage('saved relays!')
@@ -643,7 +685,7 @@ function Options() {
   }
 
   async function saveNostrProtocolHandlerSettings() {
-    await browser.storage.local.set({protocol_handler: protocolHandler})
+    await browser.storage.local.set({ protocol_handler: protocolHandler })
     showMessage('saved protocol handler!')
   }
 
