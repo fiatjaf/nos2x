@@ -86,6 +86,16 @@ function Options() {
     }
   }, [qrcodeScanned])
 
+  useEffect(() => {
+    if (privKeyInput) {
+      setScanning(false)
+    }
+  }, [privKeyInput])
+
+  useEffect(() => {
+    setTimeout(() => setWarningMessage(''), 5000)
+  }, [warningMessage])
+
   async function loadQrCodeFromFile(type = 'image/*') {
     setScanning(false)
     const input = document.createElement('input')
@@ -215,7 +225,6 @@ function Options() {
               )}
             {scanning && (
               <QrReader
-                facingMode="rear"
                 style={{
                   height: 240,
                   width: 320,
