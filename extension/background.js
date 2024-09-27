@@ -132,7 +132,7 @@ async function handleContentScriptMessage({type, params, host}) {
       releasePromptMutex()
       showNotification(host, allowed, type, params)
       return {
-        error: 'denied'
+        error: {message: 'denied'}
       }
     } else {
       // ask for authorization
@@ -161,12 +161,12 @@ async function handleContentScriptMessage({type, params, host}) {
         })
 
         // denied, stop here
-        if (!accept) return {error: 'denied'}
+        if (!accept) return {error: {message: 'denied'}}
       } catch (err) {
         // errored, stop here
         releasePromptMutex()
         return {
-          error: `error: ${err}`
+          error: {message: error.message, stack: error.stack}
         }
       }
     }
@@ -175,7 +175,7 @@ async function handleContentScriptMessage({type, params, host}) {
   // if we're here this means it was accepted
   let results = await browser.storage.local.get('private_key')
   if (!results || !results.private_key) {
-    return {error: 'no private key found'}
+    return {error: {message: 'no private key found'} }
   }
 
   let sk = results.private_key
