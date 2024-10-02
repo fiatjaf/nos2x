@@ -110,6 +110,9 @@ async function handleContentScriptMessage({type, params, host}) {
 
         return result
       }
+      case 'ping': {
+        return 'pong'
+      }
     }
 
     return
