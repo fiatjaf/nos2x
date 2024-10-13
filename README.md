@@ -36,7 +36,7 @@ To run the plugin from this code:
 git clone https://github.com/fiatjaf/nos2x
 cd nos2x
 yarn
-yarn run build
+./build.js prod
 ```
 
 then
