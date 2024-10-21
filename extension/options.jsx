@@ -32,11 +32,17 @@ function Options() {
   let [scanning, setScanning] = useState(false)
   let [warningMessage, setWarningMessage] = useState('')
 
-  const showMessage = useCallback(msg => {
-    messages.push(msg)
-    setMessages(messages)
-    setTimeout(() => setMessages([]), 3000)
-  })
+  const showMessage = (msg) => {
+    setMessages((oldMessages) => [...oldMessages, msg])
+  }
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      return
+    }
+    const timeout = setTimeout(() => setMessages([]), 3000)
+    return () => clearTimeout(timeout)
+  }, [messages, setMessages])
 
   useEffect(() => {
     browser.storage.local
@@ -705,11 +711,13 @@ function Options() {
 
   function addNewRelay() {
     if (newRelayURL.trim() === '') return
-    relays.push({
-      url: newRelayURL,
-      policy: { read: true, write: true }
-    })
-    setRelays(relays)
+    setRelays([
+      ...relays,
+      {
+        url: newRelayURL,
+        policy: { read: true, write: true }
+      },
+    ])
     addUnsavedChanges('relays')
     setNewRelayURL('')
   }
@@ -780,10 +788,7 @@ function Options() {
   }
 
   function addUnsavedChanges(section) {
-    if (!unsavedChanges.find(s => s === section)) {
-      unsavedChanges.push(section)
-      setUnsavedChanges(unsavedChanges)
-    }
+    setUnsavedChanges((currentUnsavedChanges) => currentUnsavedChanges.includes(section) ? currentUnsavedChanges : [...currentUnsavedChanges, section])
   }
 
   async function saveChanges() {
