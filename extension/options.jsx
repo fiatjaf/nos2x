@@ -1,6 +1,7 @@
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import { getPublicKey } from 'nostr-tools'
 import * as nip19 from 'nostr-tools/nip19'
+import * as nip46 from 'nostr-tools/nip46'
 import { decrypt, encrypt } from 'nostr-tools/nip49'
 import { generateSecretKey } from 'nostr-tools/pure'
 import qrcodeParser from 'qrcode-parser'
@@ -11,6 +12,9 @@ import QrReader from 'react-qr-scanner'
 import browser from 'webextension-polyfill'
 import { removePermissions } from './common'
 
+const bunkerValidityCheckDebounceMs = 400
+const bunkerConnectionTimeoutMs = 30000
+
 function Options() {
   let [privKey, setPrivKey] = useState(null)
   let [privKeyInput, setPrivKeyInput] = useState('')
@@ -19,6 +23,10 @@ function Options() {
   let [errorMessage, setErrorMessage] = useState('')
   let [successMessage, setSuccessMessage] = useState('')
   let [relays, setRelays] = useState([])
+  const [bunkerUrl, setBunkerUrl] = useState('')
+  const [bunkerUrlInput, setBunkerUrlInput] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [connectionTestStage, setConnectionTestStage] = useState(null)
   let [newRelayURL, setNewRelayURL] = useState('')
   let [policies, setPermissions] = useState([])
   let [protocolHandler, setProtocolHandler] = useState('https://njump.me/{raw}')
@@ -46,7 +54,7 @@ function Options() {
 
   useEffect(() => {
     browser.storage.local
-      .get(['private_key', 'relays', 'protocol_handler', 'notifications'])
+      .get(['private_key', 'relays', 'protocol_handler', 'notifications', 'bunker_url'])
       .then(results => {
         if (results.private_key) {
           let prvKey = results.private_key
@@ -71,6 +79,10 @@ function Options() {
         }
         if (results.notifications) {
           setNotifications(true)
+        }
+        if (results.bunker_url) {
+          setBunkerUrl(results.bunker_url)
+          setBunkerUrlInput(results.bunker_url)
         }
       })
   }, [])
@@ -101,6 +113,28 @@ function Options() {
   useEffect(() => {
     setTimeout(() => setWarningMessage(''), 5000)
   }, [warningMessage])
+
+  useEffect(() => {
+    if (bunkerUrl === bunkerUrlInput) {
+      return
+    }
+    const debounceTimeout = setTimeout(async () => {
+      try {
+        if (bunkerUrlInput !== '') {
+          const newBunkerPointer = await nip46.parseBunkerInput(bunkerUrlInput)
+          if (!newBunkerPointer) {
+            // Unpraseable url - do not allow saving
+            return
+          }
+        }
+        setBunkerUrl(bunkerUrlInput)
+        addUnsavedChanges('bunker_url')
+      } catch (err) {
+        /***/
+      }
+    }, bunkerValidityCheckDebounceMs)
+    return () => clearTimeout(debounceTimeout)
+  }, [bunkerUrl, bunkerUrlInput, setBunkerUrl, addUnsavedChanges])
 
   async function loadQrCodeFromFile(type = 'image/*') {
     setScanning(false)
@@ -422,6 +456,46 @@ function Options() {
           </div>
         </div>
         <div>
+          <div>bunker url (optional):</div>
+          <div
+            style={{
+              marginLeft: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}
+          >
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                type='text'
+                style={{ width: '600px' }}
+                value={bunkerUrlInput}
+                onChange={(e) => setBunkerUrlInput(e.target.value.trim())}
+                placeholder='bunker:// URL or name@domain.com NIP-05 identifier'
+                disabled={connectionTestStage}
+              />
+              <button
+                disabled={connectionTestStage || !bunkerUrl || (bunkerUrl !== bunkerUrlInput) || !privKeyInput || !isKeyValid()}
+                onClick={async () => {
+                  setConnectionTestStage({ result: '' })
+                  const bunkerConnection = await testBunkerConnection()
+                  if (bunkerConnection) {
+                    setConnectionTestStage({ result: 'connected successfully' })
+                  } else {
+                    setConnectionTestStage({ result: 'connection failed' })
+                  }
+                  setTimeout(() => setConnectionTestStage(null), 4000)
+                }}
+              >
+                {(connectionTestStage && !connectionTestStage.result) ? 'testing...' : 'test connection'}
+              </button>
+              <div style={{ fontSize: '120%' }}>
+                { connectionTestStage && connectionTestStage.result }
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
           <label style={{ display: 'flex', alignItems: 'center' }}>
             <div>
               handle{' '}
@@ -478,11 +552,11 @@ function Options() {
           />
         </label>
         <button
-          disabled={!unsavedChanges.length}
+          disabled={!unsavedChanges.length || isSaving}
           onClick={saveChanges}
           style={{ padding: '5px 20px' }}
         >
-          save
+          { isSaving ? 'saving...' : 'save' }
         </button>
         <div style={{ fontSize: '120%' }}>
           {messages.map((message, i) => (
@@ -656,16 +730,21 @@ function Options() {
     }
   }
 
-  async function saveKey() {
-    if (!isKeyValid()) {
-      showMessage('PRIVATE KEY IS INVALID! did not save private key.')
-      return
-    }
+  function getHexOrEmptyKey() {
     let hexOrEmptyKey = privKeyInput
     try {
       let { type, data } = nip19.decode(privKeyInput)
       if (type === 'nsec') hexOrEmptyKey = bytesToHex(data)
     } catch (_) { }
+    return hexOrEmptyKey
+  }
+
+  async function saveKey() {
+    if (!isKeyValid()) {
+      showMessage('PRIVATE KEY IS INVALID! did not save private key.')
+      return
+    }
+    const hexOrEmptyKey = getHexOrEmptyKey()
     await browser.storage.local.set({
       private_key: hexOrEmptyKey
     })
@@ -673,6 +752,58 @@ function Options() {
       setPrivKeyInput(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
     }
     showMessage('saved private key!')
+  }
+
+  async function saveBunkerUrl() {
+    await browser.storage.local.set({
+      bunker_url: bunkerUrl
+    })
+    showMessage('saved bunker url!')
+  }
+
+  async function testBunkerConnectionTimeless() {
+    if (!bunkerUrl) {
+      return true
+    }
+    if (!isKeyValid()) {
+      return false
+    }
+    const hexOrEmptyKey = getHexOrEmptyKey()
+    if (!hexOrEmptyKey) {
+      // will be tested again after a key is set
+      return true
+    }
+    try {
+      const currentBunkerPointer = await nip46.parseBunkerInput(bunkerUrl)
+      const bunkerSigner = new nip46.BunkerSigner(
+        hexToBytes(hexOrEmptyKey),
+        currentBunkerPointer,
+        {
+          onauth: (authUrl) => window.open(
+            authUrl,
+            '_blank',
+            `popup=true,width=${Math.min(window.innerWidth - 10, 800)},height=${Math.min(window.innerHeight - 10, 800)},noopener=true,noreferrer=true`,
+          ),
+        },
+      )
+      await bunkerSigner.connect()
+      await bunkerSigner.close()
+    } catch (err) {
+      return false
+    }
+    return true
+  }
+
+  async function testBunkerConnection() {
+    let timeout
+    const raceResult = await Promise.race([
+      testBunkerConnectionTimeless(),
+      new Promise((resolve) => {
+        timeout = setTimeout(() => resolve(false), bunkerConnectionTimeoutMs)
+      })
+    ])
+    clearTimeout(timeout)
+    return raceResult
   }
 
   function isKeyValid() {
@@ -792,23 +923,38 @@ function Options() {
   }
 
   async function saveChanges() {
-    for (let section of unsavedChanges) {
-      switch (section) {
-        case 'private_key':
-          await saveKey()
-          break
-        case 'relays':
-          await saveRelays()
-          break
-        case 'protocol_handler':
-          await saveNostrProtocolHandlerSettings()
-          break
-        case 'notifications':
-          await saveNotifications()
-          break
+    setIsSaving(true)
+    try {
+      if (unsavedChanges.includes('private_key') || unsavedChanges.includes('bunker_url')) {
+        const bunkerConnectionTestResult = await testBunkerConnection()
+        if (!bunkerConnectionTestResult) {
+          showMessage('bunker connection failed. not saving!')
+          return
+        }
       }
+      for (let section of unsavedChanges) {
+        switch (section) {
+          case 'private_key':
+            await saveKey()
+            break
+          case 'bunker_url':
+            await saveBunkerUrl()
+            break
+          case 'relays':
+            await saveRelays()
+            break
+          case 'protocol_handler':
+            await saveNostrProtocolHandlerSettings()
+            break
+          case 'notifications':
+            await saveNotifications()
+            break
+        }
+      }
+      setUnsavedChanges([])
+    } finally {
+      setIsSaving(false)
     }
-    setUnsavedChanges([])
   }
 }
 

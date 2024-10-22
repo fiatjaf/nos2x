@@ -1,8 +1,10 @@
 import browser from 'webextension-polyfill'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import {validateEvent, finalizeEvent, getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
 import * as nip04 from 'nostr-tools/nip04'
 import * as nip44 from 'nostr-tools/nip44'
+import * as nip46 from 'nostr-tools/nip46'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
 
@@ -19,6 +21,58 @@ let promptMutex = new Mutex()
 let releasePromptMutex = () => {}
 let secretsCache = new LRUCache(100)
 let previousSk = null
+let cachedBunkerSigner = {
+  privateKeyHex: '',
+  bunkerUrl: '',
+  signerPromise: null,
+}
+
+async function createBunkerSigner(privateKey, bunkerUrl) {
+  console.info('creating bunker signer')
+  const pointer = await nip46.parseBunkerInput(bunkerUrl)
+  console.info('bunker signer', privateKey, pointer)
+  const signer = new nip46.BunkerSigner(privateKey, pointer, {
+    onauth: async (authUrl) => {
+      console.log("onauth", authUrl)
+      const {top, left} = await getPosition(authWidth, authHeight)
+      browser.windows.create({
+        url: authUrl,
+        type: 'popup',
+        width: authWidth,
+        height: authHeight,
+        top: top,
+        left: left
+      })
+    }
+  })
+  await signer.connect()
+  return signer
+}
+
+function getBunkerSigner(privateKeyStringOrUint8Array, bunkerUrl) {
+  const privateKey = privateKeyStringOrUint8Array instanceof Uint8Array ? privateKeyStringOrUint8Array : hexToBytes(privateKeyStringOrUint8Array)
+  const privateKeyHex = bytesToHex(privateKey)
+  if (cachedBunkerSigner.privateKeyHex !== privateKeyHex || cachedBunkerSigner.bunkerUrl !== bunkerUrl || !cachedBunkerSigner.signerPromise) {
+    if (cachedBunkerSigner.signerPromise) {
+      cachedBunkerSigner.signerPromise.then((oldBunkerSigner) => {
+        if (oldBunkerSigner) {
+          return oldBunkerSigner.close()
+        }
+      })
+    }
+    const newCachedBunkerSigner = {
+      privateKeyHex,
+      bunkerUrl,
+      signerPromise: createBunkerSigner(privateKey, bunkerUrl).catch((err) => {
+        // will retry parsing on next call
+        newCachedBunkerSigner.signerPromise = null
+        throw err
+      })
+    }
+    cachedBunkerSigner = newCachedBunkerSigner
+  }
+  return cachedBunkerSigner.signerPromise
+}
 
 function getSharedSecret(sk, peer) {
   // Detect a key change and erase the cache if they changed their key
@@ -39,6 +93,9 @@ function getSharedSecret(sk, peer) {
 //set the width and height of the prompt window
 const width = 340
 const height = 360
+
+const authWidth = 800
+const authHeight = 800
 
 browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
@@ -173,9 +230,18 @@ async function handleContentScriptMessage({type, params, host}) {
   }
 
   // if we're here this means it was accepted
-  let results = await browser.storage.local.get('private_key')
+  let results = await browser.storage.local.get(['private_key', 'bunker_url'])
   if (!results || !results.private_key) {
     return {error: {message: 'no private key found'} }
+  }
+
+  let bunkerSigner = null
+  if (results.bunker_url) {
+    try {
+      bunkerSigner = await getBunkerSigner(results.private_key, results.bunker_url)
+    } catch (err) {
+      return {error: {message: 'failed to connect to bunker url'}}
+    }
   }
 
   let sk = results.private_key
@@ -183,6 +249,14 @@ async function handleContentScriptMessage({type, params, host}) {
   try {
     switch (type) {
       case 'getPublicKey': {
+        if (bunkerSigner) {
+          try {
+            const bunkerResult = await bunkerSigner.getPublicKey()
+            return bunkerResult
+          } catch (err) {
+            return {error: {message: 'failed to get public key from bunker'}}
+          }
+        }
         return getPublicKey(sk)
       }
       case 'getRelays': {
@@ -190,6 +264,14 @@ async function handleContentScriptMessage({type, params, host}) {
         return results.relays || {}
       }
       case 'signEvent': {
+        if (bunkerSigner) {
+          try {
+            const bunkerResult = await bunkerSigner.signEvent(params.event)
+            return bunkerResult
+          } catch (err) {
+            return {error: {message: 'failed to sign event using bunker'}}
+          }
+        }
         const event = finalizeEvent(params.event, sk)
 
         return validateEvent(event)
@@ -198,20 +280,52 @@ async function handleContentScriptMessage({type, params, host}) {
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
+        if (bunkerSigner) {
+          try {
+            const bunkerResult = await bunkerSigner.nip04Encrypt(peer, plaintext)
+            return bunkerResult
+          } catch (err) {
+            return {error: {message: 'failed to encrypt event using bunker'}}
+          }
+        }
         return nip04.encrypt(sk, peer, plaintext)
       }
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
+        if (bunkerSigner) {
+          try {
+            const bunkerResult = await bunkerSigner.nip04Decrypt(peer, ciphertext)
+            return bunkerResult
+          } catch (err) {
+            return {error: {message: 'failed to encrypt event using bunker'}}
+          }
+        }
         return nip04.decrypt(sk, peer, ciphertext)
       }
       case 'nip44.encrypt': {
         const {peer, plaintext} = params
+        if (bunkerSigner) {
+          try {
+            const bunkerResult = await bunkerSigner.nip44Encrypt(peer, plaintext)
+            return bunkerResult
+          } catch (err) {
+            return {error: {message: 'failed to encrypt event using bunker'}}
+          }
+        }
         const key = getSharedSecret(sk, peer)
 
         return nip44.v2.encrypt(plaintext, key)
       }
       case 'nip44.decrypt': {
         const {peer, ciphertext} = params
+        if (bunkerSigner) {
+          try {
+            const bunkerResult = await bunkerSigner.nip44Decrypt(peer, ciphertext)
+            return bunkerResult
+          } catch (err) {
+            return {error: {message: 'failed to encrypt event using bunker'}}
+          }
+        }
         const key = getSharedSecret(sk, peer)
 
         return nip44.v2.decrypt(ciphertext, key)
