@@ -144,6 +144,44 @@ function Options() {
     setPermissions(list)
   }
 
+
+  const [isMulti, setIsMulti] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  const toggleMulti = () => {
+    setIsMulti(!isMulti);
+  };
+
+  const handleSelect = (index) => {
+    if (isMulti) {
+      if (selectedItems.includes(index)) {
+        setSelectedItems(selectedItems.filter(i => i !== index));
+      } else {
+        setSelectedItems([...selectedItems, index]);
+      }
+    } else {
+      setSelectedItems([index]);
+    }
+  };
+  const handleMultiRevoke = async () => {
+    if (
+      window.confirm(
+        `Are you sure you want to revoke all selected policies?`
+      )
+    ) {
+    
+      for (let index of selectedItems) {
+        let { host, accept, type } = policies[index]
+  
+        await removePermissions(host, accept, type)
+      }
+  
+      showMessage('removed selected policies')
+      loadPermissions() 
+      setSelectedItems([])  
+    }
+  }
+
   return (
     <>
       <h1 style={{ fontSize: '25px', marginBlockEnd: '0px' }}>nos2x</h1>
@@ -449,6 +487,7 @@ function Options() {
       <div>
         <h2>permissions</h2>
         {!!policies.length && (
+          <>
           <table>
             <thead>
               <tr>
@@ -461,7 +500,7 @@ function Options() {
               </tr>
             </thead>
             <tbody>
-              {policies.map(({ host, type, accept, conditions, created_at }) => (
+              {policies.map(({ host, type, accept, conditions, created_at },index) => (
                 <tr key={host + type + accept + JSON.stringify(conditions)}>
                   <td>{host}</td>
                   <td>{type}</td>
@@ -479,19 +518,38 @@ function Options() {
                       .join(' ')}
                   </td>
                   <td>
-                    <button
-                      onClick={handleRevoke}
-                      data-host={host}
-                      data-accept={accept}
-                      data-type={type}
-                    >
-                      revoke
-                    </button>
+                  {isMulti ? (
+                 
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(index)}
+                    onChange={() => handleSelect(index)}
+                    data-host={host}
+                    data-accept={accept}
+                    data-type={type}
+                  />
+                ) : (
+                
+                  <button
+                    onClick={handleRevoke}
+                    data-host={host}
+                    data-accept={accept}
+                    data-type={type}
+                  >
+                    revoke
+                  </button>
+                )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <div style={{ display: 'flex', alignItems: 'center' }}>Allow Multiple Selections: <input type="checkbox" checked={isMulti} onChange={toggleMulti} />
+          {isMulti && (
+            <button onClick={handleMultiRevoke}>
+              revoke
+            </button>
+          )}</div></>
         )}
         {!policies.length && (
           <div style={{ marginTop: '5px' }}>
