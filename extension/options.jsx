@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { render } from 'react-dom'
 import QRCode from 'react-qr-code'
 import QrReader from 'react-qr-scanner'
-import browser from 'webextension-polyfill'
+import browser, { i18n } from 'webextension-polyfill'
 import { removePermissions } from './common'
 
 function Options() {
@@ -83,11 +83,11 @@ function Options() {
       } else if (qrcodeScanned.startsWith('nsec1')) {
         setPrivKeyInput(qrcodeScanned)
         addUnsavedChanges('private_key')
-        setWarningMessage('Store you nsec into a qrcode without encrypt is HIGHLY NOT recommended. Use ncryptsec qrcode instead.')
+        setWarningMessage(i18n.getMessage('warn_use_crypt_nsec'))
       } else if (/^[a-f0-9]+$/.test(qrcodeScanned)) {
         setPrivKeyInput(nip19.nsecEncode(hexToBytes(qrcodeScanned)))
         addUnsavedChanges('private_key')
-        setWarningMessage('Store you secret into a qrcode without encrypt is HIGHLY NOT recommended. Use ncryptsec qrcode instead.')
+        setWarningMessage(i18n.getMessage('warn_use_crypt_sec'))
       }
     }
   }, [qrcodeScanned])
@@ -171,28 +171,26 @@ function Options() {
   };
   const handleMultiRevoke = async () => {
     if (
-      window.confirm(
-        `Are you sure you want to revoke all selected policies?`
-      )
+      window.confirm(i18n.getMessage("cnfrm_revoke_policy"))
     ) {
-    
+
       for (let index of selectedItems) {
         let { host, accept, type } = policies[index]
-  
+
         await removePermissions(host, accept, type)
       }
-  
-      showMessage('removed selected policies')
-      loadPermissions() 
-      setSelectedItems([])  
+
+      showMessage(i18n.getMessage("removed_sel_policies"))
+      loadPermissions()
+      setSelectedItems([])
     }
   }
 
   return (
     <>
       <h1 style={{ fontSize: '25px', marginBlockEnd: '0px' }}>nos2x</h1>
-      <p style={{ marginBlockStart: '0px' }}>nostr signer extension</p>
-      <h2 style={{ marginBlockStart: '20px', marginBlockEnd: '5px' }}>options</h2>
+      <p style={{ marginBlockStart: '0px' }}>{i18n.getMessage("description")}</p>
+      <h2 style={{ marginBlockStart: '20px', marginBlockEnd: '5px' }}>{i18n.getMessage("options")}</h2>
       <div
         style={{
           marginBottom: '10px',
@@ -203,7 +201,7 @@ function Options() {
         }}
       >
         <div>
-          <div>private key:&nbsp;</div>
+          <div>{i18n.getMessage("privatekey")}:&nbsp;</div>
           <div
             style={{
               marginLeft: '10px',
@@ -221,32 +219,32 @@ function Options() {
               />
               {privKeyInput === '' && (
                 <>
-                  <button onClick={generate}>generate</button>
-                  <button onClick={() => setScanning(true)}>scan qrcode</button>
-                  <button onClick={loadQrCodeFromFile}>load qrcode</button>
+                  <button onClick={generate}>{i18n.getMessage("generate")}</button>
+                  <button onClick={() => setScanning(true)}>{i18n.getMessage("scan_qr")}</button>
+                  <button onClick={loadQrCodeFromFile}>{i18n.getMessage("load_qr")}</button>
                 </>
               )}
               {privKeyInput && hidingPrivateKey && (
                 <>
                   {askPassword !== 'encrypt/display' && (
                     <button onClick={() => hidePrivateKey(false)}>
-                      show key
+                      {i18n.getMessage("show_key")}
                     </button>
                   )}
                   <button onClick={() => setAskPassword('encrypt/display')}>
-                    show key encrypted
+                    {i18n.getMessage("show_key_enc")}
                   </button>
                 </>
               )}
 
               {privKeyInput && !hidingPrivateKey && (
-                <button onClick={hideAndResetKeyInput}>hide key</button>
+                <button onClick={hideAndResetKeyInput}>{i18n.getMessage("hide_key")}</button>
               )}
             </div>
             {privKeyInput &&
               !privKeyInput.startsWith('ncryptsec1') &&
               !isKeyValid() && (
-                <div style={{ color: 'red' }}>private key is invalid!</div>
+                <div style={{ color: 'red' }}>{i18n.getMessage("priv_invalid")}</div>
               )}
             {!hidingPrivateKey &&
               privKeyInput !== '' &&
@@ -274,7 +272,7 @@ function Options() {
                   width: 320,
                 }}
                 onError={error => {
-                  setErrorMessage('invalid qrcode')
+                  setErrorMessage(i18n.getMessage("invalid_qr"))
                   console.error(error)
                   setScanning(false)
                 }}
@@ -286,7 +284,7 @@ function Options() {
         </div>
         {askPassword && (
           <div>
-            <div>password:&nbsp;</div>
+            <div>{i18n.getMessage("passwd")}:&nbsp;</div>
             <div
               style={{
                 marginLeft: '10px',
@@ -310,7 +308,7 @@ function Options() {
                     onClick={decryptPrivateKeyAndSave}
                     disabled={!password}
                   >
-                    decrypt key
+                    {i18n.getMessage("dec_key")}
                   </button>
                 ) : askPassword === 'encrypt/display' ? (
                   <button
@@ -320,7 +318,7 @@ function Options() {
                     }}
                     disabled={!password}
                   >
-                    encrypt and show key
+                    {i18n.getMessage("enc_key")}
                   </button>
                 ) : (
                   'jaksbdkjsad'
@@ -354,19 +352,19 @@ function Options() {
                 }}
                 style={{ cursor: 'pointer' }}
               >
-                browse your profile
+                {i18n.getMessage("browse_prof")}
               </button>
               <button
                 onClick={() => window.open('https://nosta.me/login/options')}
                 style={{ cursor: 'pointer' }}
               >
-                edit your profile
+                {i18n.getMessage("edit_prof")}
               </button>
             </div>
           </div>
         </div>
         <div>
-          <div>preferred relays:</div>
+          <div>{i18n.getMessage("pref_relays")}:</div>
           <div
             style={{
               marginLeft: '10px',
@@ -387,7 +385,7 @@ function Options() {
                 />
                 <div style={{ display: 'flex', gap: '5px' }}>
                   <label style={{ display: 'flex', alignItems: 'center' }}>
-                    read
+                    {i18n.getMessage("read")}
                     <input
                       type="checkbox"
                       checked={policy.read}
@@ -395,7 +393,7 @@ function Options() {
                     />
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center' }}>
-                    write
+                    {i18n.getMessage("write")}
                     <input
                       type="checkbox"
                       checked={policy.write}
@@ -403,7 +401,7 @@ function Options() {
                     />
                   </label>
                 </div>
-                <button onClick={removeRelay.bind(null, i)}>remove</button>
+                <button onClick={removeRelay.bind(null, i)}>{i18n.getMessage("remove")}</button>
               </div>
             ))}
             <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
@@ -416,7 +414,7 @@ function Options() {
                 }}
               />
               <button disabled={!newRelayURL} onClick={addNewRelay}>
-                add relay
+                {i18n.getMessage("add_relay")}
               </button>
             </div>
           </div>
@@ -424,9 +422,9 @@ function Options() {
         <div>
           <label style={{ display: 'flex', alignItems: 'center' }}>
             <div>
-              handle{' '}
+              {i18n.getMessage("handle")}{' '}
               <span style={{ padding: '2px', background: 'silver' }}>nostr:</span>{' '}
-              links:
+              {i18n.getMessage("links")}:
             </div>
             <input
               type="checkbox"
@@ -439,7 +437,7 @@ function Options() {
               <div>
                 <div style={{ display: 'flex' }}>
                   <input
-                    placeholder="url template"
+                    placeholder={i18n.getMessage("url_temp")}
                     value={protocolHandler}
                     onChange={handleChangeProtocolHandler}
                     style={{ width: '680px', maxWidth: '90%' }}
@@ -450,16 +448,16 @@ function Options() {
                 </div>
                 {showProtocolHandlerHelp && (
                   <pre>{`
-    {raw} = anything after the colon, i.e. the full nip19 bech32 string
-    {hex} = hex pubkey for npub or nprofile, hex event id for note or nevent
-    {p_or_e} = "p" for npub or nprofile, "e" for note or nevent
-    {u_or_n} = "u" for npub or nprofile, "n" for note or nevent
-    {relay0} = first relay in a nprofile or nevent
-    {relay1} = second relay in a nprofile or nevent
-    {relay2} = third relay in a nprofile or nevent
-    {hrp} = human-readable prefix of the nip19 string
+    {raw} = ${i18n.getMessage("link_raw")}
+    {hex} = ${i18n.getMessage("link_hex")}
+    {p_or_e} = ${i18n.getMessage("link_p_or_e")}
+    {u_or_n} = ${i18n.getMessage("link_u_or_n")}
+    {relay0} = ${i18n.getMessage("link_relay0")}
+    {relay1} = ${i18n.getMessage("link_relay1")}
+    {relay2} = ${i18n.getMessage("link_relay2")}
+    {hrp} = ${i18n.getMessage("link_hrp")}
 
-    examples:
+    ${i18n.getMessage("examples")}:
       - https://njump.me/{raw}
       - https://snort.social/{raw}
       - https://nostr.band/{raw}
@@ -470,7 +468,7 @@ function Options() {
           </div>
         </div>
         <label style={{ display: 'flex', alignItems: 'center' }}>
-          show notifications when permissions are used:
+          {i18n.getMessage("show_notif")}:
           <input
             type="checkbox"
             checked={showNotifications}
@@ -482,7 +480,7 @@ function Options() {
           onClick={saveChanges}
           style={{ padding: '5px 20px' }}
         >
-          save
+          {i18n.getMessage("save")}
         </button>
         <div style={{ fontSize: '120%' }}>
           {messages.map((message, i) => (
@@ -491,75 +489,75 @@ function Options() {
         </div>
       </div>
       <div>
-        <h2>permissions</h2>
+        <h2>{i18n.getMessage("perms")}</h2>
         {!!policies.length && (
           <>
-          <table>
-            <thead>
-              <tr>
-                <th>domain</th>
-                <th>permission</th>
-                <th>answer</th>
-                <th>conditions</th>
-                <th>since</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {policies.map(({ host, type, accept, conditions, created_at },index) => (
-                <tr key={host + type + accept + JSON.stringify(conditions)}>
-                  <td>{host}</td>
-                  <td>{type}</td>
-                  <td>{accept === 'true' ? 'allow' : 'deny'}</td>
-                  <td>
-                    {conditions.kinds
-                      ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
-                      : 'always'}
-                  </td>
-                  <td>
-                    {new Date(created_at * 1000)
-                      .toISOString()
-                      .split('.')[0]
-                      .split('T')
-                      .join(' ')}
-                  </td>
-                  <td>
-                  {isMulti ? (
-                 
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(index)}
-                    onChange={() => handleSelect(index)}
-                    data-host={host}
-                    data-accept={accept}
-                    data-type={type}
-                  />
-                ) : (
-                
-                  <button
-                    onClick={handleRevoke}
-                    data-host={host}
-                    data-accept={accept}
-                    data-type={type}
-                  >
-                    revoke
-                  </button>
-                )}
-                  </td>
+            <table>
+              <thead>
+                <tr>
+                  <th>{i18n.getMessage("domain")}</th>
+                  <th>{i18n.getMessage("perm")}</th>
+                  <th>{i18n.getMessage("answer")}</th>
+                  <th>{i18n.getMessage("cond")}</th>
+                  <th>{i18n.getMessage("since")}</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{ display: 'flex', alignItems: 'center' }}>Allow Multiple Selections: <input type="checkbox" checked={isMulti} onChange={toggleMulti} />
-          {isMulti && (
-            <button onClick={handleMultiRevoke}>
-              revoke
-            </button>
-          )}</div></>
+              </thead>
+              <tbody>
+                {policies.map(({ host, type, accept, conditions, created_at }, index) => (
+                  <tr key={host + type + accept + JSON.stringify(conditions)}>
+                    <td>{host}</td>
+                    <td>{type}</td>
+                    <td>{accept === 'true' ? i18n.getMessage("allow") : i18n.getMessage("deny")}</td>
+                    <td>
+                      {conditions.kinds
+                        ? i18n.getMessage("kinds") + `: ${Object.keys(conditions.kinds).join(', ')}`
+                        : i18n.getMessage("always")}
+                    </td>
+                    <td>
+                      {new Date(created_at * 1000)
+                        .toISOString()
+                        .split('.')[0]
+                        .split('T')
+                        .join(' ')}
+                    </td>
+                    <td>
+                      {isMulti ? (
+
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(index)}
+                          onChange={() => handleSelect(index)}
+                          data-host={host}
+                          data-accept={accept}
+                          data-type={type}
+                        />
+                      ) : (
+
+                        <button
+                          onClick={handleRevoke}
+                          data-host={host}
+                          data-accept={accept}
+                          data-type={type}
+                        >
+                          {i18n.getMessage("revoke")}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{ display: 'flex', alignItems: 'center' }}>{i18n.getMessage("allow_multi_sel")}: <input type="checkbox" checked={isMulti} onChange={toggleMulti} />
+              {isMulti && (
+                <button onClick={handleMultiRevoke}>
+                  {i18n.getMessage("revoke")}
+                </button>
+              )}</div></>
         )}
         {!policies.length && (
           <div style={{ marginTop: '5px' }}>
-            no permissions have been granted yet
+            {i18n.getMessage("no_perm_grant")}
           </div>
         )}
       </div>
@@ -616,14 +614,14 @@ function Options() {
       setPrivKeyInput(encrypted)
       hidePrivateKey(false)
 
-      setSuccessMessage('encryption successful!')
+      setSuccessMessage(i18n.getMessage("enc_success"))
       setTimeout(() => {
         setAskPassword(null)
         setSuccessMessage('')
       }, 2000)
       setErrorMessage('')
     } catch (e) {
-      setErrorMessage('something is going wrong. please try again.')
+      setErrorMessage(i18n.getMessage("some_wrong"))
       setTimeout(() => {
         setErrorMessage('')
       }, 3000)
@@ -640,7 +638,7 @@ function Options() {
       browser.storage.local.set({
         private_key: bytesToHex(decrypted)
       })
-      setSuccessMessage('decryption successful!')
+      setSuccessMessage(i18n.getMessage("dec_success"))
 
       setTimeout(() => {
         setAskPassword(null)
@@ -648,7 +646,7 @@ function Options() {
       }, 2000)
       setErrorMessage('')
     } catch (e) {
-      setErrorMessage('incorrect password. please try again.')
+      setErrorMessage(i18n.getMessage("incorr_pass"))
       setTimeout(() => {
         setErrorMessage('')
       }, 3000)
@@ -658,7 +656,7 @@ function Options() {
 
   async function saveKey() {
     if (!isKeyValid()) {
-      showMessage('PRIVATE KEY IS INVALID! did not save private key.')
+      showMessage(i18n.getMessage("invalid_priv_didnt_save"))
       return
     }
     let hexOrEmptyKey = privKeyInput
@@ -672,7 +670,7 @@ function Options() {
     if (hexOrEmptyKey !== '') {
       setPrivKeyInput(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
     }
-    showMessage('saved private key!')
+    showMessage(i18n.getMessage("saved_priv"))
   }
 
   function isKeyValid() {
@@ -726,12 +724,12 @@ function Options() {
     let { host, accept, type } = e.target.dataset
     if (
       window.confirm(
-        `revoke all ${accept === 'true' ? 'accept' : 'deny'
-        } ${type} policies from ${host}?`
+        `${i18n.getMessage('cnfrm_revoke_prefix')}${accept === 'true' ? i18n.getMessage('cnfrm_revoke_accept') : i18n.getMessage('cnfrm_revoke_deny')
+        } ${type}${i18n.getMessage('cnfrm_revoke_middle')}${host}${i18n.getMessage('cnfrm_revoke_suffix')}`
       )
     ) {
       await removePermissions(host, accept, type)
-      showMessage('removed policies')
+      showMessage(i18n.getMessage("removed_policy"))
       loadPermissions()
     }
   }
@@ -751,7 +749,7 @@ function Options() {
 
   async function saveNotifications() {
     await browser.storage.local.set({ notifications: showNotifications })
-    showMessage('saved notifications!')
+    showMessage(i18n.getMessage("saved_notif"))
   }
 
   async function saveRelays() {
@@ -762,7 +760,7 @@ function Options() {
           .map(({ url, policy }) => [url.trim(), policy])
       )
     })
-    showMessage('saved relays!')
+    showMessage(i18n.getMessage("saved_relays"))
   }
 
   function changeShowProtocolHandlerHelp() {
@@ -784,7 +782,7 @@ function Options() {
 
   async function saveNostrProtocolHandlerSettings() {
     await browser.storage.local.set({ protocol_handler: protocolHandler })
-    showMessage('saved protocol handler!')
+    showMessage(i18n.getMessage("saved_handler"))
   }
 
   function addUnsavedChanges(section) {

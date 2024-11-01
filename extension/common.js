@@ -1,17 +1,17 @@
-import browser from 'webextension-polyfill'
+import browser, {i18n} from 'webextension-polyfill'
 
 export const NO_PERMISSIONS_REQUIRED = {
   replaceURL: true
 }
 
 export const PERMISSION_NAMES = Object.fromEntries([
-  ['getPublicKey', 'read your public key'],
-  ['getRelays', 'read your list of preferred relays'],
-  ['signEvent', 'sign events using your private key'],
-  ['nip04.encrypt', 'encrypt messages to peers'],
-  ['nip04.decrypt', 'decrypt messages from peers'],
-  ['nip44.encrypt', 'encrypt messages to peers'],
-  ['nip44.decrypt', 'decrypt messages from peers']
+  ['getPublicKey', i18n.getMessage("perm_getpubkey")],
+  ['getRelays', i18n.getMessage("perm_getrelays")],
+  ['signEvent', i18n.getMessage("perm_signevt")],
+  ['nip04.encrypt', i18n.getMessage("perm_nip04enc")],
+  ['nip04.decrypt', i18n.getMessage("perm_nip04dec")],
+  ['nip44.encrypt', i18n.getMessage("perm_nip44enc")],
+  ['nip44.decrypt', i18n.getMessage("perm_nip44dec")]
 ])
 
 function matchConditions(conditions, event) {

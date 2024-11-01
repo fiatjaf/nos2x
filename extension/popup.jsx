@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser, {i18n} from 'webextension-polyfill'
 import {render} from 'react-dom'
 import {getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
@@ -48,12 +48,12 @@ function Popup() {
       <h2>nos2x</h2>
       {pubKey === null ? (
         <div>
-          <button onClick={openOptionsButton}>start here</button>
+          <button onClick={openOptionsButton}>{i18n.getMessage("start")}</button>
         </div>
       ) : (
         <>
           <p>
-            <a onClick={toggleKeyType}>↩️</a> your public key:
+            <a onClick={toggleKeyType}>↩️</a> {i18n.getMessage("your_pubkey")}:
           </p>
           <pre
             style={{

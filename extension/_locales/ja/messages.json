@@ -1,0 +1,260 @@
+{
+    "warn_use_crypt_nsec": {
+        "message": "暗号化されていないnsecをQRコードにする事は非推奨です。ncryptsecをお使いください。"
+    },
+    "warn_use_crypt_sec": {
+        "message": "暗号化されていない秘密鍵をQRコードにする事は非推奨です。ncryptsecをお使いください。"
+    },
+    "cnfrm_revoke_policy": {
+        "message": "選択したアクセス権限を解除しますか？"
+    },
+    "cnfrm_revoke_prefix": {
+        "message": "すべての"
+    },
+    "cnfrm_revoke_accept": {
+        "message": "許可された"
+    },
+    "cnfrm_revoke_deny": {
+        "message": "拒否された"
+    },
+    "cnfrm_revoke_middle": {
+        "message": "権限を"
+    },
+    "cnfrm_revoke_suffix": {
+        "message": "より解除しますか?"
+    },
+    "removed_sel_policies": {
+        "message": "選択したアクセス権限を解除しました"
+    },
+    "description": {
+        "message": "Nostr署名拡張機能"
+    },
+    "options": {
+        "message": "オプション"
+    },
+    "privatekey": {
+        "message": "秘密鍵"
+    },
+    "generate": {
+        "message": "生成する"
+    },
+    "scan_qr": {
+        "message": "QRコードを読み込み"
+    },
+    "load_qr": {
+        "message": "QRコードを開く"
+    },
+    "show_key": {
+        "message": "表示する"
+    },
+    "show_key_enc": {
+        "message": "暗号化する"
+    },
+    "hide_key": {
+        "message": "隠す"
+    },
+    "priv_invalid": {
+        "message": "不正な秘密鍵です！"
+    },
+    "invalid_qr": {
+        "message": "不正なQRコードです"
+    },
+    "passwd": {
+        "message": "パスワード"
+    },
+    "dec_key": {
+        "message": "復号化する"
+    },
+    "enc_key": {
+        "message": "暗号化して表示する"
+    },
+    "browse_prof": {
+        "message": "プロフィールを見る"
+    },
+    "edit_prof": {
+        "message": "プロフィールを編集"
+    },
+    "pref_relays": {
+        "message": "推奨するリレー"
+    },
+    "read": {
+        "message": "読み込み"
+    },
+    "write": {
+        "message": "書き出し"
+    },
+    "remove": {
+        "message": "削除"
+    },
+    "add_relay": {
+        "message": "追加"
+    },
+    "handle": {
+        "message": ""
+    },
+    "links": {
+        "message": "形式のリンクを扱う"
+    },
+    "url_temp": {
+        "message": "URLテンプレート"
+    },
+    "link_raw": {
+        "message": "NIP-19に規定されるbech32でエンコードされた文字列"
+    },
+    "link_hex": {
+        "message": "npub、nprofileの16進数(hex)公開鍵、もしくは、note、neventの16進数(hex)公開鍵"
+    },
+    "link_p_or_e": {
+        "message": "npub、nprofileの\"p\"、もしくは、note、neventの\"e\""
+    },
+    "link_u_or_n": {
+        "message": "npub、nprofileの\"u\"、もしくは、note、neventの\"n\""
+    },
+    "link_relay0": {
+        "message": "nprofileかneventに含まれる1番目のリレー"
+    },
+    "link_relay1": {
+        "message": "nprofileかneventに含まれる2番目のリレー"
+    },
+    "link_relay2": {
+        "message": "nprofileかneventに含まれる3番目のリレー"
+    },
+    "link_hrp": {
+        "message": "NIP-19に規定されるプレフィックス"
+    },
+    "examples": {
+        "message": "例"
+    },
+    "show_notif": {
+        "message": "アクセス権限使用時に通知する"
+    },
+    "save": {
+        "message": "保存"
+    },
+    "perms": {
+        "message": "アクセス権限"
+    },
+    "no_perm_grant": {
+        "message": "許可されたアクセス権限はありません"
+    },
+    "revoke": {
+        "message": "解除"
+    },
+    "enc_success": {
+        "message": "暗号化が成功しました！"
+    },
+    "some_wrong": {
+        "message": "何かがおかしい様です。もう一度お試しください。"
+    },
+    "dec_success": {
+        "message": "復号化が成功しました！"
+    },
+    "incorr_pass": {
+        "message": "不正なパスワードです。もう一度お試しください。"
+    },
+    "invalid_priv_didnt_save": {
+        "message": "不正な秘密鍵です。保存されませんでした。"
+    },
+    "saved_priv": {
+        "message": "秘密鍵を保存しました！"
+    },
+    "removed_policy": {
+        "message": "ポリシーを削除しました"
+    },
+    "saved_notif": {
+        "message": "通知を保存しました！"
+    },
+    "saved_relays": {
+        "message": "リレーを保存しました！"
+    },
+    "saved_handler": {
+        "message": "リンクの扱いを保存しました！"
+    },
+    "domain": {
+        "message": "ドメイン"
+    },
+    "perm": {
+        "message": "アクセス権限"
+    },
+    "answer": {
+        "message": "状態"
+    },
+    "cond": {
+        "message": "条件"
+    },
+    "since": {
+        "message": "いつから"
+    },
+    "allow_multi_sel": {
+        "message": "複数選択"
+    },
+    "allow": {
+        "message": "許可"
+    },
+    "deny": {
+        "message": "拒否"
+    },
+    "kinds": {
+        "message": "カインド"
+    },
+    "always": {
+        "message": "すべて"
+    },
+    "start": {
+        "message": "ここから始める"
+    },
+    "your_pubkey": {
+        "message": "あなたの公開鍵"
+    },
+    "requesting": {
+        "message": "が次のアクセス権限を要求しています\n"
+    },
+    "now_acting": {
+        "message": "現在の状態"
+    },
+    "auth_forever": {
+        "message": "永続的に許可する"
+    },
+    "auth_kind_forever_prefix": {
+        "message": "カインド"
+    },
+    "auth_kind_forever_suffix": {
+        "message": " を永続的に許可する"
+    },
+    "auth_just": {
+        "message": "一度だけ許可する"
+    },
+    "rej_kind_forever_prefix": {
+        "message": "カインド"
+    },
+    "rej_kind_forever_suffix": {
+        "message": " を永続的に拒否する"
+    },
+    "rej_forever": {
+        "message": "永続的に拒否する"
+    },
+    "reject": {
+        "message": "拒否する"
+    },
+    "perm_getpubkey": {
+        "message": "あなたの公開鍵を見る"
+    },
+    "perm_getrelays": {
+        "message": "あなたの推奨するリレーを見る"
+    },
+    "perm_signevt": {
+        "message": "イベントに署名する"
+    },
+    "perm_nip04enc": {
+        "message": "メッセージを暗号化する"
+    },
+    "perm_nip04dec": {
+        "message": "メッセージを復号化する"
+    },
+    "perm_nip44enc": {
+        "message": "メッセージを暗号化する"
+    },
+    "perm_nip44dec": {
+        "message": "メッセージを復号化する"
+    }
+}

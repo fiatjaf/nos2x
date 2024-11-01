@@ -1,0 +1,260 @@
+{
+    "warn_use_crypt_nsec": {
+        "message": "Store you nsec into a qrcode without encrypt is HIGHLY NOT recommended. Use ncryptsec qrcode instead."
+    },
+    "warn_use_crypt_sec": {
+        "message": "Store you secret into a qrcode without encrypt is HIGHLY NOT recommended. Use ncryptsec qrcode instead."
+    },
+    "cnfrm_revoke_policy": {
+        "message": "Are you sure you want to revoke all selected policies?"
+    },
+    "cnfrm_revoke_prefix": {
+        "message": "revoke all "
+    },
+    "cnfrm_revoke_accept": {
+        "message": "accept"
+    },
+    "cnfrm_revoke_deny": {
+        "message": "deny"
+    },
+    "cnfrm_revoke_middle": {
+        "message": " policies from "
+    },
+    "cnfrm_revoke_suffix": {
+        "message": "?"
+    },
+    "removed_sel_policies": {
+        "message": "removed selected policies"
+    },
+    "description": {
+        "message": "Nostr Signer Extension"
+    },
+    "options": {
+        "message": "options"
+    },
+    "privatekey": {
+        "message": "private key"
+    },
+    "generate": {
+        "message": "generate"
+    },
+    "scan_qr": {
+        "message": "scan QR code"
+    },
+    "load_qr": {
+        "message": "load QR code"
+    },
+    "show_key": {
+        "message": "show key"
+    },
+    "show_key_enc": {
+        "message": "show key encrypted"
+    },
+    "hide_key": {
+        "message": "hide key"
+    },
+    "priv_invalid": {
+        "message": "private key is invalid!"
+    },
+    "invalid_qr": {
+        "message": "invalid qrcode"
+    },
+    "passwd": {
+        "message": "password"
+    },
+    "dec_key": {
+        "message": "decrypt key"
+    },
+    "enc_key": {
+        "message": "encrypt and show key"
+    },
+    "browse_prof": {
+        "message": "browse your profile"
+    },
+    "edit_prof": {
+        "message": "edit your profile"
+    },
+    "pref_relays": {
+        "message": "preferred relays"
+    },
+    "read": {
+        "message": "read"
+    },
+    "write": {
+        "message": "write"
+    },
+    "remove": {
+        "message": "remove"
+    },
+    "add_relay": {
+        "message": "add relay"
+    },
+    "handle": {
+        "message": "handle"
+    },
+    "links": {
+        "message": "links"
+    },
+    "url_temp": {
+        "message": "url template"
+    },
+    "link_raw": {
+        "message": "anything after the colon, i.e. the full nip19 bech32 string"
+    },
+    "link_hex": {
+        "message": "hex pubkey for npub or nprofile, hex event id for note or nevent"
+    },
+    "link_p_or_e": {
+        "message": "\"p\" for npub or nprofile, \"e\" for note or nevent"
+    },
+    "link_u_or_n": {
+        "message": "\"u\" for npub or nprofile, \"n\" for note or nevent"
+    },
+    "link_relay0": {
+        "message": "first relay in a nprofile or nevent"
+    },
+    "link_relay1": {
+        "message": "second relay in a nprofile or nevent"
+    },
+    "link_relay2": {
+        "message": "third relay in a nprofile or nevent"
+    },
+    "link_hrp": {
+        "message": "human-readable prefix of the nip19 string"
+    },
+    "examples": {
+        "message": "examples"
+    },
+    "show_notif": {
+        "message": "show notifications when permissions are used"
+    },
+    "save": {
+        "message": "save"
+    },
+    "perms": {
+        "message": "permissions"
+    },
+    "no_perm_grant": {
+        "message": "no permissions have been granted yet"
+    },
+    "revoke": {
+        "message": "revoke"
+    },
+    "enc_success": {
+        "message": "encryption successful!"
+    },
+    "some_wrong": {
+        "message": "something is going wrong. please try again."
+    },
+    "dec_success": {
+        "message": "decryption successful!"
+    },
+    "incorr_pass": {
+        "message": "incorrect password. please try again."
+    },
+    "invalid_priv_didnt_save": {
+        "message": "PRIVATE KEY IS INVALID! did not save private key."
+    },
+    "saved_priv": {
+        "message": "saved private key!"
+    },
+    "removed_policy": {
+        "message": "removed policies"
+    },
+    "saved_notif": {
+        "message": "saved notifications!"
+    },
+    "saved_relays": {
+        "message": "saved relays!"
+    },
+    "saved_handler": {
+        "message": "saved protocol handler!"
+    },
+    "domain": {
+        "message": "domain"
+    },
+    "perm": {
+        "message": "permission"
+    },
+    "answer": {
+        "message": "answer"
+    },
+    "cond": {
+        "message": "conditions"
+    },
+    "since": {
+        "message": "since"
+    },
+    "allow_multi_sel": {
+        "message": "Allow Multiple Selections"
+    },
+    "allow": {
+        "message": "allow"
+    },
+    "deny": {
+        "message": "deny"
+    },
+    "kinds": {
+        "message": "kinds"
+    },
+    "always": {
+        "message": "always"
+    },
+    "start": {
+        "message": "start here"
+    },
+    "your_pubkey": {
+        "message": "your public key"
+    },
+    "requesting": {
+        "message": "is requesting your permission to "
+    },
+    "now_acting": {
+        "message": "now acting on"
+    },
+    "auth_forever": {
+        "message": "authorize forever"
+    },
+    "auth_kind_forever_prefix": {
+        "message": "authorize kind "
+    },
+    "auth_kind_forever_suffix": {
+        "message": " forever"
+    },
+    "auth_just": {
+        "message": "authorize just this"
+    },
+    "rej_kind_forever_prefix": {
+        "message": "reject kind "
+    },
+    "rej_kind_forever_suffix": {
+        "message": " forever"
+    },
+    "rej_forever": {
+        "message": "reject forever"
+    },
+    "reject": {
+        "message": "reject"
+    },
+    "perm_getpubkey": {
+        "message": "read your public key"
+    },
+    "perm_getrelays": {
+        "message": "read your list of preferred relays"
+    },
+    "perm_signevt": {
+        "message": "sign events using your private key"
+    },
+    "perm_nip04enc": {
+        "message": "encrypt messages to peers"
+    },
+    "perm_nip04dec": {
+        "message": "decrypt messages from peers"
+    },
+    "perm_nip44enc": {
+        "message": "encrypt messages to peers"
+    },
+    "perm_nip44dec": {
+        "message": "decrypt messages from peers"
+    }
+}

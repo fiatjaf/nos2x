@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill'
+import browser, {i18n} from 'webextension-polyfill'
 import {render} from 'react-dom'
 import React from 'react'
 
@@ -25,12 +25,12 @@ function Prompt() {
           {host}
         </b>{' '}
         <p>
-          is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
+          {i18n.getMessage("requesting")}<b>{PERMISSION_NAMES[type]}:</b>
         </p>
       </div>
       {params && (
         <>
-          <p>now acting on</p>
+          <p>{i18n.getMessage("now_acting")}</p>
           <pre style={{overflow: 'auto', maxHeight: '120px'}}>
             <code>{JSON.stringify(event || params, null, 2)}</code>
           </pre>
@@ -50,7 +50,7 @@ function Prompt() {
             {} // store this and answer true forever
           )}
         >
-          authorize forever
+          {i18n.getMessage("auth_forever")}
         </button>
         {event?.kind !== undefined && (
           <button
@@ -60,11 +60,11 @@ function Prompt() {
               {kinds: {[event.kind]: true}} // store and always answer true for all events that match this condition
             )}
           >
-            authorize kind {event.kind} forever
+            {i18n.getMessage("auth_kind_forever_prefix")}{event.kind}{i18n.getMessage("auth_kind_forever_suffix")}
           </button>
         )}
         <button style={{marginTop: '5px'}} onClick={authorizeHandler(true)}>
-          authorize just this
+        {i18n.getMessage("auth_just")}
         </button>
         {event?.kind !== undefined ? (
           <button
@@ -74,7 +74,7 @@ function Prompt() {
               {kinds: {[event.kind]: true}} // idem
             )}
           >
-            reject kind {event.kind} forever
+            {i18n.getMessage("rej_kind_forever_prefix")}{event.kind}{i18n.getMessage("rej_kind_forever_suffix")}
           </button>
         ) : (
           <button
@@ -84,11 +84,11 @@ function Prompt() {
               {} // idem
             )}
           >
-            reject forever
+            {i18n.getMessage("rej_forever")}
           </button>
         )}
         <button style={{marginTop: '5px'}} onClick={authorizeHandler(false)}>
-          reject
+          {i18n.getMessage("reject")}
         </button>
       </div>
     </>
