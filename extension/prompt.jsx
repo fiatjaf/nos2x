@@ -63,15 +63,17 @@ function Prompt() {
           gap: '0.5rem'
         }}
       >
-        <button
-          style={{marginTop: '5px'}}
-          onClick={authorizeHandler(
-            true,
-            {} // store this and answer true forever
-          )}
-        >
-          authorize forever
-        </button>
+        {event?.kind === undefined && (
+          <button
+            style={{marginTop: '5px'}}
+            onClick={authorizeHandler(
+              true,
+              {} // store this and answer true forever
+            )}
+          >
+            authorize forever
+          </button>
+        )}
         {event?.kind !== undefined && (
           <button
             style={{marginTop: '5px'}}
