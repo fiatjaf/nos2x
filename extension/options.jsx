@@ -10,6 +10,7 @@ import browser from 'webextension-polyfill'
 import {removePermissions} from './common'
 
 function Options() {
+  let [unsavedChanges, setUnsavedChanges] = useState([])
   let [privKey, setPrivKey] = useState(null)
   let [privKeyInput, setPrivKeyInput] = useState('')
   let [askPassword, setAskPassword] = useState(null)
@@ -23,7 +24,7 @@ function Options() {
   let [messages, setMessages] = useState([])
   let [handleNostrLinks, setHandleNostrLinks] = useState(false)
   let [showProtocolHandlerHelp, setShowProtocolHandlerHelp] = useState(false)
-  let [unsavedChanges, setUnsavedChanges] = useState([])
+  let [selectedItems, setSelectedItems] = useState([])
 
   const showMessage = msg => {
     setMessages(oldMessages => [...oldMessages, msg])
@@ -91,40 +92,6 @@ function Options() {
     })
 
     setPermissions(list)
-  }
-
-  const [isMulti, setIsMulti] = useState(false)
-  const [selectedItems, setSelectedItems] = useState([])
-
-  const toggleMulti = () => {
-    setIsMulti(!isMulti)
-  }
-
-  const handleSelect = index => {
-    if (isMulti) {
-      if (selectedItems.includes(index)) {
-        setSelectedItems(selectedItems.filter(i => i !== index))
-      } else {
-        setSelectedItems([...selectedItems, index])
-      }
-    } else {
-      setSelectedItems([index])
-    }
-  }
-  const handleMultiRevoke = async () => {
-    if (
-      window.confirm(`Are you sure you want to revoke all selected policies?`)
-    ) {
-      for (let index of selectedItems) {
-        let {host, accept, type} = policies[index]
-
-        await removePermissions(host, accept, type)
-      }
-
-      showMessage('removed selected policies')
-      loadPermissions()
-      setSelectedItems([])
-    }
   }
 
   return (
@@ -408,7 +375,7 @@ function Options() {
       <div>
         <h2>permissions</h2>
         {!!policies.length && (
-          <>
+          <div style={{display: 'flex'}}>
             <table>
               <thead>
                 <tr>
@@ -417,7 +384,7 @@ function Options() {
                   <th>answer</th>
                   <th>conditions</th>
                   <th>since</th>
-                  <th></th>
+                  <th>revoke</th>
                 </tr>
               </thead>
               <tbody>
@@ -440,37 +407,29 @@ function Options() {
                           .join(' ')}
                       </td>
                       <td>
-                        {isMulti ? (
-                          <input
-                            type="checkbox"
-                            checked={selectedItems.includes(index)}
-                            onChange={() => handleSelect(index)}
-                            data-host={host}
-                            data-accept={accept}
-                            data-type={type}
-                          />
-                        ) : (
-                          <button
-                            onClick={handleRevoke}
-                            data-host={host}
-                            data-accept={accept}
-                            data-type={type}
-                          >
-                            revoke
-                          </button>
-                        )}
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(index)}
+                          onChange={() => handleSelect(index)}
+                          data-host={host}
+                          data-accept={accept}
+                          data-type={type}
+                        />
                       </td>
                     </tr>
                   )
                 )}
               </tbody>
             </table>
-            <div style={{display: 'flex', alignItems: 'center'}}>
-              Allow Multiple Selections:{' '}
-              <input type="checkbox" checked={isMulti} onChange={toggleMulti} />
-              {isMulti && <button onClick={handleMultiRevoke}>revoke</button>}
-            </div>
-          </>
+            {selectedItems.length > 0 ? (
+              <button
+                style={{marginLeft: '0.5rem'}}
+                onClick={handleMultiRevoke}
+              >
+                revoke
+              </button>
+            ) : null}
+          </div>
         )}
         {!policies.length && (
           <div style={{marginTop: '5px'}}>
@@ -619,18 +578,11 @@ function Options() {
     setNewRelayURL('')
   }
 
-  async function handleRevoke(e) {
-    let {host, accept, type} = e.target.dataset
-    if (
-      window.confirm(
-        `revoke all ${
-          accept === 'true' ? 'accept' : 'deny'
-        } ${type} policies from ${host}?`
-      )
-    ) {
-      await removePermissions(host, accept, type)
-      showMessage('removed policies')
-      loadPermissions()
+  async function handleSelect(index) {
+    if (selectedItems.includes(index)) {
+      setSelectedItems(selectedItems.filter(i => i !== index))
+    } else {
+      setSelectedItems([...selectedItems, index])
     }
   }
 
@@ -638,6 +590,17 @@ function Options() {
     setNotifications(!showNotifications)
     addUnsavedChanges('notifications')
     if (!showNotifications) requestBrowserNotificationPermissions()
+  }
+
+  async function handleMultiRevoke() {
+    for (let index of selectedItems) {
+      let {host, accept, type} = policies[index]
+      await removePermissions(host, accept, type)
+    }
+
+    showMessage('removed selected policies')
+    loadPermissions()
+    setSelectedItems([])
   }
 
   async function requestBrowserNotificationPermissions() {
