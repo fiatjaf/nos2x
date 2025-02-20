@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import {render} from 'react-dom'
+import {createRoot} from 'react-dom/client'
 import {getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
 import React, {useState, useRef, useEffect} from 'react'
@@ -101,4 +101,4 @@ function Popup() {
   }
 }
 
-render(<Popup />, document.getElementById('main'))
+createRoot(document.getElementById('main')).render(<Popup />)
