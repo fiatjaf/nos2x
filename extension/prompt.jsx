@@ -24,12 +24,12 @@ function Prompt() {
       <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
         {host}
       </b>{' '}
-      <p>
+      <p style={{margin: 0}}>
         is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
       </p>
       {params && (
         <div style={{width: '100%', maxHeight: '200px', overflowY: 'scroll'}}>
-          <p>now acting on</p>
+          <p style={{margin: 0}}>now acting on</p>
           <pre
             style={{
               width: '100%',
@@ -43,7 +43,7 @@ function Prompt() {
       )}
       {result && (
         <div style={{width: '100%', maxHeight: '180px', overflowY: 'scroll'}}>
-          <p>result:</p>
+          <p style={{margin: 0}}>result:</p>
           <pre
             style={{
               width: '100%',
