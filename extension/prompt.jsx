@@ -9,6 +9,7 @@ function Prompt() {
   let id = qs.get('id')
   let host = qs.get('host')
   let type = qs.get('type')
+  let result = qs.get('result')
   let params, event
   try {
     params = JSON.parse(qs.get('params'))
@@ -20,27 +21,46 @@ function Prompt() {
 
   return (
     <>
-      <div>
-        <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
-          {host}
-        </b>{' '}
-        <p>
-          is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
-        </p>
-      </div>
+      <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
+        {host}
+      </b>{' '}
+      <p>
+        is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
+      </p>
       {params && (
-        <>
+        <div style={{width: '100%', maxHeight: '200px', overflowY: 'scroll'}}>
           <p>now acting on</p>
-          <pre style={{overflow: 'auto', maxHeight: '120px'}}>
+          <pre
+            style={{
+              width: '100%',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all'
+            }}
+          >
             <code>{JSON.stringify(event || params, null, 2)}</code>
           </pre>
-        </>
+        </div>
+      )}
+      {result && (
+        <div style={{width: '100%', maxHeight: '180px', overflowY: 'scroll'}}>
+          <p>result:</p>
+          <pre
+            style={{
+              width: '100%',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all'
+            }}
+          >
+            <code>{result}</code>
+          </pre>
+        </div>
       )}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          justifyContent: 'space-around'
+          justifyContent: 'space-around',
+          gap: '0.5rem'
         }}
       >
         <button

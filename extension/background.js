@@ -37,8 +37,8 @@ function getSharedSecret(sk, peer) {
 }
 
 //set the width and height of the prompt window
-const width = 340
-const height = 360
+const width = 440
+const height = 420
 
 browser.runtime.onInstalled.addListener((_, __, reason) => {
   if (reason === 'install') browser.runtime.openOptionsPage()
@@ -117,6 +117,9 @@ async function handleContentScriptMessage({type, params, host}) {
     // acquire mutex here before reading policies
     releasePromptMutex = await promptMutex.acquire()
 
+    // do the operation before asking (because we'll show the encryption/decryption results in the popup
+    const finalResult = await performOperation(type, params)
+
     let allowed = await getPermissionStatus(
       host,
       type,
@@ -144,6 +147,9 @@ async function handleContentScriptMessage({type, params, host}) {
           params: JSON.stringify(params),
           type
         })
+        if (typeof finalResult === 'string') {
+          qs.set('result', finalResult)
+        }
         // center prompt
         const {top, left} = await getPosition(width, height)
         // prompt will be resolved with true or false
@@ -166,20 +172,23 @@ async function handleContentScriptMessage({type, params, host}) {
         // errored, stop here
         releasePromptMutex()
         return {
-          error: {message: error.message, stack: error.stack}
+          error: {message: err.message, stack: err.stack}
         }
       }
     }
-  }
 
-  // if we're here this means it was accepted
+    // the call was authorized, so we just return the result we had from before
+    return finalResult
+  }
+}
+
+async function performOperation(type, params) {
   let results = await browser.storage.local.get('private_key')
   if (!results || !results.private_key) {
     return {error: {message: 'no private key found'}}
   }
 
   let sk = results.private_key
-
   try {
     switch (type) {
       case 'getPublicKey': {
@@ -187,7 +196,6 @@ async function handleContentScriptMessage({type, params, host}) {
       }
       case 'signEvent': {
         const event = finalizeEvent(params.event, sk)
-
         return validateEvent(event)
           ? event
           : {error: {message: 'invalid event'}}
