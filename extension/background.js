@@ -175,7 +175,7 @@ async function handleContentScriptMessage({type, params, host}) {
   // if we're here this means it was accepted
   let results = await browser.storage.local.get('private_key')
   if (!results || !results.private_key) {
-    return {error: {message: 'no private key found'} }
+    return {error: {message: 'no private key found'}}
   }
 
   let sk = results.private_key
@@ -184,10 +184,6 @@ async function handleContentScriptMessage({type, params, host}) {
     switch (type) {
       case 'getPublicKey': {
         return getPublicKey(sk)
-      }
-      case 'getRelays': {
-        let results = await browser.storage.local.get('relays')
-        return results.relays || {}
       }
       case 'signEvent': {
         const event = finalizeEvent(params.event, sk)

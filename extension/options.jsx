@@ -15,8 +15,6 @@ function Options() {
   let [privKeyInput, setPrivKeyInput] = useState('')
   let [askPassword, setAskPassword] = useState(null)
   let [password, setPassword] = useState('')
-  let [relays, setRelays] = useState([])
-  let [newRelayURL, setNewRelayURL] = useState('')
   let [policies, setPermissions] = useState([])
   let [protocolHandler, setProtocolHandler] = useState('https://njump.me/{raw}')
   let [hidingPrivateKey, hidePrivateKey] = useState(true)
@@ -40,23 +38,13 @@ function Options() {
 
   useEffect(() => {
     browser.storage.local
-      .get(['private_key', 'relays', 'protocol_handler', 'notifications'])
+      .get(['private_key', 'protocol_handler', 'notifications'])
       .then(results => {
         if (results.private_key) {
           let prvKey = results.private_key
           let nsec = nip19.nsecEncode(hexToBytes(prvKey))
           setPrivKeyInput(nsec)
           setPrivKey(nsec)
-        }
-        if (results.relays) {
-          let relaysList = []
-          for (let url in results.relays) {
-            relaysList.push({
-              url,
-              policy: results.relays[url]
-            })
-          }
-          setRelays(relaysList)
         }
         if (results.protocol_handler) {
           setProtocolHandler(results.protocol_handler)
@@ -243,62 +231,6 @@ function Options() {
                 style={{cursor: 'pointer'}}
               >
                 edit your profile
-              </button>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div>preferred relays:</div>
-          <div
-            style={{
-              marginLeft: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1px'
-            }}
-          >
-            {relays.map(({url, policy}, i) => (
-              <div
-                key={i}
-                style={{display: 'flex', alignItems: 'center', gap: '15px'}}
-              >
-                <input
-                  style={{width: '400px'}}
-                  value={url}
-                  onChange={changeRelayURL.bind(null, i)}
-                />
-                <div style={{display: 'flex', gap: '5px'}}>
-                  <label style={{display: 'flex', alignItems: 'center'}}>
-                    read
-                    <input
-                      type="checkbox"
-                      checked={policy.read}
-                      onChange={toggleRelayPolicy.bind(null, i, 'read')}
-                    />
-                  </label>
-                  <label style={{display: 'flex', alignItems: 'center'}}>
-                    write
-                    <input
-                      type="checkbox"
-                      checked={policy.write}
-                      onChange={toggleRelayPolicy.bind(null, i, 'write')}
-                    />
-                  </label>
-                </div>
-                <button onClick={removeRelay.bind(null, i)}>remove</button>
-              </div>
-            ))}
-            <div style={{display: 'flex', gap: '10px', marginTop: '5px'}}>
-              <input
-                style={{width: '400px'}}
-                value={newRelayURL}
-                onChange={e => setNewRelayURL(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') addNewRelay()
-                }}
-              />
-              <button disabled={!newRelayURL} onClick={addNewRelay}>
-                add relay
               </button>
             </div>
           </div>
@@ -539,45 +471,6 @@ function Options() {
     return false
   }
 
-  function changeRelayURL(i, ev) {
-    setRelays([
-      ...relays.slice(0, i),
-      {url: ev.target.value, policy: relays[i].policy},
-      ...relays.slice(i + 1)
-    ])
-    addUnsavedChanges('relays')
-  }
-
-  function toggleRelayPolicy(i, cat) {
-    setRelays([
-      ...relays.slice(0, i),
-      {
-        url: relays[i].url,
-        policy: {...relays[i].policy, [cat]: !relays[i].policy[cat]}
-      },
-      ...relays.slice(i + 1)
-    ])
-    addUnsavedChanges('relays')
-  }
-
-  function removeRelay(i) {
-    setRelays([...relays.slice(0, i), ...relays.slice(i + 1)])
-    addUnsavedChanges('relays')
-  }
-
-  function addNewRelay() {
-    if (newRelayURL.trim() === '') return
-    setRelays([
-      ...relays,
-      {
-        url: newRelayURL,
-        policy: {read: true, write: true}
-      }
-    ])
-    addUnsavedChanges('relays')
-    setNewRelayURL('')
-  }
-
   async function handleSelect(index) {
     if (selectedItems.includes(index)) {
       setSelectedItems(selectedItems.filter(i => i !== index))
@@ -615,17 +508,6 @@ function Options() {
     showMessage('saved notifications!')
   }
 
-  async function saveRelays() {
-    await browser.storage.local.set({
-      relays: Object.fromEntries(
-        relays
-          .filter(({url}) => url.trim() !== '')
-          .map(({url, policy}) => [url.trim(), policy])
-      )
-    })
-    showMessage('saved relays!')
-  }
-
   function changeShowProtocolHandlerHelp() {
     setShowProtocolHandlerHelp(true)
   }
@@ -661,9 +543,6 @@ function Options() {
       switch (section) {
         case 'private_key':
           await saveKey()
-          break
-        case 'relays':
-          await saveRelays()
           break
         case 'protocol_handler':
           await saveNostrProtocolHandlerSettings()

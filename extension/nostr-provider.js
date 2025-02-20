@@ -13,7 +13,7 @@ window.nostr = {
   },
 
   async getRelays() {
-    return this._call('getRelays', {})
+    return {}
   },
 
   nip04: {

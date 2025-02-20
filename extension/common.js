@@ -6,7 +6,6 @@ export const NO_PERMISSIONS_REQUIRED = {
 
 export const PERMISSION_NAMES = Object.fromEntries([
   ['getPublicKey', 'read your public key'],
-  ['getRelays', 'read your list of preferred relays'],
   ['signEvent', 'sign events using your private key'],
   ['nip04.encrypt', 'encrypt messages to peers'],
   ['nip04.decrypt', 'decrypt messages from peers'],
