@@ -202,11 +202,11 @@ async function performOperation(type, params) {
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
-        return nip04.encrypt(sk, peer, plaintext)
+        return await nip04.encrypt(sk, peer, plaintext)
       }
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
-        return nip04.decrypt(sk, peer, ciphertext)
+        return await nip04.decrypt(sk, peer, ciphertext)
       }
       case 'nip44.encrypt': {
         const {peer, plaintext} = params
