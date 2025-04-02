@@ -55,63 +55,73 @@ function Prompt() {
           </pre>
         </div>
       )}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-around',
-          gap: '0.5rem'
-        }}
-      >
-        {event?.kind === undefined && (
-          <button
-            style={{marginTop: '5px'}}
-            onClick={authorizeHandler(
-              true,
-              {} // store this and answer true forever
-            )}
-          >
-            authorize forever
+      <div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            gap: '0.5rem'
+          }}
+        >
+          {event?.kind === undefined && (
+            <button
+              style={{marginTop: '5px'}}
+              onClick={authorizeHandler(
+                true,
+                {} // store this and answer true forever
+              )}
+            >
+              authorize forever
+            </button>
+          )}
+          {event?.kind !== undefined && (
+            <button
+              style={{marginTop: '5px'}}
+              onClick={authorizeHandler(
+                true,
+                {kinds: {[event.kind]: true}} // store and always answer true for all events that match this condition
+              )}
+            >
+              authorize kind {event.kind} forever
+            </button>
+          )}
+          <button style={{marginTop: '5px'}} onClick={authorizeHandler(true)}>
+            authorize just this
           </button>
-        )}
-        {event?.kind !== undefined && (
-          <button
-            style={{marginTop: '5px'}}
-            onClick={authorizeHandler(
-              true,
-              {kinds: {[event.kind]: true}} // store and always answer true for all events that match this condition
-            )}
-          >
-            authorize kind {event.kind} forever
+        </div>
+        <div
+          style={{
+            marginTop: '0.5rem',
+            display: 'flex',
+            justifyContent: 'space-around',
+            gap: '0.5rem'
+          }}
+        >
+          {event?.kind !== undefined ? (
+            <button
+              style={{marginTop: '5px'}}
+              onClick={authorizeHandler(
+                false,
+                {kinds: {[event.kind]: true}} // idem
+              )}
+            >
+              reject kind {event.kind} forever
+            </button>
+          ) : (
+            <button
+              style={{marginTop: '5px'}}
+              onClick={authorizeHandler(
+                false,
+                {} // idem
+              )}
+            >
+              reject forever
+            </button>
+          )}
+          <button style={{marginTop: '5px'}} onClick={authorizeHandler(false)}>
+            reject
           </button>
-        )}
-        <button style={{marginTop: '5px'}} onClick={authorizeHandler(true)}>
-          authorize just this
-        </button>
-        {event?.kind !== undefined ? (
-          <button
-            style={{marginTop: '5px'}}
-            onClick={authorizeHandler(
-              false,
-              {kinds: {[event.kind]: true}} // idem
-            )}
-          >
-            reject kind {event.kind} forever
-          </button>
-        ) : (
-          <button
-            style={{marginTop: '5px'}}
-            onClick={authorizeHandler(
-              false,
-              {} // idem
-            )}
-          >
-            reject forever
-          </button>
-        )}
-        <button style={{marginTop: '5px'}} onClick={authorizeHandler(false)}>
-          reject
-        </button>
+        </div>
       </div>
     </>
   )
