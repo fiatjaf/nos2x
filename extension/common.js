@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill'
 
 export const NO_PERMISSIONS_REQUIRED = {
+  ping: true,
   replaceURL: true
 }
 
