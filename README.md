@@ -15,6 +15,7 @@ async window.nostr.nip04.encrypt(pubkey, plaintext): string // returns ciphertex
 async window.nostr.nip04.decrypt(pubkey, ciphertext): string // takes ciphertext+iv as specified in nip04
 async window.nostr.nip44.encrypt(pubkey, plaintext): string // takes pubkey, plaintext, returns ciphertext as specified in nip-44
 async window.nostr.nip44.decrypt(pubkey, ciphertext): string // takes pubkey, ciphertext, returns plaintext as specified in nip-44
+async window.nostr.signString(message): {hash: string, sig: string, pubkey: string} // return SHA256 `hash` of `message`, Schnorr `sig` of `hash`, `pubkey` of signer
 ```
 
 This extension is Chromium-only. For a maintained Firefox fork, see [nos2x-fox](https://diegogurpegui.com/nos2x-fox/).

@@ -12,6 +12,10 @@ window.nostr = {
     return this._call('signEvent', {event})
   },
 
+  async signString(message) {
+    return this._call('signString', {message})
+  },
+
   async getRelays() {
     return {}
   },

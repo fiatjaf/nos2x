@@ -5,6 +5,9 @@ import * as nip04 from 'nostr-tools/nip04'
 import * as nip44 from 'nostr-tools/nip44'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
+import {sha256} from "@noble/hashes/sha256";
+import {bytesToHex} from "@noble/hashes/utils";
+import {schnorr} from "@noble/curves/secp256k1";
 
 import {
   NO_PERMISSIONS_REQUIRED,
@@ -199,6 +202,24 @@ async function performOperation(type, params) {
         return validateEvent(event)
           ? event
           : {error: {message: 'invalid event'}}
+      }
+      case 'signString': {
+        if (typeof params.message !== 'string') {
+          return { error: { message: "message is not a string" } };
+        }
+        try {
+            // Check this is not a stringified event
+            // trying to bypass permission checks
+            const obj = JSON.parse(params.message);
+            if (validateEvent(obj)){
+              return { error: { message: "use signEvent() to sign events" } };
+            }
+        } catch (e) {} // not a JSON string
+        const utf8Encoder = new TextEncoder();
+        const hash = bytesToHex(sha256(utf8Encoder.encode(params.message)));
+        const sig = bytesToHex(schnorr.sign(hash, sk));
+        const pubkey = bytesToHex(schnorr.getPublicKey(sk));
+        return {hash: hash, sig: sig, pubkey: pubkey};
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
