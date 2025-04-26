@@ -5,6 +5,9 @@ import * as nip04 from 'nostr-tools/nip04'
 import * as nip44 from 'nostr-tools/nip44'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
+import {sha256} from "@noble/hashes/sha256";
+import {bytesToHex} from "@noble/hashes/utils";
+import {schnorr} from "@noble/curves/secp256k1";
 
 import {
   NO_PERMISSIONS_REQUIRED,
@@ -220,9 +223,47 @@ async function performOperation(type, params) {
 
         return nip44.v2.decrypt(ciphertext, key)
       }
+      case 'nip60.signSecret': {
+        if (!validateNut10Secret(params.secret)) {
+          return { error: { message: "invalid Cashu secret" } };
+        }
+        const utf8Encoder = new TextEncoder();
+        const hash = bytesToHex(sha256(utf8Encoder.encode(params.secret)));
+        const sig = bytesToHex(schnorr.sign(hash, sk));
+        const pubkey = bytesToHex(schnorr.getPublicKey(sk));
+        return {hash: hash, sig: sig, pubkey: pubkey};
+      }
     }
   } catch (error) {
     return {error: {message: error.message, stack: error.stack}}
+  }
+}
+
+function validateNut10Secret(proof_secret) {
+  try {
+    if (typeof proof_secret !== 'string') return false;
+    const secret = JSON.parse(proof_secret);
+    if (!Array.isArray(secret) || secret.length !== 2) return false;
+    const [kind, payload] = secret;
+    if (typeof kind !== 'string' || !kind.trim()) return false;
+    if (!payload || !payload.nonce?.trim() || !payload.data?.trim()) return false;
+    if (payload.tags) {
+      if (!Array.isArray(payload.tags)) return false;
+      const year = new Date().getUTCFullYear(); // for deprecation check
+      for (const tag of payload.tags) {
+        if (!Array.isArray(tag) || tag.length < 2) return false;
+        // Some older secret tags may include integers (now deprecated)
+        // Enforce strings only from 2026 onwards
+        for (const e of tag) {
+          if (typeof e !== 'string' && (year > 2025 || typeof e !== 'number' || !Number.isInteger(e))) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  } catch {
+    return false;
   }
 }
 
