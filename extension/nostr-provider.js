@@ -36,6 +36,12 @@ window.nostr = {
     }
   },
 
+  nip60: {
+    async signSecret(secret) {
+      return window.nostr._call('nip60.signSecret', {secret})
+    },
+  },
+
   _call(type, params) {
     let id = Math.random().toString().slice(-4)
     console.log(
