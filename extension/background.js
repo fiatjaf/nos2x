@@ -162,22 +162,14 @@ async function handleContentScriptMessage({ type, params, host }) {
 }
 
 async function performOperation(type, params) {
-  console.log(1)
   const signer = global.signer;
-  console.log(signer)
-  console.log(2)
   try {
     switch (type) {
       case 'getPublicKey': {
-        console.log("fetch Pubkey")
-        const pubKey = await signer.getPublicKey();
-        console.log(pubKey)
-        return pubKey;
+        return await signer.getPublicKey();
       }
       case 'signEvent': {
-        const signedEvent = await signer.signEvent(params.event)
-        console.log(signedEvent)
-        return signedEvent;
+        return await signer.signEvent(params.event)
       }
       case 'nip04.encrypt': {
         let { peer, plaintext } = params

@@ -113,7 +113,6 @@ export class BunkerClient {
           // This is an auth challenge, not a final response
           // The app should handle opening the auth URL
           // We keep the pending request alive to wait for the final response
-          console.log('Auth challenge received:', response.error);
           
           // Store the auth URL for the request
           if (!this.authChallenges) {
@@ -125,11 +124,8 @@ export class BunkerClient {
           if (this.onAuthChallenge) {
             this.onAuthChallenge(response.error, response.id);
           } else {
-            // Default behavior: open in new window
-            const authWindow = window.open(response.error, '_blank');
-            if (!authWindow) {
-              console.error('Failed to open auth window. Please allow popups for this site.');
-            }
+            // Default behavior: show alert with URL
+            alert(`Authentication required. Please visit:\n\n${response.error}\n\nClick OK and open this URL in a new tab to authenticate.`);
           }
           // Don't resolve or reject yet - wait for the final response
           // The bunker will send another response with the same ID after auth
