@@ -1,10 +1,6 @@
 import browser from 'webextension-polyfill'
-import {validateEvent, finalizeEvent, getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
-import * as nip04 from 'nostr-tools/nip04'
-import * as nip44 from 'nostr-tools/nip44'
-import {Mutex} from 'async-mutex'
-import {LRUCache} from './utils'
+import { Mutex } from 'async-mutex'
 
 import {
   NO_PERMISSIONS_REQUIRED,
@@ -13,28 +9,11 @@ import {
   showNotification,
   getPosition
 } from './common'
+import { deleteBunkerConnection, loadBunkerConnection } from './bunker-provider'
 
 let openPrompt = null
 let promptMutex = new Mutex()
-let releasePromptMutex = () => {}
-let secretsCache = new LRUCache(100)
-let previousSk = null
-
-function getSharedSecret(sk, peer) {
-  // Detect a key change and erase the cache if they changed their key
-  if (previousSk !== sk) {
-    secretsCache.clear()
-  }
-
-  let key = secretsCache.get(peer)
-
-  if (!key) {
-    key = nip44.v2.utils.getConversationKey(sk, peer)
-    secretsCache.set(peer, key)
-  }
-
-  return key
-}
+let releasePromptMutex = () => { }
 
 //set the width and height of the prompt window
 const width = 440
@@ -49,7 +28,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     openSignUpWindow()
     browser.windows.remove(sender.tab.windowId)
   } else {
-    let {prompt} = message
+    let { prompt } = message
     if (prompt) {
       handlePromptMessage(message, sender)
     } else {
@@ -59,9 +38,9 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
 })
 
 browser.runtime.onMessageExternal.addListener(
-  async ({type, params}, sender) => {
+  async ({ type, params }, sender) => {
     let extensionId = new URL(sender.url).host
-    return handleContentScriptMessage({type, params, host: extensionId})
+    return handleContentScriptMessage({ type, params, host: extensionId })
   }
 )
 
@@ -69,23 +48,23 @@ browser.windows.onRemoved.addListener(_ => {
   if (openPrompt) {
     // calling this with a simple "no" response will not store anything, so it's fine
     // it will just return a failure
-    handlePromptMessage({accept: false}, null)
+    handlePromptMessage({ accept: false }, null)
   }
 })
 
-async function handleContentScriptMessage({type, params, host}) {
+async function handleContentScriptMessage({ type, params, host }) {
   if (NO_PERMISSIONS_REQUIRED[type]) {
     // authorized, and we won't do anything with private key here, so do a separate handler
     switch (type) {
       case 'replaceURL': {
-        let {protocol_handler: ph} = await browser.storage.local.get([
+        let { protocol_handler: ph } = await browser.storage.local.get([
           'protocol_handler'
         ])
         if (!ph) return false
 
-        let {url} = params
+        let { url } = params
         let raw = url.split('nostr:')[1]
-        let {type, data} = nip19.decode(raw)
+        let { type, data } = nip19.decode(raw)
         let replacements = {
           raw,
           hrp: type,
@@ -93,12 +72,12 @@ async function handleContentScriptMessage({type, params, host}) {
             type === 'npub' || type === 'note'
               ? data
               : type === 'nprofile'
-              ? data.pubkey
-              : type === 'nevent'
-              ? data.id
-              : null,
-          p_or_e: {npub: 'p', note: 'e', nprofile: 'p', nevent: 'e'}[type],
-          u_or_n: {npub: 'u', note: 'n', nprofile: 'u', nevent: 'n'}[type],
+                ? data.pubkey
+                : type === 'nevent'
+                  ? data.id
+                  : null,
+          p_or_e: { npub: 'p', note: 'e', nprofile: 'p', nevent: 'e' }[type],
+          u_or_n: { npub: 'u', note: 'n', nprofile: 'u', nevent: 'n' }[type],
           relay0: type === 'nprofile' ? data.relays[0] : null,
           relay1: type === 'nprofile' ? data.relays[1] : null,
           relay2: type === 'nprofile' ? data.relays[2] : null
@@ -135,7 +114,7 @@ async function handleContentScriptMessage({type, params, host}) {
       releasePromptMutex()
       showNotification(host, allowed, type, params)
       return {
-        error: {message: 'denied'}
+        error: { message: 'denied' }
       }
     } else {
       // ask for authorization
@@ -151,10 +130,10 @@ async function handleContentScriptMessage({type, params, host}) {
           qs.set('result', finalResult)
         }
         // center prompt
-        const {top, left} = await getPosition(width, height)
+        const { top, left } = await getPosition(width, height)
         // prompt will be resolved with true or false
         let accept = await new Promise((resolve, reject) => {
-          openPrompt = {resolve, reject}
+          openPrompt = { resolve, reject }
 
           browser.windows.create({
             url: `${browser.runtime.getURL('prompt.html')}?${qs.toString()}`,
@@ -167,12 +146,12 @@ async function handleContentScriptMessage({type, params, host}) {
         })
 
         // denied, stop here
-        if (!accept) return {error: {message: 'denied'}}
+        if (!accept) return { error: { message: 'denied' } }
       } catch (err) {
         // errored, stop here
         releasePromptMutex()
         return {
-          error: {message: err.message, stack: err.stack}
+          error: { message: err.message, stack: err.stack }
         }
       }
     }
@@ -183,50 +162,46 @@ async function handleContentScriptMessage({type, params, host}) {
 }
 
 async function performOperation(type, params) {
-  let results = await browser.storage.local.get('private_key')
-  if (!results || !results.private_key) {
-    return {error: {message: 'no private key found'}}
-  }
-
-  let sk = results.private_key
+  console.log(1)
+  const signer = global.signer;
+  console.log(signer)
+  console.log(2)
   try {
     switch (type) {
       case 'getPublicKey': {
-        return getPublicKey(sk)
+        console.log("fetch Pubkey")
+        const pubKey = await signer.getPublicKey();
+        console.log(pubKey)
+        return pubKey;
       }
       case 'signEvent': {
-        const event = finalizeEvent(params.event, sk)
-        return validateEvent(event)
-          ? event
-          : {error: {message: 'invalid event'}}
+        const signedEvent = await signer.signEvent(params.event)
+        console.log(signedEvent)
+        return signedEvent;
       }
       case 'nip04.encrypt': {
-        let {peer, plaintext} = params
-        return nip04.encrypt(sk, peer, plaintext)
+        let { peer, plaintext } = params
+        return await signer.nip04Encrypt(peer, plaintext)
       }
       case 'nip04.decrypt': {
-        let {peer, ciphertext} = params
-        return nip04.decrypt(sk, peer, ciphertext)
+        let { peer, ciphertext } = params
+        return await signer.nip04Decrypt(peer, ciphertext)
       }
       case 'nip44.encrypt': {
-        const {peer, plaintext} = params
-        const key = getSharedSecret(sk, peer)
-
-        return nip44.v2.encrypt(plaintext, key)
+        const { peer, plaintext } = params
+        return await signer.nip44Encrypt(peer, plaintext)
       }
       case 'nip44.decrypt': {
-        const {peer, ciphertext} = params
-        const key = getSharedSecret(sk, peer)
-
-        return nip44.v2.decrypt(ciphertext, key)
+        const { peer, ciphertext } = params
+        return await signer.nip44Decrypt(peer, ciphertext)
       }
     }
   } catch (error) {
-    return {error: {message: error.message, stack: error.stack}}
+    return { error: { message: error.message, stack: error.stack } }
   }
 }
 
-async function handlePromptMessage({host, type, accept, conditions}, sender) {
+async function handlePromptMessage({ host, type, accept, conditions }, sender) {
   // return response
   openPrompt?.resolve?.(accept)
 
@@ -248,7 +223,7 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
 }
 
 async function openSignUpWindow() {
-  const {top, left} = await getPosition(width, height)
+  const { top, left } = await getPosition(width, height)
 
   browser.windows.create({
     url: `${browser.runtime.getURL('signup.html')}`,
@@ -259,3 +234,6 @@ async function openSignUpWindow() {
     left: left
   })
 }
+
+loadBunkerConnection()
+// deleteBunkerConnection()

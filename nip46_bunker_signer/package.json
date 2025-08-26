@@ -1,0 +1,8 @@
+{
+  "name": "nip46-bunker-client",
+  "type": "module",
+  "main": "src/index.js",
+  "dependencies": {
+    "nostr-tools": "^2.16.2"
+  }
+}
