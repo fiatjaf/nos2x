@@ -9,7 +9,7 @@ import {
   showNotification,
   getPosition
 } from './common'
-import { deleteBunkerConnection, loadBunkerConnection } from './bunker-provider'
+import { loadBunkerConnection } from './bunker-provider'
 
 let openPrompt = null
 let promptMutex = new Mutex()

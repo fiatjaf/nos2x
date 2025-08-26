@@ -57,8 +57,6 @@ export async function createBunkerSession() {
         local_privkey: client.clientPrivkey,
     });
 
-    const localStorage = await browser.storage.local.get()
-
     // Set global signer to make it available
     global.signer = client;
 
