@@ -77,6 +77,11 @@ async function handleContentScriptMessage({type, params, host}) {
   if (NO_PERMISSIONS_REQUIRED[type]) {
     // authorized, and we won't do anything with private key here, so do a separate handler
     switch (type) {
+      case 'peekPublicKey': {
+        let allowed = await getPermissionStatus(host, 'getPublicKey')
+        if (allowed === true) return performOperation('getPublicKey', params)
+        return ''
+      }
       case 'replaceURL': {
         let {protocol_handler: ph} = await browser.storage.local.get([
           'protocol_handler'

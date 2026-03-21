@@ -8,6 +8,10 @@ window.nostr = {
     return this._pubkey
   },
 
+  async peekPublicKey() {
+    return this._call('peekPublicKey', {})
+  },
+
   async signEvent(event) {
     return this._call('signEvent', {event})
   },

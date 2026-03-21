@@ -1,7 +1,8 @@
 import browser from 'webextension-polyfill'
 
 export const NO_PERMISSIONS_REQUIRED = {
-  replaceURL: true
+  replaceURL: true,
+  peekPublicKey: true
 }
 
 export const PERMISSION_NAMES = Object.fromEntries([
