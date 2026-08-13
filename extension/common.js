@@ -23,7 +23,32 @@ function matchConditions(conditions, event) {
   return true
 }
 
-export async function getPermissionStatus(host, type, event) {
+function matchDecryptPlatforms(conditions, platforms) {
+  if (conditions?.platforms) {
+    if (!platforms || !platforms.length) return false
+    return platforms.every(platform =>
+      conditions.platforms.includes(platform)
+    )
+  }
+
+  return true
+}
+
+export function getPermissionName(type, params) {
+  if (type === 'nip44.decrypt') {
+    let platforms = params?.platforms
+    if (Array.isArray(platforms) && platforms.length > 0) {
+      return `decrypt events for ${
+        platforms.length === 1 ? 'platform' : 'platforms'
+      }: ${platforms.map(platform => JSON.stringify(platform)).join(', ')}`
+    }
+    return 'decrypt all of your messages'
+  }
+
+  return PERMISSION_NAMES[type]
+}
+
+export async function getPermissionStatus(host, type, event, platforms) {
   let {policies} = await browser.storage.local.get('policies')
 
   let answers = [true, false]
@@ -38,6 +63,12 @@ export async function getPermissionStatus(host, type, event) {
         } else {
           // if this doesn't match we just continue so it will either match for the opposite answer (reject)
           // or it will end up returning undefined at the end
+          continue
+        }
+      } else if (type === 'nip44.decrypt') {
+        if (matchDecryptPlatforms(conditions, platforms)) {
+          return accept
+        } else {
           continue
         }
       } else {
@@ -63,6 +94,18 @@ export async function updatePermission(host, type, accept, conditions) {
         Object.keys(existingConditions.kinds).forEach(kind => {
           conditions.kinds[kind] = true
         })
+      }
+      if (existingConditions.platforms && conditions.platforms) {
+        existingConditions.platforms.forEach(platform => {
+          if (!conditions.platforms.includes(platform)) {
+            conditions.platforms.push(platform)
+          }
+        })
+        if (conditions.platforms.length > 50) {
+          // storing up to 50 platforms is more than enough
+          console.warn('platforms list is too long, truncating to 50')
+          conditions.platforms = conditions.platforms.slice(-50)
+        }
       }
     }
   }

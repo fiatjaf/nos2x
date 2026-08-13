@@ -329,7 +329,9 @@ function Options() {
                       <td>
                         {conditions.kinds
                           ? `kinds: ${Object.keys(conditions.kinds).join(', ')}`
-                          : 'always'}
+                          : conditions.platforms
+                            ? `platforms: ${conditions.platforms.map(platform => JSON.stringify(platform)).join(', ')}`
+                            : 'always'}
                       </td>
                       <td>
                         {new Date(created_at * 1000)

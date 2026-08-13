@@ -125,10 +125,16 @@ async function handleContentScriptMessage({type, params, host}) {
     // do the operation before asking (because we'll show the encryption/decryption results in the popup
     const finalResult = await performOperation(type, params)
 
+    if (finalResult?.error?.code === 'nip44-decrypt-guard') {
+      releasePromptMutex()
+      return {error: {message: finalResult.error.message}}
+    }
+
     let allowed = await getPermissionStatus(
       host,
       type,
-      type === 'signEvent' ? params.event : undefined
+      type === 'signEvent' ? params.event : undefined,
+      type === 'nip44.decrypt' ? params.platforms : undefined
     )
 
     if (allowed === true) {
@@ -182,9 +188,55 @@ async function handleContentScriptMessage({type, params, host}) {
       }
     }
 
+    if (
+      type === 'nip44.decrypt' &&
+      params.platforms &&
+      typeof finalResult === 'string'
+    ) {
+      try {
+        assertDecryptedMatchesPlatforms(finalResult, params.platforms)
+      } catch (err) {
+        return {error: {message: err.message}}
+      }
+    }
+
     // the call was authorized, so we just return the result we had from before
     return finalResult
   }
+}
+
+function assertDecryptedMatchesPlatforms(plaintext, platforms) {
+  const mismatch = new Error(
+    'website is trying to decrypt a message from a different platform'
+  )
+  let parsed
+  try {
+    parsed = JSON.parse(plaintext)
+  } catch (_) {
+    throw mismatch
+  }
+  if (
+    typeof parsed !== 'object' ||
+    parsed === null ||
+    Array.isArray(parsed) ||
+    !Object.prototype.hasOwnProperty.call(parsed, 'tags') ||
+    !Array.isArray(parsed.tags)
+  ) {
+    throw mismatch
+  }
+  if (
+    !parsed.tags.every(
+      tag => Array.isArray(tag) && tag.every(item => typeof item === 'string')
+    )
+  ) {
+    throw mismatch
+  }
+  let matches = parsed.tags.some(
+    tag =>
+      tag[0] === 'platforms' &&
+      tag.slice(1).some(item => platforms.includes(item))
+  )
+  if (!matches) throw mismatch
 }
 
 async function performOperation(type, params) {
@@ -220,9 +272,37 @@ async function performOperation(type, params) {
         return nip44.v2.encrypt(plaintext, key)
       }
       case 'nip44.decrypt': {
-        const {peer, ciphertext} = params
+        const {peer, ciphertext, platforms} = params
+        if (platforms !== undefined) {
+          if (
+            !Array.isArray(platforms) ||
+            !platforms.every(p => typeof p === 'string')
+          ) {
+            return {
+              error: {
+                message: 'platforms must be an array of strings',
+                code: 'nip44-decrypt-guard'
+              }
+            }
+          }
+          if (platforms.length === 0) {
+            return {
+              error: {
+                message: 'platforms must not be empty',
+                code: 'nip44-decrypt-guard'
+              }
+            }
+          }
+          if (platforms.length > 20 || platforms.reduce((acc, p) => acc + p.length, 0) > 1000) {
+            return {
+              error: {
+                message: 'platforms must be less than 20 and the total length of the platforms must be less than 1000',
+                code: 'nip44-decrypt-guard'
+              }
+            }
+          }
+        }
         const key = getSharedSecret(sk, peer)
-
         return nip44.v2.decrypt(ciphertext, key)
       }
     }

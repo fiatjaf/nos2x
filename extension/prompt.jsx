@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill'
 import {createRoot} from 'react-dom/client'
 import React from 'react'
 
-import {PERMISSION_NAMES} from './common'
+import {getPermissionName} from './common'
 
 function Prompt() {
   let qs = new URLSearchParams(location.search)
@@ -19,13 +19,22 @@ function Prompt() {
     params = null
   }
 
+  let platforms =
+    type === 'nip44.decrypt' && Array.isArray(params?.platforms)
+      ? params.platforms
+      : null
+  let platformConditions = platforms?.length
+    ? {platforms}
+    : null
+
   return (
     <>
       <b style={{display: 'block', textAlign: 'center', fontSize: '200%'}}>
         {host}
       </b>{' '}
       <p style={{margin: 0}}>
-        is requesting your permission to <b>{PERMISSION_NAMES[type]}:</b>
+        is requesting your permission to{' '}
+        <b>{getPermissionName(type, params)}:</b>
       </p>
       {params && (
         <div style={{width: '100%', maxHeight: '200px', overflowY: 'scroll'}}>
@@ -63,7 +72,7 @@ function Prompt() {
             gap: '0.5rem'
           }}
         >
-          {event?.kind === undefined && (
+          {event?.kind === undefined && !platformConditions && (
             <button
               style={{marginTop: '5px'}}
               onClick={authorizeHandler(
@@ -83,6 +92,15 @@ function Prompt() {
               )}
             >
               authorize kind {event.kind} forever
+            </button>
+          )}
+          {platformConditions && (
+            <button
+              style={{marginTop: '5px'}}
+              onClick={authorizeHandler(true, platformConditions)}
+            >
+              authorize {platforms.length === 1 ? 'platform' : 'platforms'}{' '}
+              {platforms.map(platform => JSON.stringify(platform)).join(', ')} forever
             </button>
           )}
           <button style={{marginTop: '5px'}} onClick={authorizeHandler(true)}>
@@ -106,6 +124,14 @@ function Prompt() {
               )}
             >
               reject kind {event.kind} forever
+            </button>
+          ) : platformConditions ? (
+            <button
+              style={{marginTop: '5px'}}
+              onClick={authorizeHandler(false, platformConditions)}
+            >
+              reject {platforms.length === 1 ? 'platform' : 'platforms'}{' '}
+              {platforms.map(platform => JSON.stringify(platform)).join(', ')} forever
             </button>
           ) : (
             <button

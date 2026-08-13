@@ -35,8 +35,8 @@ window.nostr = {
       return window.nostr._call('nip44.encrypt', {peer, plaintext})
     },
 
-    async decrypt(peer, ciphertext) {
-      return window.nostr._call('nip44.decrypt', {peer, ciphertext})
+    async decrypt(peer, ciphertext, options) {
+      return window.nostr._call('nip44.decrypt', {peer, ciphertext, platforms: options?.platforms})
     }
   },
 
