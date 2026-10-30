@@ -1,4 +1,4 @@
-import {bytesToHex, hexToBytes} from '@noble/hashes/utils'
+import {bytesToHex, hexToBytes} from '@noble/hashes/utils.js'
 import {getPublicKey} from 'nostr-tools'
 import * as nip19 from 'nostr-tools/nip19'
 import {decrypt, encrypt} from 'nostr-tools/nip49'
