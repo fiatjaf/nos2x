@@ -3,6 +3,7 @@ import {validateEvent, finalizeEvent, getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
 import * as nip04 from 'nostr-tools/nip04'
 import * as nip44 from 'nostr-tools/nip44'
+import {hexToBytes} from '@noble/hashes/utils.js'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
 
@@ -30,7 +31,7 @@ function getSharedSecret(sk, peer) {
   let key = secretsCache.get(peer)
 
   if (!key) {
-    key = nip44.v2.utils.getConversationKey(sk, peer)
+    key = nip44.v2.utils.getConversationKey(hexToBytes(sk), peer)
     secretsCache.set(peer, key)
   }
 
@@ -195,21 +196,21 @@ async function performOperation(type, params) {
   try {
     switch (type) {
       case 'getPublicKey': {
-        return getPublicKey(sk)
+        return getPublicKey(hexToBytes(sk))
       }
       case 'signEvent': {
-        const event = finalizeEvent(params.event, sk)
+        const event = finalizeEvent(params.event, hexToBytes(sk))
         return validateEvent(event)
           ? event
           : {error: {message: 'invalid event'}}
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
-        return nip04.encrypt(sk, peer, plaintext)
+        return nip04.encrypt(hexToBytes(sk), peer, plaintext)
       }
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
-        return nip04.decrypt(sk, peer, ciphertext)
+        return nip04.decrypt(hexToBytes(sk), peer, ciphertext)
       }
       case 'nip44.encrypt': {
         const {peer, plaintext} = params
