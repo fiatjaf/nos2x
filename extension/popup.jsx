@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill'
 import {createRoot} from 'react-dom/client'
+import {hexToBytes} from '@noble/hashes/utils.js'
 import {getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
 import React, {useState, useRef, useEffect} from 'react'
@@ -13,7 +14,7 @@ function Popup() {
   useEffect(() => {
     browser.storage.local.get(['private_key', 'relays']).then(results => {
       if (results.private_key) {
-        let hexKey = getPublicKey(results.private_key)
+        let hexKey = getPublicKey(hexToBytes(results.private_key))
         let npubKey = nip19.npubEncode(hexKey)
 
         setPubKey(npubKey)
@@ -95,6 +96,7 @@ function Popup() {
 
   function toggleKeyType(e) {
     e.preventDefault()
+    if (!keys.current.length) return
     let nextKeyType =
       keys.current[(keys.current.indexOf(pubKey) + 1) % keys.current.length]
     setPubKey(nextKeyType)

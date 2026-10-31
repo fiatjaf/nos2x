@@ -41,7 +41,11 @@ window.nostr = {
   },
 
   _call(type, params) {
-    let id = Math.random().toString().slice(-4)
+    // randomUUID is only available in secure contexts, fall back elsewhere
+    let id =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : Date.now().toString(36) + Math.random().toString(36).slice(2, 10)
     console.log(
       '%c[nos2x:%c' +
         id +
@@ -73,16 +77,18 @@ window.nostr = {
 }
 
 window.addEventListener('message', message => {
+  // check that the response key is present, not that its value is
+  // non-nullish, so operations legitimately returning null/false/''
+  // still resolve their pending request instead of hanging forever
   if (
     !message.data ||
-    message.data.response === null ||
-    message.data.response === undefined ||
     message.data.ext !== 'nos2x' ||
+    !('response' in message.data) ||
     !window.nostr._requests[message.data.id]
   )
     return
 
-  if (message.data.response.error) {
+  if (message.data.response?.error) {
     let error = new Error('nos2x: ' + message.data.response.error.message)
     error.stack = message.data.response.error.stack
     window.nostr._requests[message.data.id].reject(error)

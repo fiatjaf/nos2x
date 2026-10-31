@@ -3,11 +3,13 @@ import {validateEvent, finalizeEvent, getPublicKey} from 'nostr-tools/pure'
 import * as nip19 from 'nostr-tools/nip19'
 import * as nip04 from 'nostr-tools/nip04'
 import * as nip44 from 'nostr-tools/nip44'
+import {hexToBytes} from '@noble/hashes/utils.js'
 import {Mutex} from 'async-mutex'
 import {LRUCache} from './utils'
 
 import {
   NO_PERMISSIONS_REQUIRED,
+  PERMISSION_NAMES,
   getPermissionStatus,
   updatePermission,
   showNotification,
@@ -29,7 +31,7 @@ function getSharedSecret(sk, peer) {
   let key = secretsCache.get(peer)
 
   if (!key) {
-    key = nip44.v2.utils.getConversationKey(sk, peer)
+    key = nip44.v2.utils.getConversationKey(hexToBytes(sk), peer)
     secretsCache.set(peer, key)
   }
 
@@ -45,16 +47,10 @@ browser.runtime.onInstalled.addListener((_, __, reason) => {
 })
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
-  if (message.openSignUp) {
-    openSignUpWindow()
-    browser.windows.remove(sender.tab.windowId)
+  if (message.prompt) {
+    handlePromptMessage(message, sender)
   } else {
-    let {prompt} = message
-    if (prompt) {
-      handlePromptMessage(message, sender)
-    } else {
-      return handleContentScriptMessage(message)
-    }
+    return handleContentScriptMessage(message)
   }
 })
 
@@ -115,9 +111,12 @@ async function handleContentScriptMessage({type, params, host}) {
 
         return result
       }
-    }
 
-    return
+      return {error: {message: `unknown operation: ${type}`}}
+    }
+  } else if (!PERMISSION_NAMES[type]) {
+    // never open a prompt or acquire the mutex for operations we don't know
+    return {error: {message: `unknown operation: ${type}`}}
   } else {
     // acquire mutex here before reading policies
     releasePromptMutex = await promptMutex.acquire()
@@ -197,21 +196,21 @@ async function performOperation(type, params) {
   try {
     switch (type) {
       case 'getPublicKey': {
-        return getPublicKey(sk)
+        return getPublicKey(hexToBytes(sk))
       }
       case 'signEvent': {
-        const event = finalizeEvent(params.event, sk)
+        const event = finalizeEvent(params.event, hexToBytes(sk))
         return validateEvent(event)
           ? event
           : {error: {message: 'invalid event'}}
       }
       case 'nip04.encrypt': {
         let {peer, plaintext} = params
-        return nip04.encrypt(sk, peer, plaintext)
+        return nip04.encrypt(hexToBytes(sk), peer, plaintext)
       }
       case 'nip04.decrypt': {
         let {peer, ciphertext} = params
-        return nip04.decrypt(sk, peer, ciphertext)
+        return nip04.decrypt(hexToBytes(sk), peer, ciphertext)
       }
       case 'nip44.encrypt': {
         const {peer, plaintext} = params
@@ -250,17 +249,4 @@ async function handlePromptMessage({host, type, accept, conditions}, sender) {
   if (sender) {
     browser.windows.remove(sender.tab.windowId)
   }
-}
-
-async function openSignUpWindow() {
-  const {top, left} = await getPosition(width, height)
-
-  browser.windows.create({
-    url: `${browser.runtime.getURL('signup.html')}`,
-    type: 'popup',
-    width: width,
-    height: height,
-    top: top,
-    left: left
-  })
 }

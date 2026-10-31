@@ -1,8 +1,9 @@
 export class LRUCache {
   constructor(maxSize) {
     this.maxSize = maxSize
+    // insertion order doubles as recency order: re-inserting on get()
+    // keeps the oldest-used entry at the front for eviction
     this.map = new Map()
-    this.keys = []
   }
 
   clear() {
@@ -14,25 +15,23 @@ export class LRUCache {
   }
 
   get(k) {
+    if (!this.map.has(k)) return undefined
+
     const v = this.map.get(k)
-
-    if (v !== undefined) {
-      this.keys.push(k)
-
-      if (this.keys.length > this.maxSize * 2) {
-        this.keys.splice(-this.maxSize)
-      }
-    }
+    // re-insert to mark this key as the most recently used
+    this.map.delete(k)
+    this.map.set(k, v)
 
     return v
   }
 
   set(k, v) {
+    if (this.map.has(k)) this.map.delete(k)
     this.map.set(k, v)
-    this.keys.push(k)
 
     if (this.map.size > this.maxSize) {
-      this.map.delete(this.keys.shift())
+      // evict the least recently used entry (front of insertion order)
+      this.map.delete(this.map.keys().next().value)
     }
   }
 }
