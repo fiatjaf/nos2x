@@ -106,5 +106,8 @@ public/         icons and _locales for the store listing
 
 ## License
 
-Proprietary. See [LICENSE](LICENSE). This project started as a fork of
+Business Source License 1.1, see [LICENSE](LICENSE). The source is public: you may read,
+modify and redistribute it for non-production use, and use the extension in production only to
+sign in to AI design services operated by Cadbos company. On 2030-07-01 it becomes available under
+the GNU GPL version 3.0 or later. This project started as a fork of
 [nos2x](https://github.com/fiatjaf/nos2x) (public domain) and has since been rewritten.

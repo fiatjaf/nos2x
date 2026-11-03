@@ -1,34 +1,18 @@
-Cadbos Interior Design AI Business Source License 1.1
+AI Design Singer Business Source License 1.1
 
 Copyright (c) 2026 Cadbos company. All rights reserved.
 
 Licensor: Cadbos company
-Licensed Work: Cadbos Interior Design AI, including all source code,
-documentation, configuration, assets, tests, scripts, and other materials in
-this repository, excluding third-party dependencies and materials that carry
-their own license notices.
+Licensed Work: AI Design Singer, the browser extension in this repository,
+including all source code, documentation, configuration, assets, tests,
+scripts, and other materials in this repository, excluding third-party
+dependencies and materials that carry their own license notices.
 Contact Email:
-Additional Use Grant: None.
+Additional Use Grant: You may make production use of the Licensed Work only to
+sign in to AI design services operated by the Licensor, including installing
+and using the extension as published by the Licensor for that purpose.
 Change Date: 2030-07-01
 Change License: GNU General Public License version 3.0 or later.
-
-Project-Specific Terms
-
-Before the Change Date, access to the Licensed Work is temporary and limited to
-automated analysis tools solely for automated analysis of this repository. The
-Licensed Work is not open for contribution or usage except under a separate
-written agreement with the Licensor.
-
-Commercial Usage Restriction
-
-Before the Change Date, commercial usage of the Licensed Work is prohibited in
-Interior Design & AEC Generative AI Services. Interior Design & AEC Generative
-AI Services means products, services, platforms, APIs, hosted offerings,
-embedded offerings, workflows, or tools that use generative AI to create,
-modify, analyze, visualize, recommend, automate, render, or otherwise support
-interior design, architecture, engineering, construction, real estate
-visualization, space planning, furnishing, materials selection, staging,
-renovation, or related design outputs.
 
 Contribution Restriction
 
