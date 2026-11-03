@@ -23,19 +23,28 @@ class AccountState {
 		this.status && this.status.state !== 'none' ? npubEncode(this.status.pubkey) : null
 	);
 
+	#latestRefresh = 0;
+
+	// Listening starts before the first read, so a change during it still
+	// triggers a later refresh.
 	async load(): Promise<void> {
-		await this.refresh();
 		chrome.storage.onChanged.addListener((_, area) => {
 			if (area !== 'local' && area !== 'session') return;
 			this.refresh().catch((error: unknown) =>
 				console.error('Refreshing the account state failed:', error)
 			);
 		});
+		await this.refresh();
 	}
 
+	// One storage update can fire several changes in a row; only the refresh
+	// started last may write, so a slower earlier read never wins.
 	async refresh(): Promise<void> {
+		const request = ++this.#latestRefresh;
 		const status = await accountStatus();
-		this.approvedOrigins = status.state === 'none' ? [] : await approvedOrigins(status.pubkey);
+		const origins = status.state === 'none' ? [] : await approvedOrigins(status.pubkey);
+		if (request !== this.#latestRefresh) return;
+		this.approvedOrigins = origins;
 		this.status = status;
 	}
 }

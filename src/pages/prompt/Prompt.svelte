@@ -22,9 +22,12 @@ Cadbos company. See LICENSE for complete terms.
 
 	let { promptId, details }: Props = $props();
 
+	let expired = $state(false);
+
 	async function answer(approved: boolean, password?: string): Promise<PromptAnswerResponse> {
+		let response: PromptAnswerResponse;
 		try {
-			return await chrome.runtime.sendMessage<PromptMessage, PromptAnswerResponse>({
+			response = await chrome.runtime.sendMessage<PromptMessage, PromptAnswerResponse>({
 				kind: 'prompt:answer',
 				promptId,
 				approved,
@@ -32,13 +35,17 @@ Cadbos company. See LICENSE for complete terms.
 			});
 		} catch (error) {
 			console.error('Sending the prompt answer failed:', error);
-			return { ok: true };
+			response = { ok: false, error: 'expired' };
 		}
+		if (!response.ok && response.error === 'expired') expired = true;
+		return response;
 	}
 </script>
 
 <PageShell>
-	{#if details?.kind === 'connect'}
+	{#if expired}
+		{@render expiredNotice()}
+	{:else if details?.kind === 'connect'}
 		<ConnectPrompt
 			origin={details.origin}
 			approve={details.approve}
@@ -48,11 +55,15 @@ Cadbos company. See LICENSE for complete terms.
 	{:else if details?.kind === 'import'}
 		<ImportPrompt origin={details.origin} pubkey={details.pubkey} onanswer={answer} />
 	{:else}
-		<div class="stack">
-			<p class="muted">{t('prompt.expired')}</p>
-			<button type="button" class="button secondary" onclick={() => window.close()}>
-				{t('common.close')}
-			</button>
-		</div>
+		{@render expiredNotice()}
 	{/if}
 </PageShell>
+
+{#snippet expiredNotice()}
+	<div class="stack">
+		<p class="muted">{t('prompt.expired')}</p>
+		<button type="button" class="button secondary" onclick={() => window.close()}>
+			{t('common.close')}
+		</button>
+	</div>
+{/snippet}

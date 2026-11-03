@@ -120,9 +120,11 @@ async function dispatch(
 			if (checkLoginEvent(event, origin, Math.floor(Date.now() / 1000))) {
 				throw new SignerError('invalid_event');
 			}
-			await ensureReady(origin);
+			const pubkey = await ensureReady(origin);
+			// The key may have been replaced since the readiness check; only the
+			// approved account signs for this origin.
 			const secretKey = await signingKey();
-			if (!secretKey) throw new SignerError('locked');
+			if (!secretKey || getPublicKey(secretKey) !== pubkey) throw new SignerError('locked');
 			return finalizeEvent(event, secretKey);
 		}
 		default:

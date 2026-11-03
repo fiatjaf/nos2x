@@ -75,7 +75,10 @@ export type PromptMessage =
 	| { kind: 'prompt:details'; promptId: string }
 	| { kind: 'prompt:answer'; promptId: string; approved: boolean; password?: string };
 
-export type PromptAnswerResponse = { ok: true } | { ok: false; error: 'wrong_password' };
+// `expired` means the service worker no longer knows the prompt, for example
+// after Chrome stopped it while the window stayed open.
+export type PromptAnswerResponse =
+	{ ok: true } | { ok: false; error: 'wrong_password' | 'expired' };
 
 // Service worker → an already open onboarding tab.
 export interface OnboardingMessage {

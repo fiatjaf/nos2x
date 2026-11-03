@@ -36,7 +36,7 @@ export async function answerPrompt(
 	password: string | undefined
 ): Promise<PromptAnswerResponse> {
 	const prompt = pending.get(promptId);
-	if (!prompt) return { ok: true };
+	if (!prompt) return { ok: false, error: 'expired' };
 	if (!approved) {
 		finish(promptId, false, true);
 		return { ok: true };
