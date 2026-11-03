@@ -1,19 +1,32 @@
 {
-  "license": "WTFPL",
-  "dependencies": {
-    "async-mutex": "^0.3.2",
-    "esbuild": "^0.25.0",
-    "eslint": "^8.6.0",
-    "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-react": "^7.28.0",
-    "events": "^3.3.0",
-    "nostr-tools": "^2.12.0",
-    "prettier": "^2.5.1",
-    "qrcode-parser": "^2.1.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-qr-code": "^2.0.11",
-    "use-debounce": "^7.0.1",
-    "webextension-polyfill": "^0.8.0"
-  }
+	"name": "ai_design-signer",
+	"version": "0.1.0",
+	"private": true,
+	"license": "SEE LICENSE IN LICENSE",
+	"type": "module",
+	"packageManager": "pnpm@10.18.0",
+	"scripts": {
+		"dev": "vite build --watch --mode development",
+		"build": "vite build",
+		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"format": "prettier --write .",
+		"lint": "prettier --check .",
+		"test": "pnpm check && pnpm lint && vitest run"
+	},
+	"dependencies": {
+		"@lucide/svelte": "^1.23.0",
+		"nostr-tools": "^2.23.8"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@types/chrome": "^0.3.7",
+		"@types/node": "^22",
+		"prettier": "^3.8.3",
+		"prettier-plugin-svelte": "^4.1.0",
+		"svelte": "^5.56.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.0.16",
+		"vitest": "^4.1.8"
+	}
 }

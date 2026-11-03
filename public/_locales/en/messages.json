@@ -1,0 +1,14 @@
+{
+	"extName": {
+		"message": "AI Design Singer",
+		"description": "Extension name in the browser and the Chrome Web Store."
+	},
+	"extShortName": {
+		"message": "AI Design Singer",
+		"description": "Short extension name."
+	},
+	"extDescription": {
+		"message": "Sign in to AI design with your Nostr keys. The secret key stays in your browser.",
+		"description": "Extension description in the browser and the Chrome Web Store."
+	}
+}

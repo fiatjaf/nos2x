@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"target": "ES2023",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+		"types": ["chrome", "node", "svelte", "vite/client"],
+		"strict": true,
+		"noEmit": true,
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	// Own every file under the project root so the TypeScript "project ownership"
+	// resolver never walks above the repository looking for a matching tsconfig.
+	"include": ["src/**/*.ts", "src/**/*.svelte", "*.ts"],
+	"exclude": ["node_modules/**", "dist/**"]
+}
