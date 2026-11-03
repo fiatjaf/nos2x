@@ -9,7 +9,7 @@
  */
 
 import type { PromptAnswerResponse, PromptDetails } from '../lib/protocol';
-import { accountStatus, saveAccount, unlock } from '../lib/keystore';
+import { addAccount, unlock } from '../lib/keystore';
 import { approve } from '../lib/approvals';
 
 const WIDTH = 400;
@@ -44,11 +44,11 @@ export async function answerPrompt(
 	const { details } = prompt;
 	if (details.kind === 'import') {
 		// Onboarding may have saved another key while this prompt was open.
-		if (!prompt.secretKey || (await accountStatus()).state !== 'none') {
+		const saved = prompt.secretKey && (await addAccount(prompt.secretKey, password || undefined));
+		if (!saved) {
 			finish(promptId, false, true);
 			return { ok: true };
 		}
-		await saveAccount(prompt.secretKey, password || undefined);
 		await approve(prompt.pubkey, details.origin);
 	} else {
 		if (details.unlock && (await unlock(password ?? '')) === 'wrong_password') {

@@ -11,7 +11,7 @@ Cadbos company. See LICENSE for complete terms.
 <script lang="ts">
 	import PageShell from '../../lib/ui/PageShell.svelte';
 	import { account } from '../../lib/state/account.svelte';
-	import { accountStatus, saveAccount } from '../../lib/keystore';
+	import { addAccount } from '../../lib/keystore';
 	import { approve } from '../../lib/approvals';
 	import WelcomeStep from './WelcomeStep.svelte';
 	import ImportStep from './ImportStep.svelte';
@@ -39,12 +39,10 @@ Cadbos company. See LICENSE for complete terms.
 	async function save(key: Uint8Array, password: string | null): Promise<void> {
 		// AI design may have saved a key through its own prompt while onboarding
 		// was open; that key is kept, never replaced from here.
-		if ((await accountStatus()).state === 'none') {
-			const pubkey = await saveAccount(key, password ?? undefined);
-			// The user came here from this AI design page to sign in, so signing in
-			// there right after onboarding needs no extra confirmation.
-			if (returnOrigin.value) await approve(pubkey, returnOrigin.value);
-		}
+		const pubkey = await addAccount(key, password ?? undefined);
+		// The user came here from this AI design page to sign in, so signing in
+		// there right after onboarding needs no extra confirmation.
+		if (pubkey && returnOrigin.value) await approve(pubkey, returnOrigin.value);
 		secretKey = null;
 		step = 'done';
 	}

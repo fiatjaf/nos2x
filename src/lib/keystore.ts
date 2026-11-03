@@ -83,6 +83,16 @@ export async function saveAccount(secretKey: Uint8Array, password?: string): Pro
 	return pubkey;
 }
 
+// Saves the key only when no account exists yet, and returns null otherwise.
+// Onboarding and the service worker's import prompt can both add a key; the
+// Web Lock spans every extension context, so one of them never overwrites the
+// key the other has just saved.
+export async function addAccount(secretKey: Uint8Array, password?: string): Promise<string | null> {
+	return navigator.locks.request('account', async () =>
+		(await readAccount()) ? null : saveAccount(secretKey, password)
+	);
+}
+
 export async function unlock(password: string): Promise<UnlockResult> {
 	const account = await readAccount();
 	if (!account) throw new Error('No account to unlock');

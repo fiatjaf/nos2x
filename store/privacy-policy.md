@@ -25,11 +25,13 @@ storage until you lock it or restart the browser.
 
 **What the extension sends.** When you sign in to AI design, the extension gives the AI design
 page your public key and a signed login event (NIP-98). The AI design server uses them to verify
-the sign-in and create your session. Your secret key and your password are never sent anywhere,
-to us or to anyone else, and are never shown to web pages.
+the sign-in and create your session. Your saved secret key and your password are never sent
+anywhere, to us or to anyone else, and are never shown to web pages. When you create an account in
+AI design with the extension installed, the AI design page that generated the key hands it to the
+extension after you approve saving it.
 
-**Where the extension works.** The extension only runs on AI design sites (cadbos.com and its
-subdomains, and AI design preview deployments) and only signs AI design login events.
+**Where the extension works.** The extension only runs on AI design sites (subdomains of cadbos.com
+and AI design preview deployments) and only signs AI design login events.
 
 **What we do not do.** The extension has no analytics or tracking. We do not sell or share data
 with third parties, and we do not use data for any purpose other than signing you in to AI design.
@@ -66,10 +68,12 @@ AI Design Singer («расширение») — расширение для бр
 
 **Что отправляет расширение.** При входе в ИИ дизайн расширение передаёт странице ИИ дизайн ваш
 публичный ключ и подписанное событие входа (NIP-98). Сервер ИИ дизайн использует их, чтобы
-проверить вход и создать сессию. Секретный ключ и пароль никуда не отправляются — ни нам, ни
-кому-либо ещё — и не передаются веб-страницам.
+проверить вход и создать сессию. Сохранённый секретный ключ и пароль никуда не отправляются — ни
+нам, ни кому-либо ещё — и не передаются веб-страницам. Если вы создаёте аккаунт в ИИ дизайн с
+установленным расширением, страница ИИ дизайн, создавшая ключ, передаёт его расширению после того,
+как вы подтвердите сохранение.
 
-**Где работает расширение.** Только на сайтах ИИ дизайн (cadbos.com и его поддомены, а также
+**Где работает расширение.** Только на сайтах ИИ дизайн (поддомены cadbos.com, а также
 предварительные версии ИИ дизайн) и подписывает только события входа в ИИ дизайн.
 
 **Чего мы не делаем.** В расширении нет аналитики и отслеживания. Мы не продаём и не передаём

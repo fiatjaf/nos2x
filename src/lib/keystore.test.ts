@@ -8,11 +8,12 @@
  * Cadbos company. See LICENSE for complete terms.
  */
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure';
 import { stubChromeStorage } from '../test/chrome-storage';
 import {
 	accountStatus,
+	addAccount,
 	lock,
 	removeAccount,
 	saveAccount,
@@ -25,6 +26,17 @@ let storage: ReturnType<typeof stubChromeStorage>;
 
 beforeEach(() => {
 	storage = stubChromeStorage();
+	// Node has no Web Locks; requests for one name run one after another.
+	let queue: Promise<unknown> = Promise.resolve();
+	vi.stubGlobal('navigator', {
+		locks: {
+			request: (_name: string, task: () => Promise<unknown>) => {
+				const run = queue.then(task);
+				queue = run.catch(() => undefined);
+				return run;
+			}
+		}
+	});
 });
 
 describe('keystore', () => {
@@ -86,5 +98,12 @@ describe('keystore', () => {
 		await removeAccount();
 		expect(await accountStatus()).toEqual({ state: 'none' });
 		expect(storage.session.size).toBe(0);
+	});
+
+	it('adds only the first of two keys saved at the same time', async () => {
+		const first = generateSecretKey();
+		const results = await Promise.all([addAccount(first), addAccount(generateSecretKey())]);
+		expect(results).toEqual([getPublicKey(first), null]);
+		expect(await signingKey()).toEqual(first);
 	});
 });

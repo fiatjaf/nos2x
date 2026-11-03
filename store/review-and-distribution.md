@@ -37,7 +37,7 @@ No credentials are needed: accounts are created in AI design.
 5. Settings (right-click the icon → Options) let you download the key file, manage the
    password, revoke site permissions and remove the key.
 
-The extension only runs on cadbos.com and AI design preview deployments and only signs
+The extension only runs on subdomains of cadbos.com and AI design preview deployments and only signs
 AI design login events.
 ```
 
