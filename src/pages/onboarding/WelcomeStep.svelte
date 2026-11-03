@@ -19,8 +19,8 @@ Cadbos company. See LICENSE for complete terms.
 
 	let { onimport }: Props = $props();
 
-	// Accounts are created in AI design; the extension only keeps the key.
-	const appUrl = $derived(returnOrigin.value ?? 'https://app.cadbos.com');
+	// Accounts are created in AI design; `?auth=signup` opens its account setup.
+	const signupUrl = $derived(`${returnOrigin.value ?? 'https://app.cadbos.com'}/?auth=signup`);
 </script>
 
 <section class="stack">
@@ -36,7 +36,7 @@ Cadbos company. See LICENSE for complete terms.
 			</span>
 			<ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
 		</button>
-		<a class="choice" href={appUrl} target="_blank" rel="noopener">
+		<a class="choice" href={signupUrl} target="_blank" rel="noopener">
 			<span class="icon"><ArrowUpRight size={18} strokeWidth={1.8} aria-hidden="true" /></span>
 			<span class="label">
 				<span class="title">{t('welcome.create')}</span>
