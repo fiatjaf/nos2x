@@ -62,7 +62,7 @@ Cadbos company. See LICENSE for complete terms.
 					console.error('Returning to AI design failed:', error)
 				)}
 		>
-			{t('auth.setup.finish')}
+			{t('done.signIn')}
 		</button>
 	{:else}
 		<p class="notice">{t('done.openApp')}</p>

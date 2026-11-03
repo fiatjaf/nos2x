@@ -15,48 +15,31 @@ export const ru = {
 	'common.back': 'Назад',
 	'common.next': 'Далее',
 	'common.close': 'Закрыть',
-	'common.copied': 'Скопировано',
 
 	'welcome.title': 'Добро пожаловать',
 	'welcome.description':
-		'Расширение хранит ваши Nostr-ключи и подписывает вход в ИИ дизайн. Секретный ключ не покидает браузер.',
-	'welcome.create': 'Создать аккаунт',
-	'welcome.createHint': 'Сгенерируем новую пару ключей',
-	'welcome.import': 'У меня есть ключ',
+		'Расширение хранит ваш Nostr-ключ и подписывает вход в ИИ дизайн. Секретный ключ не покидает браузер.',
+	'welcome.create': 'Создать аккаунт в ИИ дизайн',
+	'welcome.createHint': 'Ключ создаётся на сайте, затем его можно добавить сюда',
+	'welcome.import': 'Добавить ключ',
 	'welcome.importHint': 'Введите секретный ключ nsec или загрузите файл',
 
-	'auth.setup.title': 'Новая учётная запись',
 	'auth.setup.progress': 'Шаг {current} из {total}',
-	'auth.setup.introTitle': 'Создание пары ключей',
-	'auth.setup.introPublic':
-		'Публичный ключ — это логин (уникальный идентификатор) для взаимодействия с пользователями.',
-	'auth.setup.introSecret':
-		'Секретный ключ — это пароль, который нельзя изменить или восстановить в случае утери.',
-	'auth.setup.createKeys': 'Сгенерировать ключи',
-	'auth.setup.keysTitle': 'Сгенерирована пара ключей. Сохранение:',
 	'auth.setup.publicLabel': 'Публичный ключ',
 	'auth.setup.secretLabel': 'Секретный ключ',
-	'auth.setup.keysDescription':
-		'Сейчас публичный и секретный ключи созданы и сохранены только в вашем браузере.',
-	'auth.setup.keysWarning':
-		'Система не имеет доступа к секретному ключу. Не отправляйте ваш секретный ключ в чат и не вставляйте на чужие сайты.',
 	'auth.setup.copyPublic': 'Скопировать публичный ключ',
 	'auth.setup.copiedPublic': 'Публичный ключ скопирован',
-	'auth.setup.copySecret': 'Скопировать секретный ключ',
-	'auth.setup.copiedSecret': 'Секретный ключ скопирован',
 	'auth.setup.copyFailed': 'Не удалось скопировать. Выделите ключ вручную или скачайте файл.',
 	'auth.setup.download': 'Скачать файл',
 	'auth.setup.downloadHint': 'Будет скачан файл с парой ключей: публичным и секретным',
-	'auth.setup.ackDownloaded': 'Я скачал файл с парой ключей и убрал его в секретное место',
 	'auth.setup.ackSecretSaved': 'Я сохранил секретный ключ вне этого браузера',
-	'auth.setup.ackProtected': 'Я принял все меры для защиты нового аккаунта',
-	'auth.setup.finish': 'Войти с этим ключом',
+	'done.signIn': 'Вернуться в ИИ дизайн',
 	'auth.setup.fileName': 'ИИ дизайн-ключ-аккаунта.txt',
 	'auth.setup.fileTitle': 'Ключ аккаунта ИИ дизайн',
 	'auth.setup.fileWarning':
 		'Секретный ключ — единственный способ войти в этот аккаунт. ИИ дизайн не может его восстановить.',
 
-	'import.title': 'Вход с существующим ключом',
+	'import.title': 'Добавление ключа',
 	'import.description': 'Вставьте секретный ключ nsec или загрузите файл с парой ключей.',
 	'import.label': 'Секретный ключ',
 	'import.upload': 'Загрузить файл',
@@ -77,6 +60,7 @@ export const ru = {
 	'password.save': 'Защитить паролем',
 	'password.skip': 'Без пароля',
 	'password.encrypting': 'Шифрование…',
+	'password.saveFailed': 'Не удалось сохранить ключ. Попробуйте ещё раз.',
 
 	'done.title': 'Аккаунт готов',
 	'done.description': 'Ключ сохранён в расширении. Вход в ИИ дизайн теперь занимает один клик.',
@@ -84,6 +68,7 @@ export const ru = {
 
 	'unlock.label': 'Введите пароль, чтобы разблокировать ключ',
 	'unlock.submit': 'Разблокировать',
+	'unlock.failed': 'Не удалось разблокировать ключ. Попробуйте ещё раз.',
 
 	'popup.noAccount': 'Аккаунт ещё не добавлен',
 	'popup.start': 'Начать',
@@ -101,23 +86,23 @@ export const ru = {
 	'settings.changePassword': 'Сменить пароль',
 	'settings.removePassword': 'Убрать пароль',
 	'settings.saved': 'Сохранено',
-	'settings.sites': 'Разрешённые сайты',
-	'settings.sitesEmpty': 'Сайты появятся здесь после первого входа.',
-	'settings.revoke': 'Отозвать доступ',
+	'settings.sites': 'Разрешения',
+	'settings.sitesEmpty': 'Сайты, которым вы подтвердили вход, появятся здесь.',
+	'settings.revoke': 'Отозвать разрешение',
 	'settings.remove': 'Удалить ключ из расширения',
 	'settings.removeWarning':
 		'Без сохранённого секретного ключа вернуть этот аккаунт будет невозможно.',
 	'settings.removeConfirm': 'Удалить ключ',
 	'settings.locked': 'Разблокируйте ключ, чтобы изменить настройки.',
 
-	'prompt.connectTitle': 'Вход в ИИ дизайн',
+	'prompt.connectTitle': 'Подтверждение входа в ИИ дизайн',
 	'prompt.connectText': 'Сайт просит ваш публичный ключ и подпись для входа:',
 	'prompt.connectSafe':
 		'Секретный ключ не передаётся сайту. Разрешение запомнится для этого адреса.',
 	'prompt.unlockTitle': 'Разблокировка ключа',
 	'prompt.unlockText': 'Введите пароль, чтобы подписать вход:',
-	'prompt.allow': 'Разрешить и войти',
-	'prompt.deny': 'Отклонить',
+	'prompt.approve': 'Подтвердить',
+	'prompt.reject': 'Отклонить',
 	'prompt.expired': 'Этот запрос уже не актуален.',
 	'prompt.importTitle': 'Сохранить ключ в расширении',
 	'prompt.importText':
@@ -135,48 +120,32 @@ export const en: Dictionary = {
 	'common.back': 'Back',
 	'common.next': 'Next',
 	'common.close': 'Close',
-	'common.copied': 'Copied',
 
 	'welcome.title': 'Welcome',
 	'welcome.description':
-		'The extension keeps your Nostr keys and signs your sign-in to AI design. The secret key never leaves the browser.',
-	'welcome.create': 'Create account',
-	'welcome.createHint': 'We will generate a new key pair',
-	'welcome.import': 'I have a key',
+		'The extension keeps your Nostr key and signs your sign-in to AI design. The secret key never leaves the browser.',
+	'welcome.create': 'Create an account in AI design',
+	'welcome.createHint': 'The key is created on the site, then you can add it here',
+	'welcome.import': 'Add a key',
 	'welcome.importHint': 'Enter an nsec secret key or upload the key file',
 
-	'auth.setup.title': 'New account',
 	'auth.setup.progress': 'Step {current} of {total}',
-	'auth.setup.introTitle': 'Creating a key pair',
-	'auth.setup.introPublic':
-		'The public key is your login (a unique identifier) for interacting with other users.',
-	'auth.setup.introSecret':
-		'The secret key is your password. It cannot be changed or restored if lost.',
-	'auth.setup.createKeys': 'Generate keys',
-	'auth.setup.keysTitle': 'A key pair has been generated. Saving:',
 	'auth.setup.publicLabel': 'Public key',
 	'auth.setup.secretLabel': 'Secret key',
-	'auth.setup.keysDescription': 'The public and secret keys now exist only in your browser.',
-	'auth.setup.keysWarning':
-		'The system has no access to the secret key. Do not send your secret key in a chat or paste it into someone else’s site.',
 	'auth.setup.copyPublic': 'Copy public key',
 	'auth.setup.copiedPublic': 'Public key copied',
-	'auth.setup.copySecret': 'Copy secret key',
-	'auth.setup.copiedSecret': 'Secret key copied',
 	'auth.setup.copyFailed':
 		'Could not copy. Select the key and copy it yourself, or download the file.',
 	'auth.setup.download': 'Download file',
 	'auth.setup.downloadHint': 'Downloads a file with the key pair: the public and the secret key',
-	'auth.setup.ackDownloaded': 'I downloaded the key pair file and stored it in a secret place',
 	'auth.setup.ackSecretSaved': 'I saved the secret key outside this browser',
-	'auth.setup.ackProtected': 'I took every step to protect my new account',
-	'auth.setup.finish': 'Sign in with this key',
+	'done.signIn': 'Back to AI design',
 	'auth.setup.fileName': 'AI design-account-key.txt',
 	'auth.setup.fileTitle': 'AI design account key',
 	'auth.setup.fileWarning':
 		'The secret key is the only way into this account. AI design cannot restore it.',
 
-	'import.title': 'Sign in with an existing key',
+	'import.title': 'Add a key',
 	'import.description': 'Paste your nsec secret key or upload the key pair file.',
 	'import.label': 'Secret key',
 	'import.upload': 'Upload file',
@@ -198,6 +167,7 @@ export const en: Dictionary = {
 	'password.save': 'Protect with password',
 	'password.skip': 'No password',
 	'password.encrypting': 'Encrypting…',
+	'password.saveFailed': 'Could not save the key. Try again.',
 
 	'done.title': 'Your account is ready',
 	'done.description':
@@ -206,6 +176,7 @@ export const en: Dictionary = {
 
 	'unlock.label': 'Enter your password to unlock the key',
 	'unlock.submit': 'Unlock',
+	'unlock.failed': 'Could not unlock the key. Try again.',
 
 	'popup.noAccount': 'No account added yet',
 	'popup.start': 'Get started',
@@ -223,22 +194,22 @@ export const en: Dictionary = {
 	'settings.changePassword': 'Change password',
 	'settings.removePassword': 'Remove password',
 	'settings.saved': 'Saved',
-	'settings.sites': 'Allowed sites',
-	'settings.sitesEmpty': 'Sites appear here after your first sign-in.',
-	'settings.revoke': 'Revoke access',
+	'settings.sites': 'Permissions',
+	'settings.sitesEmpty': 'Sites you approve for sign-in appear here.',
+	'settings.revoke': 'Revoke permission',
 	'settings.remove': 'Remove the key from the extension',
 	'settings.removeWarning': 'Without a saved secret key this account cannot be recovered.',
 	'settings.removeConfirm': 'Remove key',
 	'settings.locked': 'Unlock the key to change settings.',
 
-	'prompt.connectTitle': 'Sign in to AI design',
+	'prompt.connectTitle': 'Approve sign-in to AI design',
 	'prompt.connectText': 'This site asks for your public key and a sign-in signature:',
 	'prompt.connectSafe':
 		'The secret key is never shared with the site. The permission is remembered for this address.',
 	'prompt.unlockTitle': 'Unlock your key',
 	'prompt.unlockText': 'Enter your password to sign in:',
-	'prompt.allow': 'Allow and sign in',
-	'prompt.deny': 'Deny',
+	'prompt.approve': 'Approve',
+	'prompt.reject': 'Reject',
 	'prompt.expired': 'This request is no longer active.',
 	'prompt.importTitle': 'Save the key in the extension',
 	'prompt.importText':

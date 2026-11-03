@@ -75,7 +75,7 @@ Cadbos company. See LICENSE for complete terms.
 			disabled={busy}
 			onclick={() => void answer(false)}
 		>
-			{t('prompt.deny')}
+			{t('prompt.reject')}
 		</button>
 		<button type="submit" class="button primary" disabled={busy}>
 			{busy && withPassword ? t('password.encrypting') : t('prompt.importSave')}

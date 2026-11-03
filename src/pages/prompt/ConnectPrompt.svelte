@@ -32,7 +32,7 @@ Cadbos company. See LICENSE for complete terms.
 		wrongPassword = false;
 		try {
 			const response = await onanswer(approved, unlock ? password : undefined);
-			if (!response.ok) {
+			if (!response.ok && response.error === 'wrong_password') {
 				wrongPassword = true;
 				password = '';
 			}
@@ -82,10 +82,10 @@ Cadbos company. See LICENSE for complete terms.
 			disabled={busy}
 			onclick={() => void answer(false)}
 		>
-			{t('prompt.deny')}
+			{t('prompt.reject')}
 		</button>
 		<button type="submit" class="button primary" disabled={busy}>
-			{approve ? t('prompt.allow') : t('unlock.submit')}
+			{approve ? t('prompt.approve') : t('unlock.submit')}
 		</button>
 	</div>
 </form>

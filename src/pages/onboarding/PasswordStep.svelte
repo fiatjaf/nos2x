@@ -26,6 +26,7 @@ Cadbos company. See LICENSE for complete terms.
 	let repeat = $state('');
 	let attempted = $state(false);
 	let busy = $state<'password' | 'plain' | null>(null);
+	let failed = $state(false);
 
 	async function save(withPassword: boolean): Promise<void> {
 		if (withPassword) {
@@ -33,10 +34,12 @@ Cadbos company. See LICENSE for complete terms.
 			if (passwordProblem(password, repeat)) return;
 		}
 		busy = withPassword ? 'password' : 'plain';
+		failed = false;
 		try {
 			await onsave(withPassword ? password : null);
 		} catch (error) {
 			console.error('Saving the key failed:', error);
+			failed = true;
 		} finally {
 			busy = null;
 		}
@@ -53,6 +56,9 @@ Cadbos company. See LICENSE for complete terms.
 	<p>{t('password.description')}</p>
 	<PasswordFields bind:password bind:repeat showProblems={attempted} />
 	<p class="muted">{t('password.hint')}</p>
+	{#if failed}
+		<p class="error" role="alert">{t('password.saveFailed')}</p>
+	{/if}
 	<button type="submit" class="button primary" disabled={busy !== null}>
 		{busy === 'password' ? t('password.encrypting') : t('password.save')}
 	</button>

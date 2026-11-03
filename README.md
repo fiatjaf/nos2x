@@ -9,10 +9,9 @@ AI design login events, and turns every other request away.
 
 ## What the user gets
 
-- **Create a new account** in a few steps: generate a key pair, save the key file, optionally
-  protect the key with a password.
-- **Bring an existing key**: paste an `nsec`, a password-protected `ncryptsec`, or upload the
-  key file AI design produces.
+- **Add the AI design key**: accounts are created in AI design; paste the `nsec`, a
+  password-protected `ncryptsec`, or upload the key file AI design produces, and optionally
+  protect the key with a password. AI design can also hand a new key over after confirmation.
 - **One-click sign-in**: the first sign-in from a site asks once; later sign-ins need no
   confirmation (and only the password after a browser restart, if one is set).
 - **Settings**: copy the public key, download the key file, set, change or remove the
@@ -30,7 +29,7 @@ setup over between the app and the extension:
 window.aiDesignSigner.status(): Promise<{ hasAccount: boolean; locked: boolean }>;
 window.aiDesignSigner.getPublicKey(): Promise<string>; // hex
 window.aiDesignSigner.signEvent(event): Promise<Event>; // NIP-98 login events only
-window.aiDesignSigner.openOnboarding(): Promise<null>; // opens account setup
+window.aiDesignSigner.openOnboarding(): Promise<null>; // opens onboarding to add a key
 window.aiDesignSigner.importKey(secretKeyHex): Promise<string>; // saves an app-made key
 ```
 

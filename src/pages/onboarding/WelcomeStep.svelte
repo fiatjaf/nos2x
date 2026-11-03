@@ -9,14 +9,18 @@ Cadbos company. See LICENSE for complete terms.
 -->
 
 <script lang="ts">
-	import { ChevronRight, KeyRound, Sparkles } from '@lucide/svelte';
+	import { ArrowUpRight, ChevronRight, KeyRound } from '@lucide/svelte';
 	import { t } from '../../lib/i18n/index.svelte';
+	import { returnOrigin } from './return-origin.svelte';
 
 	interface Props {
-		onstart: (flow: 'create' | 'import') => void;
+		onimport: () => void;
 	}
 
-	let { onstart }: Props = $props();
+	let { onimport }: Props = $props();
+
+	// Accounts are created in AI design; the extension only keeps the key.
+	const appUrl = $derived(returnOrigin.value ?? 'https://app.cadbos.com');
 </script>
 
 <section class="stack">
@@ -24,15 +28,7 @@ Cadbos company. See LICENSE for complete terms.
 	<p class="lead">{t('welcome.description')}</p>
 
 	<div class="choices">
-		<button type="button" class="choice primary" onclick={() => onstart('create')}>
-			<span class="icon"><Sparkles size={18} strokeWidth={1.8} aria-hidden="true" /></span>
-			<span class="label">
-				<span class="title">{t('welcome.create')}</span>
-				<span class="hint">{t('welcome.createHint')}</span>
-			</span>
-			<ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
-		</button>
-		<button type="button" class="choice" onclick={() => onstart('import')}>
+		<button type="button" class="choice primary" onclick={onimport}>
 			<span class="icon"><KeyRound size={18} strokeWidth={1.8} aria-hidden="true" /></span>
 			<span class="label">
 				<span class="title">{t('welcome.import')}</span>
@@ -40,6 +36,13 @@ Cadbos company. See LICENSE for complete terms.
 			</span>
 			<ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
 		</button>
+		<a class="choice" href={appUrl} target="_blank" rel="noopener">
+			<span class="icon"><ArrowUpRight size={18} strokeWidth={1.8} aria-hidden="true" /></span>
+			<span class="label">
+				<span class="title">{t('welcome.create')}</span>
+				<span class="hint">{t('welcome.createHint')}</span>
+			</span>
+		</a>
 	</div>
 </section>
 
@@ -65,6 +68,7 @@ Cadbos company. See LICENSE for complete terms.
 		background: var(--color-surface);
 		color: var(--color-text);
 		text-align: left;
+		text-decoration: none;
 		cursor: pointer;
 		transition:
 			border-color 120ms ease,

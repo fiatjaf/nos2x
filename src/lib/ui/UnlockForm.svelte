@@ -14,18 +14,21 @@ Cadbos company. See LICENSE for complete terms.
 	import { unlock } from '../keystore';
 
 	let password = $state('');
-	let wrongPassword = $state(false);
+	let error = $state<'password.wrong' | 'unlock.failed' | null>(null);
 	let busy = $state(false);
 
 	async function submit(event: SubmitEvent): Promise<void> {
 		event.preventDefault();
 		busy = true;
-		wrongPassword = false;
+		error = null;
 		try {
-			if ((await unlock(password)) === 'wrong_password') wrongPassword = true;
-			password = '';
-		} catch (error) {
-			console.error('Unlocking the key failed:', error);
+			if ((await unlock(password)) === 'wrong_password') {
+				error = 'password.wrong';
+				password = '';
+			}
+		} catch (unlockError) {
+			console.error('Unlocking the key failed:', unlockError);
+			error = 'unlock.failed';
 		} finally {
 			busy = false;
 		}
@@ -41,13 +44,13 @@ Cadbos company. See LICENSE for complete terms.
 				type="password"
 				autocomplete="current-password"
 				bind:value={password}
-				aria-invalid={wrongPassword}
+				aria-invalid={error === 'password.wrong'}
 				required
 			/>
 		</span>
 	</label>
-	{#if wrongPassword}
-		<p class="error" role="alert">{t('password.wrong')}</p>
+	{#if error}
+		<p class="error" role="alert">{t(error)}</p>
 	{/if}
 	<button type="submit" class="button primary" disabled={busy || password.length === 0}>
 		{t('unlock.submit')}
