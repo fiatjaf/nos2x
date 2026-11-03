@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2026 Cadbos company. All rights reserved.
  *
- * SPDX-License-Identifier: LicenseRef-AI-Design-Singer-BSL-1.1
+ * SPDX-License-Identifier: LicenseRef-AI-Design-Signer-BSL-1.1
  *
- * AI Design Singer is licensed under the Business Source License 1.1.
+ * AI Design Signer is licensed under the Business Source License 1.1.
  * Production use is limited to signing in to AI design services operated by
  * Cadbos company. See LICENSE for complete terms.
  */
@@ -26,7 +26,7 @@ window.addEventListener('message', (event: MessageEvent<PageRequest>) => {
 	chrome.runtime
 		.sendMessage<RpcRequest, RpcResponse>({ kind: 'rpc', method, params })
 		.catch((error: unknown): RpcResponse => {
-			console.error('AI Design Singer could not reach its service worker:', error);
+			console.error('AI Design Signer could not reach its service worker:', error);
 			return { ok: false, error: 'internal' };
 		})
 		.then((response) => {

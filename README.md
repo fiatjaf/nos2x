@@ -1,4 +1,4 @@
-# AI Design Singer
+# AI Design Signer
 
 A Chrome extension that signs users in to [AI design](https://app.cadbos.com) with their
 Nostr keys. The secret key stays in the browser: AI design only ever receives the public

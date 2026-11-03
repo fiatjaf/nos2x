@@ -1,6 +1,6 @@
 # Chrome Web Store materials
 
-Everything needed to publish AI Design Singer in the Chrome Web Store, grouped by dashboard tab.
+Everything needed to publish AI Design Signer in the Chrome Web Store, grouped by dashboard tab.
 
 ## Icons
 
@@ -14,13 +14,13 @@ Everything needed to publish AI Design Singer in the Chrome Web Store, grouped b
 
 1280×800, five per language, captions baked in (see [listing.md](listing.md#screenshot-captions)).
 
-| #   | File                                  | Shows                                                       |
-| --- | ------------------------------------- | ----------------------------------------------------------- |
-| 1   | `screenshots/{en,ru}/01-sign-in.png`  | AI design sign-in menu with "Sign in with AI Design Singer" |
-| 2   | `screenshots/{en,ru}/02-add-key.png`  | Onboarding: adding the key created in AI design             |
-| 3   | `screenshots/{en,ru}/03-toolbar.png`  | Toolbar popup with the public key                           |
-| 4   | `screenshots/{en,ru}/04-unlock.png`   | Prompt window: approving the sign-in and unlocking          |
-| 5   | `screenshots/{en,ru}/05-settings.png` | Settings page                                               |
+| #   | File                                  | Shows                                                     |
+| --- | ------------------------------------- | --------------------------------------------------------- |
+| 1   | `screenshots/{en,ru}/01-sign-in.png`  | AI design sign-in menu with the "AI Design Signer" button |
+| 2   | `screenshots/{en,ru}/02-add-key.png`  | Onboarding: adding the key created in AI design           |
+| 3   | `screenshots/{en,ru}/03-toolbar.png`  | Toolbar popup with the public key                         |
+| 4   | `screenshots/{en,ru}/04-unlock.png`   | Prompt window: approving the sign-in and unlocking        |
+| 5   | `screenshots/{en,ru}/05-settings.png` | Settings page                                             |
 
 ## Promo images
 
