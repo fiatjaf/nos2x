@@ -8,7 +8,7 @@ entered in the dashboard, separately for each language.
 
 | Field              | Value                                                                                          |
 | ------------------ | ---------------------------------------------------------------------------------------------- |
-| Name               | AI Design Singer                                                                               |
+| Name               | AI Design Signer                                                                               |
 | Category           | Tools (if the dashboard offers a newer taxonomy: Productivity → Tools)                         |
 | Languages          | English (default), Russian                                                                     |
 | Homepage URL       | https://app.cadbos.com                                                                         |
@@ -28,10 +28,10 @@ entered in the dashboard, separately for each language.
 **Description:**
 
 ```
-AI Design Singer signs you in to AI design (app.cadbos.com) with your Nostr keys. Your secret key stays in this browser: the site only ever receives your public key and a signed login event.
+AI Design Signer signs you in to AI design (app.cadbos.com) with your Nostr keys. Your secret key stays in this browser: the site only ever receives your public key and a signed login event.
 
 ONE-CLICK SIGN-IN
-Choose "Sign in with AI Design Singer" in the AI design sign-in menu. You approve the first sign-in from the site once; after that, signing in takes a single click.
+Choose "AI Design Signer" in the AI design sign-in menu. You approve the first sign-in from the site once; after that, signing in takes a single click.
 
 ADD YOUR AI DESIGN KEY
 • Create an account in AI design, then add its key to the extension: paste the nsec, a password-protected ncryptsec, or upload the key file AI design produces.
@@ -60,10 +60,10 @@ The source code is public: https://github.com/cadbos/nostr-signer-browser_extens
 **Описание:**
 
 ```
-AI Design Singer выполняет вход в ИИ дизайн (app.cadbos.com) с вашими Nostr-ключами. Секретный ключ остаётся в этом браузере: сайт получает только публичный ключ и подписанное событие входа.
+AI Design Signer выполняет вход в ИИ дизайн (app.cadbos.com) с вашими Nostr-ключами. Секретный ключ остаётся в этом браузере: сайт получает только публичный ключ и подписанное событие входа.
 
 ВХОД В ОДИН КЛИК
-Выберите «Войти через AI Design Singer» в меню входа ИИ дизайн. Первый вход с сайта вы подтверждаете один раз, дальше вход занимает одно нажатие.
+Выберите «AI Design Signer» в меню входа ИИ дизайн. Первый вход с сайта вы подтверждаете один раз, дальше вход занимает одно нажатие.
 
 ДОБАВЬТЕ КЛЮЧ ИЗ ИИ ДИЗАЙН
 • Создайте аккаунт в ИИ дизайн и добавьте его ключ в расширение: вставьте nsec, защищённый паролем ncryptsec или загрузите файл ключа из ИИ дизайн.

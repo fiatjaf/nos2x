@@ -7,11 +7,11 @@ bracketed fields and have it reviewed before publishing.
 
 ## English
 
-**AI Design Singer — Privacy Policy**
+**AI Design Signer — Privacy Policy**
 
 Last updated: [date]
 
-AI Design Singer ("the extension") is a browser extension by Cadbos company ("we") that signs you
+AI Design Signer ("the extension") is a browser extension by Cadbos company ("we") that signs you
 in to AI design (app.cadbos.com) with your Nostr keys.
 
 **What the extension stores.** The extension stores, only in your browser's extension storage:
@@ -49,11 +49,11 @@ privacy policy: [link].
 
 ## Русский
 
-**AI Design Singer — Политика конфиденциальности**
+**AI Design Signer — Политика конфиденциальности**
 
 Последнее обновление: [дата]
 
-AI Design Singer («расширение») — расширение для браузера от компании Cadbos («мы»), которое
+AI Design Signer («расширение») — расширение для браузера от компании Cadbos («мы»), которое
 выполняет вход в ИИ дизайн (app.cadbos.com) с вашими Nostr-ключами.
 
 **Что хранит расширение.** Только в хранилище расширения в вашем браузере:

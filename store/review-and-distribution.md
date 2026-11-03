@@ -2,7 +2,7 @@
 
 ## Before submitting
 
-- [ ] The AI design PR with "Sign in with AI Design Singer" is deployed to app.cadbos.com.
+- [ ] The AI design PR with the "AI Design Signer" sign-in button is deployed to app.cadbos.com.
       Reviewers test the extension on the live site; without the button they cannot use it.
 - [ ] The privacy policy page is published and its URL is entered in the dashboard.
 - [ ] The release zip of the version being submitted is built by the release workflow
@@ -26,12 +26,12 @@ No credentials are needed: accounts are created in AI design.
 1. Install the extension and open https://app.cadbos.com. Click "Guest" in the top right
    corner, then "Sign in or sign up" and "Create account". Click "Generate keys", download
    the key file, tick the three confirmations and click "Next".
-2. On "Import the secret key" click "Import into AI Design Singer and sign in" and approve
+2. On "Import the secret key" click "Import into AI Design Signer and sign in" and approve
    saving the key in the extension window (a password is optional). The site shows you as
    signed in.
 3. Alternatively: open the extension's onboarding ("Get started" in the toolbar popup),
    choose "Add a key" and upload the downloaded key file. Then in AI design choose
-   "Sign in or sign up" → "Sign in" → "Sign in with AI Design Singer" and approve the request.
+   "Sign in or sign up" → "Sign in" → "AI Design Signer" and approve the request.
 4. Optional: click the extension icon to see the public key and lock it; signing in again
    asks for the password (if one was set).
 5. Settings (right-click the icon → Options) let you download the key file, manage the

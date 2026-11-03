@@ -1,10 +1,10 @@
 {
 	"extName": {
-		"message": "AI Design Singer",
+		"message": "AI Design Signer",
 		"description": "Extension name in the browser and the Chrome Web Store."
 	},
 	"extShortName": {
-		"message": "AI Design Singer",
+		"message": "AI Design Signer",
 		"description": "Short extension name."
 	},
 	"extDescription": {

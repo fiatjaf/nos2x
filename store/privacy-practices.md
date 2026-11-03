@@ -6,7 +6,7 @@ dashboard is in English, so the answers are too.
 ## Single purpose
 
 ```
-AI Design Singer signs the user in to AI design (app.cadbos.com) with their Nostr key. It stores
+AI Design Signer signs the user in to AI design (app.cadbos.com) with their Nostr key. It stores
 the key in the browser and signs only AI design login events (NIP-98, kind 27235) for AI design
 sites.
 ```
@@ -25,7 +25,7 @@ or the user locks it.
 **Host permissions** (`https://*.cadbos.com/*`, `https://*.cadbos-cloudflare.workers.dev/*`)
 
 ```
-The extension adds the "Sign in with AI Design Singer" bridge to AI design pages only:
+The extension adds the AI Design Signer sign-in bridge to AI design pages only:
 app.cadbos.com and its subdomains, and the AI design preview deployments under
 cadbos-cloudflare.workers.dev that the team uses to test releases. It does not run on any other
 site.
