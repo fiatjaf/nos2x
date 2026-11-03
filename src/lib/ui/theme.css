@@ -1,0 +1,273 @@
+/*
+ * Copyright (c) 2026 Cadbos company. All rights reserved.
+ *
+ * SPDX-License-Identifier: LicenseRef-Cadbos-BSL-1.1
+ *
+ * Cadbos Interior Design AI is licensed under the Business Source License 1.1.
+ * Access is limited to automated analysis tools for analysis of this repository.
+ * This code is not open for contribution or usage except under a separate
+ * written agreement with Cadbos company.
+ *
+ * Commercial use in Interior Design & AEC Generative AI Services is prohibited
+ * before the Change Date. See LICENSE for complete terms.
+ */
+
+:root {
+	color-scheme: light dark;
+	--logo-green: #2f6f4f;
+	--logo-slate: #313a41;
+	--logo-grey: #9c9e9d;
+	--color-background: #f5f5f7;
+	--color-surface: #ffffff;
+	--color-surface-hover: #f4f6f5;
+	--color-border: #e5e5e7;
+	--color-border-focus: #2f6f4f;
+	--color-text: #1d1d1f;
+	--color-muted: #6e6e73;
+	--color-accent: #2f6f4f;
+	--color-accent-hover: #256041;
+	--color-accent-contrast: #ffffff;
+	--color-accent-text: #2f6f4f;
+	--color-danger: #b00020;
+	--color-danger-bg: #fff0f0;
+	--color-notice-bg: #fff6dd;
+	--color-notice-text: #5b4500;
+	--radius-sm: 8px;
+	--radius: 12px;
+	--radius-lg: 16px;
+	--radius-xl: 24px;
+	--shadow-card: 0 24px 64px -16px rgb(10 24 18 / 0.45), 0 4px 12px -4px rgb(10 24 18 / 0.2);
+	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--backdrop:
+		radial-gradient(80vmax 60vmax at 12% 18%, rgb(76 175 125 / 0.45), transparent 62%),
+		radial-gradient(70vmax 55vmax at 92% 96%, rgb(156 158 157 / 0.35), transparent 60%),
+		radial-gradient(50vmax 40vmax at 70% 8%, rgb(49 58 65 / 0.55), transparent 65%),
+		linear-gradient(140deg, #1d4632 0%, #2f6f4f 38%, #2c4a41 64%, #313a41 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--logo-green: #4caf7d;
+		--logo-slate: #d5d9dc;
+		--logo-grey: #8d9093;
+		--color-background: #1c1c1e;
+		--color-surface: #232527;
+		--color-surface-hover: #2c2f31;
+		--color-border: #3d4145;
+		--color-border-focus: #4caf7d;
+		--color-text: #f2f2f3;
+		--color-muted: #a1a1a6;
+		--color-accent: #387f5b;
+		--color-accent-hover: #43906a;
+		--color-accent-text: #7fcfa5;
+		--color-danger: #ff6b7d;
+		--color-danger-bg: rgb(255 107 125 / 0.12);
+		--color-notice-bg: rgb(255 203 86 / 0.14);
+		--color-notice-text: #f3d48a;
+		--backdrop:
+			radial-gradient(80vmax 60vmax at 12% 18%, rgb(56 127 91 / 0.4), transparent 62%),
+			radial-gradient(70vmax 55vmax at 92% 96%, rgb(156 158 157 / 0.18), transparent 60%),
+			radial-gradient(50vmax 40vmax at 70% 8%, rgb(20 26 30 / 0.7), transparent 65%),
+			linear-gradient(140deg, #12291e 0%, #1e4a35 38%, #1d2f2a 64%, #1a1f23 100%);
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	font-family: var(--font-sans);
+	font-size: 14px;
+	line-height: 1.45;
+	color: var(--color-text);
+	-webkit-font-smoothing: antialiased;
+}
+
+button {
+	font: inherit;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+h1 {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 650;
+	letter-spacing: -0.02em;
+}
+
+h2 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 650;
+}
+
+p {
+	margin: 0;
+}
+
+.stack {
+	display: grid;
+	gap: 12px;
+}
+
+.muted {
+	color: var(--color-muted);
+	font-size: 13px;
+}
+
+.error {
+	color: var(--color-danger);
+	font-size: 13px;
+}
+
+.notice {
+	padding: 10px 12px;
+	border-radius: var(--radius);
+	background: var(--color-notice-bg);
+	color: var(--color-notice-text);
+	font-size: 13px;
+}
+
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 10px 14px;
+	border: 1px solid transparent;
+	border-radius: var(--radius);
+	font-weight: 600;
+	text-align: center;
+	cursor: pointer;
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease;
+}
+
+.button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.button.primary {
+	background: var(--color-accent);
+	color: var(--color-accent-contrast);
+}
+
+.button.primary:hover:not(:disabled),
+.button.primary:focus-visible {
+	background: var(--color-accent-hover);
+}
+
+.button.secondary {
+	border-color: var(--color-border);
+	background: transparent;
+	color: var(--color-text);
+}
+
+.button.secondary:hover:not(:disabled),
+.button.secondary:focus-visible {
+	border-color: var(--color-border-focus);
+}
+
+.button.danger {
+	border-color: var(--color-danger);
+	background: transparent;
+	color: var(--color-danger);
+}
+
+.button.danger:hover:not(:disabled),
+.button.danger:focus-visible {
+	background: var(--color-danger-bg);
+}
+
+.actions {
+	display: grid;
+	grid-template-columns: 1fr 1.4fr;
+	gap: 8px;
+}
+
+.field {
+	display: grid;
+	gap: 6px;
+	font-size: 13px;
+}
+
+.text-input {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	background: transparent;
+	color: var(--color-text);
+	font: inherit;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-border-focus);
+	outline-offset: 2px;
+}
+
+.text-input:focus {
+	outline: none;
+	border-color: var(--color-border-focus);
+	box-shadow: 0 0 0 3px rgb(76 175 125 / 0.25);
+}
+
+.checkbox {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.checkbox input {
+	flex: none;
+	width: 16px;
+	height: 16px;
+	margin: 1px 0 0;
+	accent-color: var(--color-accent);
+}
+
+.icon-input {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	color: var(--color-muted);
+}
+
+.icon-input:focus-within {
+	border-color: var(--color-border-focus);
+	box-shadow: 0 0 0 3px rgb(76 175 125 / 0.25);
+}
+
+.icon-input input {
+	flex: 1;
+	min-width: 0;
+	padding: 10px 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: var(--color-text);
+	font: inherit;
+}

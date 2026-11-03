@@ -75,6 +75,7 @@ export default defineConfig(({ mode }) => ({
 		minify: mode !== 'development',
 		rolldownOptions: {
 			input: {
+				prompt: resolve(import.meta.dirname, 'src/pages/prompt/index.html'),
 				background: resolve(import.meta.dirname, 'src/background/index.ts')
 			},
 			output: {
