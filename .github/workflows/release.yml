@@ -60,9 +60,9 @@ jobs:
         run: pnpm build
 
       # A fixed asset name keeps releases/latest/download/ai_design-signer.zip
-      # a stable download link for the app.
+      # a stable download link for the app. The license travels with every copy.
       - name: Package
-        run: cd dist && zip -r ../ai_design-signer.zip .
+        run: cp LICENSE dist/ && cd dist && zip -r ../ai_design-signer.zip .
 
       - name: Publish the release
         env:
