@@ -54,6 +54,23 @@ When a key is added or removed, the extension dispatches `ai-design-signer:accou
   extension window. A key saved from a site never overwrites an existing one, and the prompt
   window only ever receives the public key.
 
+## Install from a release
+
+1. Download
+   [`ai_design-signer.zip`](https://github.com/cadbos/nostr-signer-browser_extension/releases/latest/download/ai_design-signer.zip)
+   from the latest release and unzip it.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and select the unzipped folder.
+
+Extensions loaded this way do not update themselves: to update, remove the extension and load
+the new release the same way.
+
+## Release
+
+Bump `version` in `package.json`, merge, then push a matching tag (`v0.1.0` for `0.1.0`). The
+[release workflow](.github/workflows/release.yml) runs the tests, builds the extension and
+attaches `ai_design-signer.zip` to a GitHub release.
+
 ## Install from source
 
 Requirements: Node.js 22+ and pnpm 10.
