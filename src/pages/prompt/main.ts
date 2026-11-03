@@ -26,10 +26,15 @@ async function start(): Promise<void> {
 // height, including when an error message appears under a field.
 function fitWindowToCard(): void {
 	const card = document.querySelector('main');
-	if (!card) return;
+	const page = card?.parentElement;
+	if (!card || !page) return;
+	// The page centres the card, so the window needs the card plus the page's
+	// vertical padding, not the card's offset from the top.
 	const fit = (): void => {
-		const { top, bottom } = card.getBoundingClientRect();
-		const height = Math.ceil(bottom + top) + window.outerHeight - window.innerHeight;
+		const { paddingTop, paddingBottom } = getComputedStyle(page);
+		const content =
+			card.getBoundingClientRect().height + parseFloat(paddingTop) + parseFloat(paddingBottom);
+		const height = Math.ceil(content) + window.outerHeight - window.innerHeight;
 		chrome.windows
 			.getCurrent()
 			.then((current) =>
