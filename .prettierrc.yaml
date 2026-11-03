@@ -1,8 +1,0 @@
-arrowParens: avoid
-bracketSpacing: false
-printWidth: 80
-proseWrap: preserve
-semi: false
-singleQuote: true
-trailingComma: none
-useTabs: false
