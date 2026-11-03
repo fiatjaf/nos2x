@@ -1,6 +1,6 @@
 {
 	"name": "ai_design-signer",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"private": true,
 	"license": "SEE LICENSE IN LICENSE",
 	"type": "module",
