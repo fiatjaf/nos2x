@@ -1,52 +1,93 @@
-# nos2x
+# AI Design Singer
 
-### notes and other stuff signed by an extension
+A Chrome extension that signs users in to [AI design](https://app.cadbos.com) with their
+Nostr keys. The secret key stays in the browser: AI design only ever receives the public
+key and a signed login event.
 
-## Nostr Signer Extension
+The extension is built for AI design only. It runs on AI design origins, signs nothing but
+AI design login events, and turns every other request away.
 
-Use this to sign [Nostr](https://github.com/nostr-protocol/nostr) events on web-apps without having to give them your keys.
+## What the user gets
 
-It implements [NIP-07](https://github.com/nostr-protocol/nips/blob/master/07.md), i.e. provides a `window.nostr` object which has the following methods:
+- **Create a new account** in a few steps: generate a key pair, save the key file, optionally
+  protect the key with a password.
+- **Bring an existing key**: paste an `nsec`, a password-protected `ncryptsec`, or upload the
+  key file AI design produces.
+- **One-click sign-in**: the first sign-in from a site asks once; later sign-ins need no
+  confirmation (and only the password after a browser restart, if one is set).
+- **Settings**: copy the public key, download the key file, set, change or remove the
+  password, revoke allowed sites, remove the key.
+- Russian and English interface, light and dark theme.
 
+## How AI design talks to the extension
+
+On AI design origins the extension injects a provider before the page's own scripts run. It
+exposes the standard [NIP-07](https://github.com/nostr-protocol/nips/blob/master/07.md)
+`window.nostr`, and the same signer under its own name with the calls that hand account
+setup over between the app and the extension:
+
+```ts
+window.aiDesignSigner.status(): Promise<{ hasAccount: boolean; locked: boolean }>;
+window.aiDesignSigner.getPublicKey(): Promise<string>; // hex
+window.aiDesignSigner.signEvent(event): Promise<Event>; // NIP-98 login events only
+window.aiDesignSigner.openOnboarding(): Promise<null>; // opens account setup
+window.aiDesignSigner.importKey(secretKeyHex): Promise<string>; // saves an app-made key
 ```
-async window.nostr.getPublicKey(): string // returns your public key as hex
-async window.nostr.signEvent(event): Event // returns the full event object signed
-async window.nostr.nip04.encrypt(pubkey, plaintext): string // returns ciphertext+iv as specified in nip04
-async window.nostr.nip04.decrypt(pubkey, ciphertext): string // takes ciphertext+iv as specified in nip04
-async window.nostr.nip44.encrypt(pubkey, plaintext): string // takes pubkey, plaintext, returns ciphertext as specified in nip-44
-async window.nostr.nip44.decrypt(pubkey, ciphertext): string // takes pubkey, ciphertext, returns plaintext as specified in nip-44
+
+Failed calls reject with an error whose `code` is one of `no_account`, `account_exists`,
+`locked`, `rejected`, `forbidden_origin`, `invalid_event`, `invalid_key`, `busy`, `internal`.
+When a key is added or removed, the extension dispatches `ai-design-signer:accountchange` on
+`window`, so the app can sign in as soon as setup finishes in another tab.
+
+## Security model
+
+- **Origins.** The provider and every request are limited to `*.cadbos.com` (production is
+  `app.cadbos.com`) and Worker previews under `*.cadbos-cloudflare.workers.dev`. Development builds also
+  accept `localhost` and `127.0.0.1`.
+- **What gets signed.** Only kind 27235 (NIP-98) events with empty content, a `method` tag,
+  a `u` tag on the requesting origin and a timestamp within ten minutes of now.
+- **Key storage.** One account per browser profile in `chrome.storage.local`: the key in
+  plain hex, or as a NIP-49 `ncryptsec` when a password is set. An unlocked key lives in
+  `chrome.storage.session`, which content scripts cannot read, until the browser restarts or
+  the user locks it.
+- **Confirmations.** First sign-ins, unlocking and saving an app-made key are confirmed in an
+  extension window. A key saved from a site never overwrites an existing one, and the prompt
+  window only ever receives the public key.
+
+## Install from source
+
+Requirements: Node.js 22+ and pnpm 10.
+
+```bash
+pnpm install
+pnpm build
 ```
 
-This extension is Chromium-only. For a maintained Firefox fork, see [nos2x-fox](https://diegogurpegui.com/nos2x-fox/).
-
-## Demo Video
-
-https://user-images.githubusercontent.com/1653275/149637382-65d50a85-fe30-4259-b7de-99c88b089b53.mp4
-
-## Install
-
-- [Chrome Extension](https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp)
+Then open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and
+select the `dist/` folder.
 
 ## Develop
 
-To run the plugin from this code:
-
-```
-git clone https://github.com/fiatjaf/nos2x
-cd nos2x
-yarn
-./build.js prod
+```bash
+pnpm dev     # rebuilds dist/ on change, with localhost allowed for `pnpm dev` in cadbos
+pnpm test    # svelte-check, prettier, vitest
+pnpm format  # prettier --write
 ```
 
-then
+After a rebuild, reload the extension on `chrome://extensions`. The stack is Svelte 5
+(runes), TypeScript, Vite and nostr-tools; the manifest is generated from
+[`src/manifest.ts`](src/manifest.ts).
 
-1. go to `chrome://extensions`;
-2. ensure "developer mode" is enabled on the top right;
-3. click on "Load unpackaged";
-4. select the `extension/` folder of this repository.
+```
+src/
+  background/   service worker: request policy, prompts, onboarding hand-off
+  content/      provider (page world) and bridge (isolated world)
+  lib/          keystore, approvals, policy, i18n, shared UI
+  pages/        popup, onboarding, prompt and settings pages
+public/         icons and _locales for the store listing
+```
 
----
+## License
 
-LICENSE: public domain.
-
-Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>.
+Proprietary. See [LICENSE](LICENSE). This project started as a fork of
+[nos2x](https://github.com/fiatjaf/nos2x) (public domain) and has since been rewritten.
