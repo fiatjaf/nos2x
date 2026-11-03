@@ -75,7 +75,10 @@ export default defineConfig(({ mode }) => ({
 		minify: mode !== 'development',
 		rolldownOptions: {
 			input: {
+				popup: resolve(import.meta.dirname, 'src/pages/popup/index.html'),
+				onboarding: resolve(import.meta.dirname, 'src/pages/onboarding/index.html'),
 				prompt: resolve(import.meta.dirname, 'src/pages/prompt/index.html'),
+				settings: resolve(import.meta.dirname, 'src/pages/settings/index.html'),
 				background: resolve(import.meta.dirname, 'src/background/index.ts')
 			},
 			output: {

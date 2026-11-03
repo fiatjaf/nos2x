@@ -36,6 +36,14 @@ export function createManifest(mode: string, version: string): chrome.runtime.Ma
 			'48': 'icons/48.png',
 			'128': 'icons/128.png'
 		},
+		options_ui: {
+			page: 'pages/settings/index.html',
+			open_in_tab: true
+		},
+		action: {
+			default_title: '__MSG_extName__',
+			default_popup: 'pages/popup/index.html'
+		},
 		background: {
 			service_worker: 'background.js',
 			type: 'module'
