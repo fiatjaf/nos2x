@@ -21,9 +21,10 @@ import {
 } from '../lib/protocol';
 
 // Runs in the page's main world on AI design origins. `window.nostr` is the
-// standard NIP-07 surface; `window.aiDesignSigner` is the same signer under a
-// name no other extension overwrites, plus the calls AI design uses to make
-// the app ↔ extension hand-off seamless.
+// standard NIP-07 surface, set unless another extension already provides it;
+// `window.aiDesignSigner` is the same signer under a name no other extension
+// overwrites, plus the calls AI design uses to make the app ↔ extension
+// hand-off seamless.
 
 class SignerRequestError extends Error {
 	readonly code: SignerErrorCode;
@@ -81,4 +82,5 @@ const aiDesignSigner = Object.freeze({
 });
 
 Object.defineProperty(window, 'aiDesignSigner', { value: aiDesignSigner, enumerable: false });
-Object.assign(window, { nostr });
+// Another NIP-07 extension keeps `window.nostr`, so AI design can offer both.
+if (!('nostr' in window)) Object.assign(window, { nostr });

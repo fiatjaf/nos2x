@@ -27,6 +27,7 @@ export type SignerErrorCode =
 	| 'invalid_event'
 	| 'invalid_key'
 	| 'busy'
+	| 'disconnected'
 	| 'internal';
 
 export interface SignerStatus {

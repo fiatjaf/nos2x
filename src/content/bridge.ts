@@ -23,11 +23,16 @@ import {
 window.addEventListener('message', (event: MessageEvent<PageRequest>) => {
 	if (event.source !== window || event.data?.channel !== PAGE_CHANNEL) return;
 	const { id, method, params } = event.data;
-	chrome.runtime
-		.sendMessage<RpcRequest, RpcResponse>({ kind: 'rpc', method, params })
+	// After the extension is reloaded or updated, this script stays in already
+	// open tabs and `sendMessage` throws synchronously; the page must still get
+	// an answer instead of waiting forever.
+	Promise.resolve()
+		.then(() =>
+			chrome.runtime.sendMessage<RpcRequest, RpcResponse>({ kind: 'rpc', method, params })
+		)
 		.catch((error: unknown): RpcResponse => {
 			console.error('AI Design Signer could not reach its service worker:', error);
-			return { ok: false, error: 'internal' };
+			return { ok: false, error: 'disconnected' };
 		})
 		.then((response) => {
 			window.postMessage(
