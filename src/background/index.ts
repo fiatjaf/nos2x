@@ -173,7 +173,7 @@ async function importKey(secretKey: Uint8Array, origin: string): Promise<string>
 		if (status.pubkey !== pubkey) throw new SignerError('account_exists');
 		return checkReady(origin);
 	}
-	const saved = await requestPrompt({ kind: 'import', origin, pubkey }, pubkey, secretKey);
+	const saved = await requestPrompt({ kind: 'import', origin }, pubkey, secretKey);
 	if (!saved) throw new SignerError('rejected');
 	return pubkey;
 }

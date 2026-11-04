@@ -13,7 +13,7 @@ Cadbos company. See LICENSE for complete terms.
 	import { decrypt } from 'nostr-tools/nip49';
 	import { t } from '../../lib/i18n/index.svelte';
 	import { parseKeyInput } from '../../lib/key-input';
-	import StepHeader from './StepHeader.svelte';
+	import StepHeader from '../../lib/ui/StepHeader.svelte';
 
 	interface Props {
 		progress: { current: number; total: number };

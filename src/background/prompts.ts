@@ -13,8 +13,8 @@ import { addAccount, unlock } from '../lib/keystore';
 import { approve } from '../lib/approvals';
 
 const WIDTH = 400;
-// The import prompt adds the public key and the optional password fields.
-const HEIGHTS: Record<PromptDetails['kind'], number> = { connect: 640, import: 740 };
+// The import prompt's password step is its taller one.
+const HEIGHTS: Record<PromptDetails['kind'], number> = { connect: 640, import: 660 };
 
 interface PendingPrompt {
 	details: PromptDetails;
@@ -79,7 +79,7 @@ function finish(promptId: string, approved: boolean, closeWindow: boolean): void
 }
 
 // The secret key of an import prompt stays in the service worker; the prompt
-// window only receives the public key to show.
+// window never receives it.
 export async function requestPrompt(
 	details: PromptDetails,
 	pubkey: string,

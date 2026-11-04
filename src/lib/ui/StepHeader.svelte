@@ -9,7 +9,7 @@ Cadbos company. See LICENSE for complete terms.
 -->
 
 <script lang="ts">
-	import { ti } from '../../lib/i18n/index.svelte';
+	import { ti } from '../i18n/index.svelte';
 
 	interface Props {
 		progress: { current: number; total: number };

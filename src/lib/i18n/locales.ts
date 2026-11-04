@@ -17,8 +17,7 @@ export const ru = {
 	'common.close': 'Закрыть',
 
 	'welcome.title': 'Добро пожаловать',
-	'welcome.description':
-		'Расширение хранит ваш Nostr-ключ и подписывает вход в ИИ дизайн. Секретный ключ не покидает браузер.',
+	'welcome.description': 'Расширение хранит ваш секретный ключ и подписывает вход в ИИ дизайн.',
 	'welcome.create': 'Создать аккаунт в ИИ дизайн',
 	'welcome.createHint': 'Ключ создаётся на сайте, затем его можно добавить сюда',
 	'welcome.import': 'Добавить ключ',
@@ -33,14 +32,14 @@ export const ru = {
 	'auth.setup.download': 'Скачать файл',
 	'auth.setup.downloadHint': 'Будет скачан файл с парой ключей: публичным и секретным',
 	'auth.setup.ackSecretSaved': 'Я сохранил секретный ключ вне этого браузера',
-	'done.signIn': 'Вернуться в ИИ дизайн',
+	'done.signIn': 'Вернуться в приложение',
 	'auth.setup.fileName': 'ИИ дизайн-ключ-аккаунта.txt',
 	'auth.setup.fileTitle': 'Ключ аккаунта ИИ дизайн',
 	'auth.setup.fileWarning':
 		'Секретный ключ — единственный способ войти в этот аккаунт. ИИ дизайн не может его восстановить.',
 
 	'import.title': 'Добавление ключа',
-	'import.description': 'Вставьте секретный ключ nsec или загрузите файл с парой ключей.',
+	'import.description': 'Введите секретный ключ nsec или загрузите файл.',
 	'import.label': 'Секретный ключ',
 	'import.upload': 'Загрузить файл',
 	'import.invalid': 'Не удалось распознать ключ. Нужен секретный ключ nsec, а не публичный npub.',
@@ -50,20 +49,22 @@ export const ru = {
 
 	'password.title': 'Защита паролем',
 	'password.description':
-		'Пароль шифрует секретный ключ в этом браузере. Его нужно будет ввести после перезапуска браузера.',
-	'password.hint': 'Пароль нельзя восстановить, но секретный ключ останется в вашем файле.',
+		'Пароль шифрует секретный ключ в этом расширении браузера. Его нужно будет вводить после каждого перезапуска браузера.',
+	'password.hint':
+		'Пароль не обязателен. Без него ключ хранится в расширении браузера без шифрования.',
 	'password.new': 'Пароль',
 	'password.repeat': 'Повторите пароль',
 	'password.tooShort': 'Пароль должен быть не короче {min} символов',
 	'password.mismatch': 'Пароли не совпадают',
 	'password.wrong': 'Неверный пароль',
 	'password.save': 'Защитить паролем',
-	'password.skip': 'Без пароля',
+	'password.skip': 'Продолжить без пароля',
 	'password.encrypting': 'Шифрование…',
 	'password.saveFailed': 'Не удалось сохранить ключ. Попробуйте ещё раз.',
 
 	'done.title': 'Аккаунт готов',
-	'done.description': 'Ключ сохранён в расширении. Вход в ИИ дизайн теперь занимает один клик.',
+	'done.description':
+		'Секретный ключ сохранён в расширении. Вход в ИИ дизайн теперь занимает один клик.',
 	'done.openApp': 'Откройте ИИ дизайн и выберите вход через расширение.',
 
 	'unlock.label': 'Введите пароль, чтобы разблокировать ключ',
@@ -106,9 +107,7 @@ export const ru = {
 	'prompt.expired': 'Этот запрос уже не актуален.',
 	'prompt.importTitle': 'Сохранить ключ в расширении',
 	'prompt.importText':
-		'ИИ дизайн создал для вас ключ. Сохраните его в расширении, чтобы входить в один клик:',
-	'prompt.importPassword': 'Пароль необязателен. Без него ключ хранится в браузере без шифрования.',
-	'prompt.importSave': 'Сохранить и войти'
+		'В приложении вы создали ключ. Сохраните его в этом расширении, чтобы входить в один клик:'
 };
 
 export type Dictionary = Record<keyof typeof ru, string>;
@@ -122,8 +121,7 @@ export const en: Dictionary = {
 	'common.close': 'Close',
 
 	'welcome.title': 'Welcome',
-	'welcome.description':
-		'The extension keeps your Nostr key and signs your sign-in to AI design. The secret key never leaves the browser.',
+	'welcome.description': 'The extension keeps your secret key and signs your sign-in to AI design.',
 	'welcome.create': 'Create an account in AI design',
 	'welcome.createHint': 'The key is created on the site, then you can add it here',
 	'welcome.import': 'Add a key',
@@ -139,14 +137,14 @@ export const en: Dictionary = {
 	'auth.setup.download': 'Download file',
 	'auth.setup.downloadHint': 'Downloads a file with the key pair: the public and the secret key',
 	'auth.setup.ackSecretSaved': 'I saved the secret key outside this browser',
-	'done.signIn': 'Back to AI design',
+	'done.signIn': 'Back to the app',
 	'auth.setup.fileName': 'AI design-account-key.txt',
 	'auth.setup.fileTitle': 'AI design account key',
 	'auth.setup.fileWarning':
 		'The secret key is the only way into this account. AI design cannot restore it.',
 
 	'import.title': 'Add a key',
-	'import.description': 'Paste your nsec secret key or upload the key pair file.',
+	'import.description': 'Enter your nsec secret key or upload the key file.',
 	'import.label': 'Secret key',
 	'import.upload': 'Upload file',
 	'import.invalid':
@@ -157,21 +155,22 @@ export const en: Dictionary = {
 
 	'password.title': 'Password protection',
 	'password.description':
-		'The password encrypts the secret key in this browser. You will enter it after the browser restarts.',
-	'password.hint': 'The password cannot be restored, but your secret key stays in your file.',
+		'The password encrypts the secret key in this browser extension. You will enter it after every browser restart.',
+	'password.hint':
+		'The password is optional. Without it, the key is stored in the browser extension unencrypted.',
 	'password.new': 'Password',
 	'password.repeat': 'Repeat the password',
 	'password.tooShort': 'The password must be at least {min} characters',
 	'password.mismatch': 'The passwords do not match',
 	'password.wrong': 'Wrong password',
 	'password.save': 'Protect with password',
-	'password.skip': 'No password',
+	'password.skip': 'Continue without password',
 	'password.encrypting': 'Encrypting…',
 	'password.saveFailed': 'Could not save the key. Try again.',
 
 	'done.title': 'Your account is ready',
 	'done.description':
-		'The key is saved in the extension. Signing in to AI design now takes one click.',
+		'The secret key is saved in the extension. Signing in to AI design now takes one click.',
 	'done.openApp': 'Open AI design and choose to sign in with the extension.',
 
 	'unlock.label': 'Enter your password to unlock the key',
@@ -213,8 +212,5 @@ export const en: Dictionary = {
 	'prompt.expired': 'This request is no longer active.',
 	'prompt.importTitle': 'Save the key in the extension',
 	'prompt.importText':
-		'AI design created a key for you. Save it in the extension to sign in with one click:',
-	'prompt.importPassword':
-		'The password is optional. Without it, the key is stored in the browser unencrypted.',
-	'prompt.importSave': 'Save and sign in'
+		'You created a key in the app. Save it in this extension to sign in with one click:'
 };

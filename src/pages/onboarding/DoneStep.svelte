@@ -11,23 +11,7 @@ Cadbos company. See LICENSE for complete terms.
 <script lang="ts">
 	import { CircleCheck } from '@lucide/svelte';
 	import { t } from '../../lib/i18n/index.svelte';
-	import { account } from '../../lib/state/account.svelte';
-	import KeyRows from '../../lib/ui/KeyRows.svelte';
 	import { returnOrigin } from './return-origin.svelte';
-
-	const rows = $derived(
-		account.npub
-			? [
-					{
-						kind: 'public' as const,
-						label: t('auth.setup.publicLabel'),
-						value: account.npub,
-						copy: t('auth.setup.copyPublic'),
-						done: t('auth.setup.copiedPublic')
-					}
-				]
-			: []
-	);
 
 	// Brings back the AI design tab that sent the user here, or opens AI design
 	// at that address, and closes onboarding.
@@ -52,7 +36,6 @@ Cadbos company. See LICENSE for complete terms.
 	<span class="badge"><CircleCheck size={28} strokeWidth={1.8} aria-hidden="true" /></span>
 	<h1>{t('done.title')}</h1>
 	<p class="muted">{t('done.description')}</p>
-	<KeyRows {rows} />
 	{#if returnOrigin.value}
 		<button
 			type="button"

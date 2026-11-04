@@ -69,7 +69,7 @@ export type BridgeMessage =
 // prompt confirms saving a key AI design created and offers a password.
 export type PromptDetails =
 	| { kind: 'connect'; origin: string; approve: boolean; unlock: boolean }
-	| { kind: 'import'; origin: string; pubkey: string };
+	| { kind: 'import'; origin: string };
 
 export type PromptMessage =
 	| { kind: 'prompt:details'; promptId: string }

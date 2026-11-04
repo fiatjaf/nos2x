@@ -16,7 +16,7 @@ Cadbos company. See LICENSE for complete terms.
 	import { approve } from '../../lib/approvals';
 	import WelcomeStep from './WelcomeStep.svelte';
 	import ImportStep from './ImportStep.svelte';
-	import PasswordStep from './PasswordStep.svelte';
+	import PasswordStep from '../../lib/ui/PasswordStep.svelte';
 	import DoneStep from './DoneStep.svelte';
 	import { returnOrigin } from './return-origin.svelte';
 

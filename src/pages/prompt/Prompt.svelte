@@ -53,7 +53,7 @@ Cadbos company. See LICENSE for complete terms.
 			onanswer={answer}
 		/>
 	{:else if details?.kind === 'import'}
-		<ImportPrompt origin={details.origin} pubkey={details.pubkey} onanswer={answer} />
+		<ImportPrompt origin={details.origin} onanswer={answer} />
 	{:else}
 		{@render expiredNotice()}
 	{/if}

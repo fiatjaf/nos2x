@@ -9,9 +9,9 @@ Cadbos company. See LICENSE for complete terms.
 -->
 
 <script lang="ts">
-	import { t } from '../../lib/i18n/index.svelte';
-	import { passwordProblem } from '../../lib/password';
-	import PasswordFields from '../../lib/ui/PasswordFields.svelte';
+	import { t } from '../i18n/index.svelte';
+	import { passwordProblem } from '../password';
+	import PasswordFields from './PasswordFields.svelte';
 	import StepHeader from './StepHeader.svelte';
 
 	interface Props {
@@ -76,3 +76,9 @@ Cadbos company. See LICENSE for complete terms.
 		</button>
 	</div>
 </form>
+
+<style>
+	.actions {
+		grid-template-columns: auto 1fr;
+	}
+</style>
