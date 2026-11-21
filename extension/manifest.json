@@ -22,14 +22,16 @@
     {
       "run_at": "document_end",
       "matches": ["<all_urls>"],
-      "js": ["content-script.build.js"],
-      "all_frames": true
+      "js": ["content-script.build.js"]
     }
   ],
 
   "permissions": ["storage", "activeTab", "windows"],
 
   "optional_permissions": ["notifications"],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'"
+  },
   "web_accessible_resources": [
     {
       "resources": ["nostr-provider.js"],
