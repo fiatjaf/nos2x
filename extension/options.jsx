@@ -1,4 +1,4 @@
-import {bytesToHex, hexToBytes} from '@noble/hashes/utils'
+import {bytesToHex, hexToBytes} from '@noble/hashes/utils.js'
 import {getPublicKey} from 'nostr-tools'
 import * as nip19 from 'nostr-tools/nip19'
 import {decrypt, encrypt} from 'nostr-tools/nip49'
@@ -217,17 +217,29 @@ function Options() {
             <div style={{display: 'flex', gap: '10px'}}>
               <button
                 onClick={() => {
+                  if (!privKey) return
                   let {data} = nip19.decode(privKey)
                   let pub = getPublicKey(data)
+                  if (data instanceof Uint8Array) data.fill(0)
                   let npub = nip19.npubEncode(pub)
-                  window.open('https://nosta.me/' + npub)
+                  window.open(
+                    'https://nosta.me/' + npub,
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
                 }}
                 style={{cursor: 'pointer'}}
               >
                 browse your profile
               </button>
               <button
-                onClick={() => window.open('https://nosta.me/login/options')}
+                onClick={() =>
+                  window.open(
+                    'https://nosta.me/login/options',
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }
                 style={{cursor: 'pointer'}}
               >
                 edit your profile
@@ -418,7 +430,9 @@ function Options() {
     try {
       let {data} = nip19.decode(privKeyInput)
       let encrypted = encrypt(data, password, 16, 0x00)
+      if (data instanceof Uint8Array) data.fill(0)
       setPrivKeyInput(encrypted)
+      setPassword('')
       hidePrivateKey(false)
       setAskPassword(null)
     } catch (e) {
@@ -431,9 +445,14 @@ function Options() {
 
     try {
       let decrypted = decrypt(privKeyInput, password)
-      setPrivKeyInput(nip19.nsecEncode(decrypted))
+      let nsec = nip19.nsecEncode(decrypted)
+      let hexKey = bytesToHex(decrypted)
+      if (decrypted instanceof Uint8Array) decrypted.fill(0)
+      setPrivKeyInput(nsec)
+      setPrivKey(nsec)
+      setPassword('')
       browser.storage.local.set({
-        private_key: bytesToHex(decrypted)
+        private_key: hexKey
       })
 
       setTimeout(() => {
@@ -452,13 +471,22 @@ function Options() {
     let hexOrEmptyKey = privKeyInput
     try {
       let {type, data} = nip19.decode(privKeyInput)
-      if (type === 'nsec') hexOrEmptyKey = bytesToHex(data)
+      if (type === 'nsec') {
+        hexOrEmptyKey = bytesToHex(data)
+        if (data instanceof Uint8Array) data.fill(0)
+      }
     } catch (_) {}
     await browser.storage.local.set({
       private_key: hexOrEmptyKey
     })
     if (hexOrEmptyKey !== '') {
-      setPrivKeyInput(nip19.nsecEncode(hexToBytes(hexOrEmptyKey)))
+      let rawBytes = hexToBytes(hexOrEmptyKey)
+      let nsec = nip19.nsecEncode(rawBytes)
+      rawBytes.fill(0)
+      setPrivKeyInput(nsec)
+      setPrivKey(nsec)
+    } else {
+      setPrivKey(null)
     }
     showMessage('saved private key!')
   }
@@ -526,7 +554,18 @@ function Options() {
   }
 
   async function saveNostrProtocolHandlerSettings() {
-    await browser.storage.local.set({protocol_handler: protocolHandler})
+    let trimmed = protocolHandler.trim()
+    if (
+      trimmed !== '' &&
+      !trimmed.startsWith('https://') &&
+      !trimmed.startsWith('http://')
+    ) {
+      showMessage(
+        'INVALID PROTOCOL HANDLER! must start with https:// or http://.'
+      )
+      return
+    }
+    await browser.storage.local.set({protocol_handler: trimmed})
     showMessage('saved protocol handler!')
   }
 
