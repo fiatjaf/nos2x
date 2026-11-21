@@ -5,6 +5,17 @@ export const NO_PERMISSIONS_REQUIRED = {
   peekPublicKey: true
 }
 
+export const PAGE_CALLABLE_METHODS = new Set([
+  'getPublicKey',
+  'peekPublicKey',
+  'signEvent',
+  'nip04.encrypt',
+  'nip04.decrypt',
+  'nip44.encrypt',
+  'nip44.decrypt',
+  'replaceURL'
+])
+
 export const PERMISSION_NAMES = Object.fromEntries([
   ['getPublicKey', 'read your public key'],
   ['signEvent', 'sign events using your private key'],
@@ -14,10 +25,18 @@ export const PERMISSION_NAMES = Object.fromEntries([
   ['nip44.decrypt', 'decrypt messages from peers']
 ])
 
-function matchConditions(conditions, event) {
+export function matchConditions(conditions, event) {
   if (conditions?.kinds) {
-    if (event.kind in conditions.kinds) return true
-    else return false
+    if (
+      event &&
+      typeof event.kind === 'number' &&
+      Number.isInteger(event.kind) &&
+      event.kind >= 0 &&
+      Object.prototype.hasOwnProperty.call(conditions.kinds, String(event.kind))
+    ) {
+      return true
+    }
+    return false
   }
 
   return true
@@ -85,13 +104,19 @@ export async function updatePermission(host, type, accept, conditions) {
     created_at: Math.round(Date.now() / 1000)
   }
 
-  browser.storage.local.set({policies})
+  await browser.storage.local.set({policies})
 }
 
 export async function removePermissions(host, accept, type) {
   let {policies = {}} = await browser.storage.local.get('policies')
   delete policies[host]?.[accept]?.[type]
-  browser.storage.local.set({policies})
+  if (policies[host]?.[accept] && Object.keys(policies[host][accept]).length === 0) {
+    delete policies[host][accept]
+  }
+  if (policies[host] && Object.keys(policies[host]).length === 0) {
+    delete policies[host]
+  }
+  await browser.storage.local.set({policies})
 }
 
 export async function showNotification(host, answer, type, params) {
