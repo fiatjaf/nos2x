@@ -5,8 +5,18 @@ export class LRUCache {
     this.keys = []
   }
 
+  _zeroize(val) {
+    if (val instanceof Uint8Array) {
+      val.fill(0)
+    }
+  }
+
   clear() {
+    for (const val of this.map.values()) {
+      this._zeroize(val)
+    }
     this.map.clear()
+    this.keys = []
   }
 
   has(k) {
@@ -17,22 +27,35 @@ export class LRUCache {
     const v = this.map.get(k)
 
     if (v !== undefined) {
-      this.keys.push(k)
-
-      if (this.keys.length > this.maxSize * 2) {
-        this.keys.splice(-this.maxSize)
+      const idx = this.keys.indexOf(k)
+      if (idx !== -1) {
+        this.keys.splice(idx, 1)
       }
+      this.keys.push(k)
     }
 
     return v
   }
 
   set(k, v) {
+    if (this.map.has(k)) {
+      const existing = this.map.get(k)
+      if (existing !== v) {
+        this._zeroize(existing)
+      }
+      const idx = this.keys.indexOf(k)
+      if (idx !== -1) {
+        this.keys.splice(idx, 1)
+      }
+    }
+
     this.map.set(k, v)
     this.keys.push(k)
 
-    if (this.map.size > this.maxSize) {
-      this.map.delete(this.keys.shift())
+    while (this.map.size > this.maxSize && this.keys.length > 0) {
+      const oldest = this.keys.shift()
+      this._zeroize(this.map.get(oldest))
+      this.map.delete(oldest)
     }
   }
 }
